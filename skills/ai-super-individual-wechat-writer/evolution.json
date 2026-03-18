@@ -1,4 +1,6 @@
 {
+  "version": "1.1.0",
+  "last_updated": "2026-03-19",
   "preferences": [],
   "fixes": [
     "章节配图不应显示'章节1/2/3'等标题，应直接展示主体内容",
@@ -39,5 +41,27 @@
   "html_generation_rules": {
     "image_handling": "必须将Markdown图片标记![alt](path)转换为<img src='path' alt='alt'>标签",
     "image_path_resolution": "图片路径应相对于HTML文件位置解析"
-  }
+  },
+  "changelog": [
+    {
+      "version": "1.1.0",
+      "date": "2026-03-19",
+      "changes": [
+        "移除SKILL.md中重复的风格选择流程章节（10.0.1/10.0.2重复）",
+        "移除10.3.1章节与10.0章节重复的风格选择界面",
+        "移除10.4.1章节重复的API密钥配置标题",
+        "优化SKILL.md结构，提升可读性"
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "date": "2026-02-13",
+      "changes": [
+        "初始版本发布",
+        "整合封面图、信息图、章节配图三大系统",
+        "支持云雾API V4版本图片生成",
+        "添加品牌Logo智能识别与展示规则"
+      ]
+    }
+  ]
 }
