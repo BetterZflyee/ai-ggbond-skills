@@ -1680,10 +1680,6 @@ result = generator.generate(prompt=prompt, model=model, size="1280x720")
 
 #### 10.4.1 配置API密钥
 
-***
-
-#### 10.4.1 配置API密钥
-
 在使用云雾API生图前，必须先配置API密钥：
 
 ```bash
