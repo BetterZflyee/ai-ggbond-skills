@@ -1,6 +1,6 @@
 ***
 
-## name: ai-super-individual-wechat-writer
+## name: ai-ggbond-article-writer
 
 description: AI超级个体的公众号写作技能。从AI Native超级个体视角撰写微信公众号文章，涵盖AI产品拆解、场景解决方案、效率提升实战、产品方法论、行业观察。当用户说"写一篇关于XXX的文章"、"分析一下XXX产品"、"聊聊XXX"时使用。
 allowed-tools: WebSearch, WebFetch, Read, Write, Edit, Bash
@@ -1703,7 +1703,7 @@ export YUNWU_API_KEY="YOUR_API_KEY"
 
 ```python
 import sys
-sys.path.insert(0, r'f:\AI Workstation\AI\Super_OPC\.trae\skills\ai-super-individual-wechat-writer\scripts')
+sys.path.insert(0, r'f:\AI Workstation\AI\Super_OPC\.trae\skills\ai-ggbond-article-writer\scripts')
 
 from generate_images_v4 import generate_article_images
 

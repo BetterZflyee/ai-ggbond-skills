@@ -1,91 +1,11 @@
 ---
 name: wechat-sticker-creator
 description: 将用户输入内容转换为微信贴图（小红书风格）的完整工作流。包含内容总结、审核优化、标题生成、Markdown排版和配图生成。当用户说"转换微信贴图"、"生成小红书内容"、"做成贴图"时使用。
-version: 2.2.0
 ---
 
 # 微信贴图生成器
 
 将任意内容转换为适合微信朋友圈/小红书传播的贴图文案，包含完整的文案优化、标题生成和配图建议。
-
-## Script Directory
-
-将本文件目录解析为 `{baseDir}`，脚本统一使用 `{baseDir}/scripts/*.py`：
-
-| Script | Purpose |
-|--------|---------|
-| `scripts/sticker_manager.py` | 创建标准目录与 Markdown |
-| `scripts/generate_sticker_images_v2.py` | 生成贴图配图（推荐） |
-| `scripts/generate_images.py` | 兼容版配图脚本 |
-| `scripts/config_loader.py` | 配置加载工具（用户级/项目级） |
-
-## References
-
-- 工作流说明：[references/workflow.md](references/workflow.md)
-- 风格选择：[references/styles.md](references/styles.md)
-- 常见问题：[references/troubleshooting.md](references/troubleshooting.md)
-- 风格素材库：[assets/风格信息图检索.md](assets/风格信息图检索.md)
-
-## 配置说明（首次使用必读）
-
-### 配置加载优先级
-
-配置按以下优先级加载（高优先级覆盖低优先级）：
-
-| 优先级 | 来源 | 路径 | 说明 |
-|--------|------|------|------|
-| 1 | 环境变量 | `os.environ` | 系统环境变量 |
-| 2 | 项目级配置 | `./.ai-ggbond-skills/.env` | 当前项目目录 |
-| 3 | 用户级配置 | `~/.ai-ggbond-skills/.env` | 用户主目录 |
-
-### 首次使用配置
-
-**方式一：交互式配置向导（推荐）**
-
-```bash
-python {baseDir}/scripts/config_loader.py
-```
-
-**方式二：手动创建配置文件**
-
-```bash
-# 用户级配置（推荐，所有项目共享）
-mkdir -p ~/.ai-ggbond-skills
-cat > ~/.ai-ggbond-skills/.env << 'EOF'
-YUNWU_API_KEY=your-api-key-here
-YUNWU_BASE_URL=https://yunwu.ai
-YUNWU_DEFAULT_MODEL=gemini-3.1-flash-image-preview
-EOF
-
-# 项目级配置（适合团队协作）
-mkdir -p .ai-ggbond-skills
-cat > .ai-ggbond-skills/.env << 'EOF'
-YUNWU_API_KEY=your-api-key-here
-YUNWU_BASE_URL=https://yunwu.ai
-YUNWU_DEFAULT_MODEL=gemini-3.1-flash-image-preview
-EOF
-
-# 添加到 .gitignore（项目级配置时）
-echo ".ai-ggbond-skills/" >> .gitignore
-```
-
-### 可选配置项
-
-```bash
-# 输出目录（覆盖默认路径）
-WECHAT_STICKER_OUTPUT_DIR=./wechat_stickers
-
-# 默认水印文字
-WECHAT_STICKER_WATERMARK=你的水印
-
-# 默认图片比例: 1:1 | 16:9 | 3:4
-WECHAT_STICKER_RATIO=16:9
-
-# 默认风格
-WECHAT_STICKER_STYLE=vintage-journal
-```
-
----
 
 ## 核心工作流程（⭐严格按照以下步骤执行）
 
@@ -248,11 +168,10 @@ WECHAT_STICKER_STYLE=vintage-journal
 
 用户确认标题后，创建标准化的文件夹和文件结构：
 
-**基础路径**（默认）：
+**基础路径**：
 ```
-./wechat_stickers/
+F:\AI Workstation\AI\Super_OPC\SuperIp\wechat_stickers\
 ```
-可通过 `WECHAT_STICKER_OUTPUT_DIR` 或 `--output-dir` 覆盖默认输出位置。
 
 **文件夹命名格式**：
 ```
@@ -262,7 +181,7 @@ WECHAT_STICKER_STYLE=vintage-journal
 
 **完整文件结构**：
 ```
-./wechat_stickers/
+F:\AI Workstation\AI\Super_OPC\SuperIp\wechat_stickers\
 └── [年月日时分]-[标题]/
     ├── [年月日时分]-[标题].md      # 贴图文案主文件
     └── images/                      # 配图文件夹
@@ -272,7 +191,7 @@ WECHAT_STICKER_STYLE=vintage-journal
 
 **示例结构**：
 ```
-./wechat_stickers/
+F:\AI Workstation\AI\Super_OPC\SuperIp\wechat_stickers\
 └── 202603032305-真正会用AI的人都在偷偷践行这3点/
     ├── 202603032305-真正会用AI的人都在偷偷践行这3点.md
     └── images/
@@ -325,7 +244,7 @@ WECHAT_STICKER_STYLE=vintage-journal
 
 在生成配图前，必须先选择信息图风格，确保视觉风格与贴图内容、目标受众高度匹配。
 
-**📚 风格库参考**：`{baseDir}/assets/风格信息图检索.md`
+**📚 风格库参考**：`.trae/skills/wechat-sticker-creator/assets/风格信息图检索.md`
 
 **可选风格**（6种）：
 1. **高密度信息大图** - 实验室精密手册感 + 波普实验风格，适合干货/数据内容
@@ -538,17 +457,17 @@ WECHAT_STICKER_STYLE=vintage-journal
 
 ```bash
 # 查看可用风格
-python {baseDir}/scripts/generate_sticker_images_v2.py --list-styles
+python .trae/skills/wechat-sticker-creator/scripts/generate_sticker_images_v2.py --list-styles
 
 # 从Markdown文件自动生成配图（推荐）
-python {baseDir}/scripts/generate_sticker_images_v2.py \
+python .trae/skills/wechat-sticker-creator/scripts/generate_sticker_images_v2.py \
   --markdown "贴图文件.md" \
   --style "vintage-journal" \
-  --ratio "16:9" \
+  --ratio "1:1" \
   --watermark "你的水印"
 
 # 指定输出目录
-python {baseDir}/scripts/generate_sticker_images_v2.py \
+python .trae/skills/wechat-sticker-creator/scripts/generate_sticker_images_v2.py \
   --markdown "贴图文件.md" \
   --style "retro-pop" \
   --ratio "16:9" \
@@ -587,14 +506,14 @@ python {baseDir}/scripts/generate_sticker_images_v2.py \
 - `--ratio`, `-r`: 图片比例（1:1/16:9/3:4，⭐默认：16:9）
 - `--watermark`, `-w`: 水印文字（可选）
 - `--output-dir`, `-o`: 输出目录（默认：Markdown文件所在目录/images）
-- `--model`: 模型名称（默认：读取 `YUNWU_DEFAULT_MODEL`，未配置时为 `gemini-3.1-flash-image-preview`）
+- `--model`: 模型名称（默认：gpt-image-1）
 - `--list-styles`: 列出所有可用风格
 
 **Python API 使用方式**：
 
 ```python
 import sys
-sys.path.insert(0, r'{baseDir}/scripts')
+sys.path.insert(0, r'f:\AI Workstation\AI\Super_OPC\.trae\skills\wechat-sticker-creator\scripts')
 
 from generate_sticker_images_v2 import (
     generate_sticker_images_from_markdown,
@@ -607,7 +526,7 @@ from generate_sticker_images_v2 import (
 results = generate_sticker_images_from_markdown(
     markdown_path="贴图文件.md",
     style_name="vintage-journal",
-    ratio="16:9",
+    ratio="1:1",
     watermark="你的水印"
 )
 
@@ -622,7 +541,7 @@ result = generator.generate_sticker_image(
     title="图片标题",
     content="内容要点...",
     style=style,
-    ratio="16:9",
+    ratio="1:1",
     model="gpt-image-1"
 )
 
@@ -874,7 +793,7 @@ generator.save_image(
 **AI**：
 > 完美！现在生成Markdown文件和配图...
 > 
-> ✅ 文件已保存到：`./wechat_stickers/202603032305-真正会用AI的人都在偷偷践行这3点/`
+> ✅ 文件已保存到：`F:\AI Workstation\AI\Super_OPC\SuperIp\wechat_stickers\202603032305-真正会用AI的人都在偷偷践行这3点/`
 > 
 > 📄 文案已生成
 > 
@@ -943,7 +862,7 @@ generator.save_image(
 
 ### 文件结构检查
 - [ ] 文件夹命名格式是否正确 `[年月日时分]-[标题]`
-- [ ] 基础路径是否正确 `./wechat_stickers/`（或用户自定义目录）
+- [ ] 基础路径是否正确 `F:\AI Workstation\AI\Super_OPC\SuperIp\wechat_stickers\`
 - [ ] Markdown文件名是否与文件夹名一致
 - [ ] images文件夹是否创建
 - [ ] prompt.md是否生成
@@ -975,7 +894,7 @@ generator.save_image(
 5. **提示词与文章强相关**：每张图的提示词必须引用文章原文
 
 ### 文件输出规范（⭐重要）
-6. **基础路径默认**：`./wechat_stickers/`，可通过 `WECHAT_STICKER_OUTPUT_DIR` 或 `--output-dir` 覆盖
+6. **基础路径固定**：`F:\AI Workstation\AI\Super_OPC\SuperIp\wechat_stickers\`
 7. **文件夹命名格式**：`[年月日时分]-[标题]`（如：202603032305-真正会用AI的人都在偷偷践行这3点）
 8. **文件结构标准化**：
    - Markdown文件与文件夹同名
@@ -1030,7 +949,7 @@ generator.save_image(
 - 生成后必须验证比例是否正确
 
 **5. 文件输出标准化**
-- 默认使用 `./wechat_stickers/`，支持自定义输出目录
+- 使用固定基础路径：`F:\AI Workstation\AI\Super_OPC\SuperIp\wechat_stickers\`
 - 文件夹命名必须包含时间戳和标题
 - Markdown文件与文件夹同名，便于管理和查找
 - images子文件夹结构统一

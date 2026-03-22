@@ -32,18 +32,23 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# 导入配置加载器
-try:
-    from config_loader import load_all_env, apply_env_to_os, get_config_status
-    apply_env_to_os()
-except ImportError:
-    # 如果 config_loader 不存在，使用简单的环境变量加载
-    def load_all_env():
-        return dict(os.environ)
 
-# 加载配置并设置默认值
-_env = load_all_env()
-DEFAULT_MODEL = _env.get("YUNWU_DEFAULT_MODEL", "gemini-3.1-flash-image-preview")
+def load_env_file():
+    """加载环境变量文件"""
+    script_dir = Path(__file__).parent
+    env_file = script_dir.parent / ".env"
+    if env_file.exists():
+        with open(env_file, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    key = key.strip()
+                    value = value.strip()
+                    if key and value and key not in os.environ:
+                        os.environ[key] = value
+
+load_env_file()
 
 
 @dataclass
@@ -288,67 +293,36 @@ class ContentAnalyzer:
 
 class StickerImageGenerator:
     """贴图图片生成器 V2"""
-
+    
+    API_ENDPOINTS = [
+        "https://yunwu.ai/v1/images/generations",
+        "https://yunwu.zeabur.app/v1/images/generations",
+        "https://api.apiplus.org/v1/images/generations"
+    ]
+    
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or os.environ.get("YUNWU_API_KEY")
         if not self.api_key:
             raise ValueError("请设置 YUNWU_API_KEY 环境变量")
-        
-        # 获取基础URL，确保是纯净的 Base URL (不带 /v1, /images/generations)
-        base_url = (os.environ.get("YUNWU_BASE_URL", "https://yunwu.ai") or "https://yunwu.ai").strip().rstrip("/")
-        
-        # 清理 path
-        if base_url.endswith("/images/generations"):
-            base_url = base_url.replace("/images/generations", "")
-        if base_url.endswith("/v1"):
-            base_url = base_url[:-3]
-            
-        self.base_urls = [
-            base_url,
-            "https://api.apiplus.org"
-        ]
     
-    def _extract_image_url(self, result: Dict[str, Any]) -> Optional[str]:
-        """从API响应中提取图片URL或base64"""
-        # 1. OpenAI 格式 (data -> url/b64_json)
-        data = result.get("data", [])
-        if isinstance(data, list) and data:
-            first = data[0] if isinstance(data[0], dict) else {}
-            if first.get("url"):
-                return first["url"]
-            if first.get("b64_json"):
-                return f"data:image/png;base64,{first['b64_json']}"
-
-        # 2. Gemini 格式 (candidates -> content -> parts -> inlineData)
-        candidates = result.get("candidates", [])
-        for candidate in candidates:
-            content = candidate.get("content", {})
-            parts = content.get("parts", [])
-            for part in parts:
-                if not isinstance(part, dict):
-                    continue
-                inline_data = part.get("inlineData") or part.get("inline_data")
-                if isinstance(inline_data, dict) and inline_data.get("data"):
-                    mime_type = inline_data.get("mimeType", "image/png")
-                    return f"data:{mime_type};base64,{inline_data['data']}"
-                
-                # Gemini 有时也会返回 fileUri
-                file_data = part.get("fileData") or part.get("file_data")
-                if isinstance(file_data, dict) and file_data.get("fileUri"):
-                    return file_data["fileUri"]
-        
-        return None
-
     def generate(
         self,
         prompt: str,
-        model: str = DEFAULT_MODEL,
+        model: str = "gpt-image-1",
         size: str = "1024x1024",
         quality: str = "standard",
         max_retries: int = 3,
         timeout: int = 300
     ) -> ImageResult:
-        """生成图片，支持多种API格式自动切换"""
+        """生成图片，支持URL和base64两种返回格式"""
+        
+        data = {
+            "model": model,
+            "prompt": prompt,
+            "n": 1,
+            "size": size,
+            "quality": quality
+        }
         
         headers = {
             "Content-Type": "application/json",
@@ -356,84 +330,49 @@ class StickerImageGenerator:
         }
         
         last_error = None
-        
-        # 确定请求模式：如果模型名包含 gemini，优先尝试 gemini 模式，否则只尝试 openai 模式
-        # 但为了稳健，我们可以对 gemini 模型也尝试 openai 兼容接口
-        request_modes = ["openai"]
-        if "gemini" in model.lower():
-            request_modes = ["gemini", "openai"]
-            
         for attempt in range(max_retries):
-            for base_url in self.base_urls:
-                base_url = base_url.strip().rstrip("/")
-                
-                for mode in request_modes:
-                    try:
-                        if mode == "gemini":
-                            # Gemini 原生接口 (base_url + /v1beta/models/...)
-                            api_url = f"{base_url}/v1beta/models/{model}:generateContent"
-                            payload = {
-                                "contents": [{"parts": [{"text": prompt}]}],
-                                "generationConfig": {
-                                    "responseModalities": ["TEXT", "IMAGE"]
-                                }
-                            }
-                        else:
-                            # OpenAI 兼容接口
-                            if "gemini" in model.lower():
-                                 # 某些渠道支持通过 chat 接口画图
-                                 api_url = f"{base_url}/v1/chat/completions"
-                                 payload = {
-                                    "model": model,
-                                    "messages": [{"role": "user", "content": prompt}],
-                                    "temperature": 0.7
-                                 }
-                            else:
-                                # 标准 OpenAI 画图
-                                api_url = f"{base_url}/v1/images/generations"
-                                payload = {
-                                    "model": model,
-                                    "prompt": prompt,
-                                    "n": 1,
-                                    "size": size,
-                                    "quality": quality
-                                }
-
-                        logger.info(f"尝试生成 ({mode} mode): {api_url} (Attempt {attempt + 1})")
-                        
-                        response = requests.post(
-                            api_url,
-                            headers=headers,
-                            json=payload,
-                            timeout=timeout
-                        )
-                        
-                        if response.status_code == 200:
-                            result = response.json()
-                            image_url = self._extract_image_url(result)
-                            
-                            if image_url:
-                                if image_url.startswith("data:"):
-                                    return ImageResult(b64_data=image_url.split(",")[1], model=model)
-                                else:
-                                    return ImageResult(url=image_url, model=model)
-                            else:
-                                last_error = "响应中未找到图片数据"
-                        else:
-                            last_error = f"HTTP {response.status_code}: {response.text[:200]}"
-                            
-                    except Exception as e:
-                        last_error = str(e)
-                        logger.warning(f"请求失败: {last_error}")
+            for api_url in self.API_ENDPOINTS:
+                try:
+                    logger.info(f"尝试生成图片: {api_url} (尝试 {attempt + 1}/{max_retries})")
+                    response = requests.post(
+                        api_url,
+                        headers=headers,
+                        json=data,
+                        timeout=timeout
+                    )
                     
-                    time.sleep(1)
-
+                    if response.status_code == 200:
+                        result = response.json()
+                        if "data" in result and len(result["data"]) > 0:
+                            image_data = result["data"][0]
+                            
+                            # 检查返回的是URL还是base64
+                            if "url" in image_data:
+                                return ImageResult(
+                                    url=image_data["url"],
+                                    model=model
+                                )
+                            elif "b64_json" in image_data:
+                                return ImageResult(
+                                    b64_data=image_data["b64_json"],
+                                    model=model
+                                )
+                    else:
+                        last_error = f"HTTP {response.status_code}: {response.text[:200]}"
+                        logger.warning(f"API返回错误: {last_error}")
+                        
+                except Exception as e:
+                    last_error = str(e)
+                    logger.warning(f"请求异常: {last_error}")
+                
+                time.sleep(1)
+            
             if attempt < max_retries - 1:
                 wait_time = (attempt + 1) * 3
                 logger.info(f"等待 {wait_time} 秒后重试...")
                 time.sleep(wait_time)
         
-        raise RuntimeError(f"图片生成失败: {last_error}")
+        raise RuntimeError(f"图片生成失败，已尝试所有API端点: {last_error}")
     
     def generate_sticker_image(
         self,
@@ -441,7 +380,7 @@ class StickerImageGenerator:
         content: str,
         style: StickerStyle,
         ratio: str = "1:1",
-        model: str = DEFAULT_MODEL
+        model: str = "gpt-image-1"
     ) -> ImageResult:
         """生成贴图图片"""
         
@@ -639,7 +578,7 @@ def generate_sticker_images_from_markdown(
     ratio: str = "1:1",
     watermark: str = "",
     output_dir: Optional[str] = None,
-    model: str = DEFAULT_MODEL
+    model: str = "gpt-image-1"
 ) -> Dict[str, str]:
     """
     从Markdown文件生成贴图图片
@@ -774,14 +713,14 @@ def main():
     parser.add_argument('--style', '-s', default='vintage-journal',
                        choices=list(STICKER_STYLES.keys()),
                        help='信息图风格（默认: vintage-journal）')
-    parser.add_argument('--ratio', '-r', default='16:9',
+    parser.add_argument('--ratio', '-r', default='1:1',
                        choices=['1:1', '16:9', '3:4'],
-                       help='图片比例（默认: 16:9）')
+                       help='图片比例（默认: 1:1）')
     parser.add_argument('--watermark', '-w', default='',
                        help='水印文字')
     parser.add_argument('--output-dir', '-o', help='输出目录')
-    parser.add_argument('--model', default=os.environ.get('YUNWU_DEFAULT_MODEL', 'gemini-3.1-flash-image-preview'),
-                       help='模型名称（默认: YUNWU_DEFAULT_MODEL 或 gemini-3.1-flash-image-preview）')
+    parser.add_argument('--model', default='gpt-image-1',
+                       help='模型名称（默认: gpt-image-1）')
     parser.add_argument('--list-styles', action='store_true',
                        help='列出所有可用风格')
     
