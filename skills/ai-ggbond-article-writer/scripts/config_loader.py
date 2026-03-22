@@ -22,7 +22,7 @@ def get_config_dir(level: str = "user") -> Path:
     获取配置目录路径
 
     Args:
-        level: "user" 或 "project"
+        level: "user", "project" 或 "global"
 
     Returns:
         Path 对象
@@ -30,8 +30,22 @@ def get_config_dir(level: str = "user") -> Path:
     if level == "user":
         home = Path.home()
         return home / ".ai-ggbond-skills"
-    else:
+    elif level == "project":
         return Path.cwd() / ".ai-ggbond-skills"
+    elif level == "global":
+        # 全局项目配置目录（类似 .baoyu-skills）
+        script_dir = Path(__file__).resolve()
+        current = script_dir
+        for _ in range(10):
+            current = current.parent
+            global_config = current / ".ai-ggbond-skills"
+            if global_config.exists():
+                return global_config
+            if current.name == "Super_OPC" and (current / ".ai-ggbond-skills").exists():
+                return current / ".ai-ggbond-skills"
+        return Path("f:/AI Workstation/AI/Super_OPC") / ".ai-ggbond-skills"
+    else:
+        raise ValueError(f"Unknown level: {level}")
 
 
 def get_env_file_path(level: str = "user") -> Path:
@@ -104,9 +118,10 @@ def load_all_env() -> Dict[str, str]:
 
     优先级（高到低）：
     1. 系统环境变量 (os.environ)
-    2. 项目级配置: ./.ai-ggbond-skills/.env
-    3. 用户级配置: ~/.ai-ggbond-skills/.env
-    4. 技能目录配置: {skill_dir}/.env (向后兼容)
+    2. 全局项目配置: F:\AI Workstation\AI\Super_OPC\.ai-ggbond-skills\.env (类似 .baoyu-skills)
+    3. 项目级配置: ./.ai-ggbond-skills/.env (当前工作目录)
+    4. 用户级配置: ~/.ai-ggbond-skills/.env
+    5. 技能目录配置: {skill_dir}/.env (向后兼容)
 
     Returns:
         合并后的环境变量字典
@@ -121,6 +136,10 @@ def load_all_env() -> Dict[str, str]:
     # 加载项目级配置（覆盖用户级）
     project_env = load_env_file(get_env_file_path("project"))
     merged_env.update(project_env)
+
+    # 加载全局项目配置（类似 .baoyu-skills，最高优先级配置文件）
+    global_env = load_env_file(get_env_file_path("global"))
+    merged_env.update(global_env)
 
     # 系统环境变量最高优先级
     for key, value in os.environ.items():
