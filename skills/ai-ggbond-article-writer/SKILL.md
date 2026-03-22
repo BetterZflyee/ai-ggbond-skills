@@ -1680,10 +1680,41 @@ result = generator.generate(prompt=prompt, model=model, size="1280x720")
 
 #### 10.4.1 配置API密钥
 
-在使用云雾API生图前，必须先配置API密钥：
+在使用云雾API生图前，必须先配置API密钥。支持以下配置方式：
+
+**方式一：配置文件（推荐）**
 
 ```bash
-# Windows PowerShell（推荐）
+# 交互式配置向导
+python scripts/config_loader.py
+
+# 或手动创建用户级配置（所有项目共享）
+mkdir -p ~/.ai-ggbond-skills
+cat > ~/.ai-ggbond-skills/.env << 'EOF'
+YUNWU_API_KEY=your-api-key-here
+YUNWU_BASE_URL=https://yunwu.ai
+YUNWU_DEFAULT_MODEL=gemini-3.1-flash-image-preview
+EOF
+
+# 或手动创建项目级配置（适合团队协作）
+mkdir -p .ai-ggbond-skills
+cat > .ai-ggbond-skills/.env << 'EOF'
+YUNWU_API_KEY=your-api-key-here
+YUNWU_BASE_URL=https://yunwu.ai
+YUNWU_DEFAULT_MODEL=gemini-3.1-flash-image-preview
+EOF
+```
+
+**配置加载优先级**（高优先级覆盖低优先级）：
+1. 系统环境变量 (`os.environ`)
+2. 项目级配置: `./.ai-ggbond-skills/.env`
+3. 用户级配置: `~/.ai-ggbond-skills/.env`
+4. 技能目录配置: `{skill_dir}/.env` (向后兼容)
+
+**方式二：临时环境变量**
+
+```bash
+# Windows PowerShell
 $env:YUNWU_API_KEY="YOUR_API_KEY"
 
 # Windows CMD

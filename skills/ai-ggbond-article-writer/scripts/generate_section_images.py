@@ -9,15 +9,12 @@ import time
 from pathlib import Path
 from generate_images_v4 import YunwuImageGenerator
 
-# 加载环境变量
-env_file = Path(__file__).resolve().parent.parent / ".env"
-if env_file.exists():
-    with open(env_file, 'r', encoding='utf-8') as f:
-        for line in f:
-            line = line.strip()
-            if line and not line.startswith('#') and '=' in line:
-                key, value = line.split('=', 1)
-                os.environ[key.strip()] = value.strip()
+# 导入配置加载器
+try:
+    from config_loader import load_all_env, apply_env_to_os
+    apply_env_to_os()
+except ImportError:
+    pass  # 如果 config_loader 不存在，generate_images_v4 已经加载了环境变量
 
 api_key = os.environ.get('YUNWU_API_KEY')
 output_dir = Path(os.environ.get('SECTION_IMAGE_OUTPUT_DIR', str(Path(__file__).resolve().parent.parent / "outputs" / "section-images")))

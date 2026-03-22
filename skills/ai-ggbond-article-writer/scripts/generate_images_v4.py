@@ -30,21 +30,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def load_env_file():
-    script_dir = Path(__file__).parent
-    env_file = script_dir.parent / ".env"
-    if env_file.exists():
-        with open(env_file, 'r', encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith('#') and '=' in line:
-                    key, value = line.split('=', 1)
-                    key = key.strip()
-                    value = value.strip()
-                    if key and value and key not in os.environ:
-                        os.environ[key] = value
-
-load_env_file()
+# 导入配置加载器
+try:
+    from config_loader import load_all_env, apply_env_to_os
+    apply_env_to_os()
+except ImportError:
+    # 如果 config_loader 不存在，使用简单的环境变量加载
+    def load_all_env():
+        return dict(os.environ)
+    load_all_env()
 
 
 @dataclass
