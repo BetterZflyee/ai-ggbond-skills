@@ -15,6 +15,13 @@
 
 import os
 import sys
+
+# 强制禁用代理
+os.environ.pop('HTTP_PROXY', None)
+os.environ.pop('HTTPS_PROXY', None)
+os.environ.pop('http_proxy', None)
+os.environ.pop('https_proxy', None)
+
 import re
 import json
 import base64
@@ -40,6 +47,12 @@ except ImportError:
     # 如果 config_loader 不存在，使用简单的环境变量加载
     def load_all_env():
         return dict(os.environ)
+
+# 再次强制禁用代理（防止config_loader设置了代理）
+os.environ.pop('HTTP_PROXY', None)
+os.environ.pop('HTTPS_PROXY', None)
+os.environ.pop('http_proxy', None)
+os.environ.pop('https_proxy', None)
 
 # 加载配置并设置默认值
 _env = load_all_env()

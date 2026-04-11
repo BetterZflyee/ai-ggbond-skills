@@ -8,6 +8,7 @@
 优化点：
 1. 封面图：提升视觉冲击力，使用官方品牌Logo，专业级效果
 2. 信息图：强化图表逻辑关联，构建复杂深度结构，专业图标展示
+3. 风格选择：支持封面图和信息图的风格定制
 """
 
 import os
@@ -41,6 +42,14 @@ except ImportError:
     load_all_env()
 
 
+# 导入风格选择器
+try:
+    from style_selector import StyleSelector, STYLE_PRESETS
+except ImportError:
+    StyleSelector = None
+    STYLE_PRESETS = {}
+
+
 @dataclass
 class ImageResult:
     url: str
@@ -48,58 +57,115 @@ class ImageResult:
     created: int = 0
 
 
-def select_cover_strategy(title: str, brands: List[str], core_concept: str) -> Dict[str, str]:
+def select_cover_strategy(
+    title: str,
+    brands: List[str],
+    core_concept: str,
+    palette: Optional[str] = None,
+    rendering: Optional[str] = None
+) -> Dict[str, str]:
+    """
+    选择封面图策略
+    
+    Args:
+        palette: 指定的配色方案，如果提供则使用指定值
+        rendering: 指定的渲染风格，如果提供则使用指定值
+    """
     text = f"{title} {core_concept}".lower()
+    
+    # 如果提供了风格参数，直接使用
+    if palette and rendering:
+        return {
+            "palette": palette,
+            "rendering": rendering,
+            "composition": "根据指定风格自动适配构图",
+            "focus": "聚焦文章核心主题"
+        }
+    
+    # 自动检测策略
     if any(x in text for x in ["对比", "冲突", "争议", "辩论", "opinion", "versus", "vs"]):
         return {
-            "palette": "duotone",
-            "rendering": "screen-print",
+            "palette": palette or "duotone",
+            "rendering": rendering or "screen-print",
             "composition": "双主体对峙构图，强调对比张力",
             "focus": "高反差色块+负空间表达核心冲突"
         }
     if any(x in text for x in ["系统", "架构", "框架", "workflow", "流程", "architecture"]):
         return {
-            "palette": "cool",
-            "rendering": "digital",
+            "palette": palette or "cool",
+            "rendering": rendering or "digital",
             "composition": "中心枢纽+模块化分层构图",
             "focus": "结构关系清晰、视觉引导明确"
         }
     if any(x in text for x in ["故事", "成长", "复盘", "经历", "journey"]):
         return {
-            "palette": "warm",
-            "rendering": "hand-drawn",
+            "palette": palette or "warm",
+            "rendering": rendering or "hand-drawn",
             "composition": "主视觉偏左，右侧标题叙事",
             "focus": "情绪表达与场景氛围"
         }
     if brands:
         return {
-            "palette": "mono",
-            "rendering": "screen-print",
+            "palette": palette or "mono",
+            "rendering": rendering or "screen-print",
             "composition": "品牌锚点 + 抽象符号平衡布局",
             "focus": "强化识别但保持非广告化表达"
         }
     return {
-        "palette": "retro",
-        "rendering": "flat-vector",
+        "palette": palette or "retro",
+        "rendering": rendering or "flat-vector",
         "composition": "单核心主体 + 辅助信息层级",
         "focus": "主题聚焦和阅读入口清晰"
     }
 
 
-def select_infographic_layout(analysis: Dict[str, Any]) -> Dict[str, str]:
+def select_infographic_layout(
+    analysis: Dict[str, Any],
+    layout: Optional[str] = None,
+    style: Optional[str] = None
+) -> Dict[str, str]:
+    """
+    选择信息图布局
+    
+    Args:
+        layout: 指定的布局类型，如果提供则使用指定值
+        style: 指定的视觉风格，如果提供则使用指定值
+    """
+    # 如果提供了布局参数，直接使用
+    if layout:
+        layout_rules = {
+            "comparison-matrix": "左右或矩阵对照，统一评价维度",
+            "binary-comparison": "左右分屏对比，突出差异",
+            "winding-roadmap": "路径化叙事，节点递进+分支提示",
+            "linear-progression": "线性顺序展示，清晰流程",
+            "dense-modules": "高密度模块化拼版，分层标注主次信息",
+            "hub-spoke": "中心概念+辐射分支，显示依赖关系",
+            "hierarchical-layers": "主张-论据-细节三层递进",
+            "bento-grid": "模块化网格布局，多主题概览",
+            "structural-breakdown": "结构分解展示，内部细节",
+            "tree-branching": "树状分支结构，层级关系",
+        }
+        return {
+            "layout": layout,
+            "style": style or "craft-handmade",
+            "rule": layout_rules.get(layout, "根据内容自动适配布局规则")
+        }
+    
+    # 自动检测布局
     sections = analysis.get("sections", [])
     title = analysis.get("title", "")
     points_count = sum(len(s.get("points", [])) for s in sections)
     signals = f"{title} {' '.join(s.get('heading', '') for s in sections)}".lower()
+    
     if any(x in signals for x in ["对比", "vs", "优劣", "比较"]):
-        return {"layout": "comparison-matrix", "rule": "左右或矩阵对照，统一评价维度"}
+        return {"layout": "comparison-matrix", "style": style or "corporate-memphis", "rule": "左右或矩阵对照，统一评价维度"}
     if any(x in signals for x in ["流程", "步骤", "路线", "阶段"]):
-        return {"layout": "winding-roadmap", "rule": "路径化叙事，节点递进+分支提示"}
+        return {"layout": "winding-roadmap", "style": style or "craft-handmade", "rule": "路径化叙事，节点递进+分支提示"}
     if len(sections) >= 8 or points_count >= 20:
-        return {"layout": "dense-modules", "rule": "高密度模块化拼版，分层标注主次信息"}
+        return {"layout": "dense-modules", "style": style or "morandi-journal", "rule": "高密度模块化拼版，分层标注主次信息"}
     if any(x in signals for x in ["框架", "系统", "架构", "模型"]):
-        return {"layout": "hub-spoke", "rule": "中心概念+辐射分支，显示依赖关系"}
-    return {"layout": "hierarchical-layers", "rule": "主张-论据-细节三层递进"}
+        return {"layout": "hub-spoke", "style": style or "technical-schematic", "rule": "中心概念+辐射分支，显示依赖关系"}
+    return {"layout": "hierarchical-layers", "style": style or "craft-handmade", "rule": "主张-论据-细节三层递进"}
 
 
 def select_section_style(heading: str, points: List[str], index: int) -> Dict[str, str]:
@@ -472,7 +538,9 @@ class YunwuImageGenerator:
         brands: List[str] = None,
         core_concept: str = "",
         model: str = "gemini-3.1-flash-image-preview",
-        include_brand_logos: bool = False
+        include_brand_logos: bool = False,
+        palette: Optional[str] = None,
+        rendering: Optional[str] = None
     ) -> ImageResult:
         """
         生成高冲击力封面图
@@ -482,9 +550,12 @@ class YunwuImageGenerator:
         - 可选使用官方品牌Logo/图标（默认不包含）
         - 专业级视觉效果
         - 强制中文输出，确保文字清晰可读
+        - 支持自定义配色和渲染风格
         
         Args:
             include_brand_logos: 是否在封面中包含品牌Logo，默认为False
+            palette: 配色方案（如 warm, cool, elegant 等）
+            rendering: 渲染风格（如 hand-drawn, digital, flat-vector 等）
         """
         
         # 构建品牌元素描述（仅在明确要求时添加）
@@ -528,7 +599,13 @@ BRAND ELEMENTS:
 - Use universal symbols and imagery
 - Keep design clean and brand-neutral
 """
-        strategy = select_cover_strategy(title=title, brands=brands or [], core_concept=core_concept)
+        strategy = select_cover_strategy(
+            title=title,
+            brands=brands or [],
+            core_concept=core_concept,
+            palette=palette,
+            rendering=rendering
+        )
         seed = build_seed(title)
         
         prompt = f"""创建一张高冲击力的微信公众号封面图，具有震撼的视觉效果。
@@ -589,7 +666,9 @@ BRAND ELEMENTS:
     def generate_advanced_infographic(
         self,
         analysis: Dict[str, Any],
-        model: str = "gemini-3.1-flash-image-preview"
+        model: str = "gemini-3.1-flash-image-preview",
+        layout: Optional[str] = None,
+        style: Optional[str] = None
     ) -> ImageResult:
         """
         生成高级信息图 - 完整覆盖全文，复杂深度结构，强化逻辑关联
@@ -601,6 +680,11 @@ BRAND ELEMENTS:
         - 丰富的专业图标
         - 深度信息展示，信息密度最大化
         - 强制中文输出，确保内容与文章高度相关
+        - 支持自定义布局和视觉风格
+        
+        Args:
+            layout: 布局类型（如 dense-modules, hub-spoke 等）
+            style: 视觉风格（如 craft-handmade, morandi-journal 等）
         """
         
         title = analysis.get('title', '文章主题')
@@ -608,7 +692,7 @@ BRAND ELEMENTS:
         brands = analysis.get('brands', [])
         visual_flow = analysis.get('visual_flow', [])
         full_content_summary = analysis.get('full_content_summary', '')
-        layout_strategy = select_infographic_layout(analysis)
+        layout_strategy = select_infographic_layout(analysis, layout=layout, style=style)
         seed = build_seed(title, layout_strategy["layout"])
         
         # 构建章节结构描述（包含所有章节，而不仅是前6个）
@@ -949,7 +1033,11 @@ def generate_article_images(
     article_path: str,
     output_dir: Optional[str] = None,
     api_key: Optional[str] = None,
-    model: str = "gemini-3.1-flash-image-preview"
+    model: str = "gemini-3.1-flash-image-preview",
+    cover_palette: Optional[str] = None,
+    cover_rendering: Optional[str] = None,
+    infographic_layout: Optional[str] = None,
+    infographic_style: Optional[str] = None
 ) -> Dict[str, str]:
     """
     从文章生成高级配图 - V4版（中文优化版）
@@ -964,11 +1052,22 @@ def generate_article_images(
     - 所有提示词使用中文，强制输出简体中文
     - 章节配图基于文章实际内容生成，确保与章节主题高度相关
     - 添加内容关联性检查，避免生成与文章无关的通用图片
+    - 支持自定义封面图和信息图风格
     
     自动检测文章文件夹：
     - 如果文章在 YYYYMMDDHHMM-标题/ 文件夹内，图片保存到该文件夹的 images/ 子目录
     - 如果文章在根目录，查找匹配的文章文件夹
     - 如果都不存在，在文章同级创建 images/ 目录
+    
+    Args:
+        article_path: 文章文件路径
+        output_dir: 输出目录（可选）
+        api_key: API密钥（可选）
+        model: 使用的模型（默认 gemini-3.1-flash-image-preview）
+        cover_palette: 封面图配色方案（如 warm, cool, elegant 等）
+        cover_rendering: 封面图渲染风格（如 hand-drawn, digital 等）
+        infographic_layout: 信息图布局（如 dense-modules, hub-spoke 等）
+        infographic_style: 信息图视觉风格（如 craft-handmade, morandi-journal 等）
     """
     article_path = Path(article_path)
     if not article_path.exists():
@@ -1011,6 +1110,8 @@ def generate_article_images(
     # 1. 生成高冲击力封面图
     logger.info("\n" + "="*60)
     logger.info("生成高冲击力封面图（无品牌Logo，简洁设计）...")
+    if cover_palette or cover_rendering:
+        logger.info(f"封面图风格: 配色={cover_palette or '自动'}, 渲染={cover_rendering or '自动'}")
     logger.info("="*60)
     
     try:
@@ -1019,7 +1120,9 @@ def generate_article_images(
             brands=analysis.get('brands', []),
             core_concept=analysis.get('key_concepts', [''])[0] if analysis.get('key_concepts') else '',
             model=model,
-            include_brand_logos=False  # 默认不包含品牌Logo
+            include_brand_logos=False,  # 默认不包含品牌Logo
+            palette=cover_palette,
+            rendering=cover_rendering
         )
         
         cover_path = output_dir / "cover.png"
@@ -1035,12 +1138,16 @@ def generate_article_images(
     # 2. 生成高级信息图（16:9横版）
     logger.info("\n" + "="*60)
     logger.info("生成高级信息图（复杂深度结构，强化逻辑关联）...")
+    if infographic_layout or infographic_style:
+        logger.info(f"信息图风格: 布局={infographic_layout or '自动'}, 风格={infographic_style or '自动'}")
     logger.info("="*60)
-    
+
     try:
         infographic_result = generator.generate_advanced_infographic(
             analysis=analysis,
-            model=model
+            model=model,
+            layout=infographic_layout,
+            style=infographic_style
         )
         
         infographic_path = output_dir / "infographic.png"
@@ -1187,22 +1294,34 @@ def generate_article_images(
 def main():
     """命令行入口"""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description='云雾API图像生成器 - 公众号专业版 V4')
     parser.add_argument('--article', help='从文章Markdown文件生成配图')
     parser.add_argument('--output-dir', help='指定输出目录（默认: 文章目录/images）')
     parser.add_argument('-k', '--api-key', help='云雾API密钥')
     parser.add_argument('-m', '--model', default='gemini-3.1-flash-image-preview', help='模型名称')
-    
+
+    # 封面图风格参数
+    parser.add_argument('--cover-palette', help='封面图配色方案 (warm, cool, elegant, dark, earth, vivid, pastel, mono, retro, duotone)')
+    parser.add_argument('--cover-rendering', help='封面图渲染风格 (flat-vector, hand-drawn, painterly, digital, pixel, chalk, screen-print)')
+
+    # 信息图风格参数
+    parser.add_argument('--infographic-layout', help='信息图布局 (dense-modules, hub-spoke, comparison-matrix, linear-progression, hierarchical-layers, bento-grid)')
+    parser.add_argument('--infographic-style', help='信息图视觉风格 (craft-handmade, morandi-journal, pop-laboratory, corporate-memphis, chalkboard, technical-schematic)')
+
     args = parser.parse_args()
-    
+
     if args.article:
         try:
             results = generate_article_images(
                 article_path=args.article,
                 output_dir=args.output_dir,
                 api_key=args.api_key,
-                model=args.model
+                model=args.model,
+                cover_palette=args.cover_palette,
+                cover_rendering=args.cover_rendering,
+                infographic_layout=args.infographic_layout,
+                infographic_style=args.infographic_style
             )
             print(f"\n生成结果:")
             for name, path in results.items():
