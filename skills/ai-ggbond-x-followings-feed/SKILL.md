@@ -2,7 +2,7 @@
 name: ai-ggbond-x-followings-feed
 version: 1.2.0
 author: "AI GGBond"
-license: MIT-0
+license: MIT
 description: |
   Auto-fetch latest tweets from your X/Twitter followings and generate structured AI digest. Supports custom time ranges: 1 day, 3 days, 7 days, or custom.
 

@@ -1,6 +1,7 @@
 {
   "name": "aiggbond-post-to-wechat-scripts",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "dependencies": {
     "@jsquash/webp": "^1.5.0",
