@@ -65,7 +65,7 @@ Markdown 文件 (含 ![alt](path) 图片引用)
 ## 快速使用
 
 ```bash
-cd ~/.ai-ggbond-skills/aiggbond-post-to-wechat/scripts
+cd ~/.hermes/skills/productivity/ai-ggbond-post-to-wechat/scripts
 
 npx -y bun wechat-api.ts \
   /path/to/article.md \
@@ -81,7 +81,7 @@ npx -y bun wechat-api.ts \
 
 ## 凭证配置
 
-存储在 `~/.ai-ggbond-skills/.env`：
+存储在 `~/.hermes/.env`：
 
 ```
 WECHAT_APP_ID=wx...
@@ -90,8 +90,7 @@ WECHAT_APP_SECRET=...
 
 检测顺序：
 1. 环境变量 `WECHAT_APP_ID` / `WECHAT_APP_SECRET`
-2. `<cwd>/.ai-ggbond-skills/.env`
-3. `~/.ai-ggbond-skills/.env`
+2. `~/.hermes/.env`（推荐，统一配置）
 
 ## ⚠️ IP 白名单问题
 
@@ -158,7 +157,7 @@ author: 作者名
 ## 环境检查
 
 ```bash
-cd ~/.ai-ggbond-skills/aiggbond-post-to-wechat/scripts
+cd ~/.hermes/skills/productivity/ai-ggbond-post-to-wechat/scripts
 npx -y bun check-permissions.ts
 ```
 
@@ -192,5 +191,5 @@ npx -y bun check-permissions.ts
 
 1. 用 `ai-ggbond-article-writer` 生成文章 Markdown + 配图
 2. 确认 Markdown 中包含 `![alt](images/xxx.png)` 图片引用
-3. 用 `aiggbond-post-to-wechat` 推送到公众号草稿箱
+3. 用 `ai-ggbond-post-to-wechat` 推送到公众号草稿箱
 4. 在公众号后台预览、调整、发布

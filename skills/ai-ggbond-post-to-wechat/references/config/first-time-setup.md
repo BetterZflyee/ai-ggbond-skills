@@ -172,7 +172,7 @@ default_color: [preset name, hex, or empty for theme default]
 
 accounts:
   - name: [display name]
-    alias: [short key, e.g. "baoyu"]
+    alias: [short key, e.g. "ai-ggbond"]
     default: true
     default_publish_method: [api/browser]
     default_author: [author name]

@@ -1,6 +1,6 @@
-# aiggbond-post-to-wechat 踩坑记录
+# ai-ggbond-post-to-wechat 踩坑记录
 
-> 版本：v2.0 | 更新日期：2026-05-11
+> 版本：v2.0 | 更新日期：2026-05-15
 
 ---
 
@@ -85,7 +85,7 @@ curl -s ifconfig.me
 # 应显示 VPS 的固定 IP（如 159.75.220.145）
 
 # 3. 推送
-cd ~/.ai-ggbond-skills/aiggbond-post-to-wechat/scripts
+cd ~/.hermes/skills/productivity/ai-ggbond-post-to-wechat/scripts
 npx -y bun wechat-api.ts /path/to/article.md ...
 
 # 4. 用完关闭 exit node

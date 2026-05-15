@@ -19,7 +19,7 @@ default_color: blue
 
 accounts:
   - name: 宝玉的技术分享
-    alias: baoyu
+    alias: ai-ggbond
     default: true
     default_publish_method: api
     default_author: 宝玉
@@ -71,9 +71,9 @@ For the selected account with alias `{alias}`, try in this order (first hit wins
 ### .env Multi-Account Example
 
 ```bash
-# Account: baoyu
-WECHAT_BAOYU_APP_ID=your_wechat_app_id
-WECHAT_BAOYU_APP_SECRET=your_wechat_app_secret
+# Account: ai-ggbond
+WECHAT_AI_GGBOND_APP_ID=your_wechat_app_id
+WECHAT_AI_GGBOND_APP_SECRET=your_wechat_app_secret
 
 # Account: ai-tools
 WECHAT_AI_TOOLS_APP_ID=your_ai_tools_wechat_app_id
@@ -96,6 +96,6 @@ All publishing scripts accept `--account <alias>`:
 
 ```bash
 ${BUN_X} {baseDir}/scripts/wechat-api.ts <file> --theme default --account ai-tools
-${BUN_X} {baseDir}/scripts/wechat-article.ts --markdown <file> --theme default --account baoyu
-${BUN_X} {baseDir}/scripts/wechat-browser.ts --markdown <file> --images ./photos/ --account baoyu
+${BUN_X} {baseDir}/scripts/wechat-article.ts --markdown <file> --theme default --account ai-ggbond
+${BUN_X} {baseDir}/scripts/wechat-browser.ts --markdown <file> --images ./photos/ --account ai-ggbond
 ```
