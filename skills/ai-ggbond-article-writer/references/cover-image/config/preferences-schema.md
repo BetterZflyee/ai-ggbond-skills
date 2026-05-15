@@ -1,6 +1,6 @@
 ---
 name: preferences-schema
-description: EXTEND.md YAML schema for baoyu-cover-image user preferences
+description: EXTEND.md YAML schema for ai-ggbond-article-writer user preferences
 ---
 
 # Preferences Schema

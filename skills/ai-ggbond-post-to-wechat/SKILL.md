@@ -1,6 +1,6 @@
 ---
 name: ai-ggbond-post-to-wechat
-description: "推送文章到微信公众号（草稿箱）。支持 Markdown/HTML 输入，自动图片上传（正文内联 + 封面），主题样式，API 模式（推荐）和 Chrome CDP 模式（备用）。基于 baoyu-post-to-wechat 迭代，修复了图片处理、路径配置等关键问题。"
+description: "推送文章到微信公众号（草稿箱）。支持 Markdown/HTML 输入，自动图片上传（正文内联 + 封面），主题样式，API 模式（推荐）和 Chrome CDP 模式（备用）。支持 API 模式和 Chrome CDP 模式，含图片自动压缩、IP 白名单适配等。"
 ---
 
 # 推送到微信公众号 (ai-ggbond-post-to-wechat)

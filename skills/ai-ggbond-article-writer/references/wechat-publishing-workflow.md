@@ -5,7 +5,7 @@
 ```
 Markdown 文章 → ai-ggbond-article-writer (写作+配图)
                 ↓
-             baoyu-post-to-wechat (推送)
+             ai-ggbond-post-to-wechat (推送)
                 ↓
              Tailscale → VPS 固定 IP → 微信 API
                 ↓
@@ -22,7 +22,7 @@ Markdown 文章 → ai-ggbond-article-writer (写作+配图)
 ## 完整命令
 
 ```bash
-cd ~/.hermes/skills/baoyu-post-to-wechat/scripts
+cd ~/.hermes/skills/ai-ggbond-post-to-wechat/scripts
 
 bun run wechat-api.ts \
   /path/to/article.md \

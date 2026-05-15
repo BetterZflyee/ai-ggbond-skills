@@ -87,14 +87,14 @@ Check preferences and existing state, then ask ALL needed questions in ONE AskUs
 
 ```bash
 # macOS, Linux, WSL, Git Bash
-test -f .baoyu-skills/baoyu-article-illustrator/EXTEND.md && echo "project"
-test -f "$HOME/.baoyu-skills/baoyu-article-illustrator/EXTEND.md" && echo "user"
+test -f .ai-ggbond-skills/ai-ggbond-article-illustrator/EXTEND.md && echo "project"
+test -f "$HOME/.ai-ggbond-skills/ai-ggbond-article-illustrator/EXTEND.md" && echo "user"
 ```
 
 ```powershell
 # PowerShell (Windows)
-if (Test-Path .baoyu-skills/baoyu-article-illustrator/EXTEND.md) { "project" }
-if (Test-Path "$HOME/.baoyu-skills/baoyu-article-illustrator/EXTEND.md") { "user" }
+if (Test-Path .ai-ggbond-skills/ai-ggbond-article-illustrator/EXTEND.md) { "project" }
+if (Test-Path "$HOME/.ai-ggbond-skills/ai-ggbond-article-illustrator/EXTEND.md") { "user" }
 ```
 
 | Result | Action |
@@ -339,7 +339,7 @@ Check available skills. If multiple, ask user.
 
 | Skill Supports `--ref` | Action |
 |------------------------|--------|
-| Yes (e.g., baoyu-image-gen with Google) | Pass reference images via `--ref` |
+| Yes (e.g., ai-ggbond-image-gen with Google) | Pass reference images via `--ref` |
 | No | Convert to text description, append to prompt |
 
 **Verification**: Before generating, confirm reference processing:

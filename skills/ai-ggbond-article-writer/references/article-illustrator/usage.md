@@ -4,22 +4,22 @@
 
 ```bash
 # Auto-select type and style based on content
-/baoyu-article-illustrator path/to/article.md
+/ai-ggbond-article-illustrator path/to/article.md
 
 # Specify type
-/baoyu-article-illustrator path/to/article.md --type infographic
+/ai-ggbond-article-illustrator path/to/article.md --type infographic
 
 # Specify style
-/baoyu-article-illustrator path/to/article.md --style blueprint
+/ai-ggbond-article-illustrator path/to/article.md --style blueprint
 
 # Combine type and style
-/baoyu-article-illustrator path/to/article.md --type flowchart --style notion
+/ai-ggbond-article-illustrator path/to/article.md --type flowchart --style notion
 
 # Specify density
-/baoyu-article-illustrator path/to/article.md --density rich
+/ai-ggbond-article-illustrator path/to/article.md --density rich
 
 # Direct content input (paste mode)
-/baoyu-article-illustrator
+/ai-ggbond-article-illustrator
 [paste content]
 ```
 
@@ -52,15 +52,15 @@ Configure in EXTEND.md: `default_output_dir: illustrations-subdir`
 
 **Technical article with data**:
 ```bash
-/baoyu-article-illustrator api-design.md --type infographic --style blueprint
+/ai-ggbond-article-illustrator api-design.md --type infographic --style blueprint
 ```
 
 **Personal story**:
 ```bash
-/baoyu-article-illustrator journey.md --type scene --style warm
+/ai-ggbond-article-illustrator journey.md --type scene --style warm
 ```
 
 **Tutorial with steps**:
 ```bash
-/baoyu-article-illustrator how-to-deploy.md --type flowchart --density rich
+/ai-ggbond-article-illustrator how-to-deploy.md --type flowchart --density rich
 ```

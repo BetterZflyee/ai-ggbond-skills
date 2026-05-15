@@ -1,6 +1,6 @@
 ---
 name: first-time-setup
-description: First-time setup flow for baoyu-cover-image preferences
+description: First-time setup flow for ai-ggbond-article-writer preferences
 ---
 
 # First-Time Setup
@@ -150,17 +150,17 @@ header: "Save"
 question: "Where to save preferences?"
 options:
   - label: "Project (Recommended)"
-    description: ".baoyu-skills/ (this project only)"
+    description: ".ai-ggbond-skills/ (this project only)"
   - label: "User"
-    description: "~/.baoyu-skills/ (all projects)"
+    description: "~/.ai-ggbond-skills/ (all projects)"
 ```
 
 ## Save Locations
 
 | Choice | Path | Scope |
 |--------|------|-------|
-| Project | `.baoyu-skills/baoyu-cover-image/EXTEND.md` | Current project |
-| User | `~/.baoyu-skills/baoyu-cover-image/EXTEND.md` | All projects |
+| Project | `.ai-ggbond-skills/ai-ggbond-article-writer/EXTEND.md` | Current project |
+| User | `~/.ai-ggbond-skills/ai-ggbond-article-writer/EXTEND.md` | All projects |
 
 ## After Setup
 

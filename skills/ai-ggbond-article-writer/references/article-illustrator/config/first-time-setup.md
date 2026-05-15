@@ -1,6 +1,6 @@
 ---
 name: first-time-setup
-description: First-time setup flow for baoyu-article-illustrator preferences
+description: First-time setup flow for ai-ggbond-article-illustrator preferences
 ---
 
 # First-Time Setup
@@ -76,17 +76,17 @@ header: "Save"
 question: "Where to save preferences?"
 options:
   - label: "Project"
-    description: ".baoyu-skills/ (this project only)"
+    description: ".ai-ggbond-skills/ (this project only)"
   - label: "User"
-    description: "~/.baoyu-skills/ (all projects)"
+    description: "~/.ai-ggbond-skills/ (all projects)"
 ```
 
 ## Save Locations
 
 | Choice | Path | Scope |
 |--------|------|-------|
-| Project | `.baoyu-skills/baoyu-article-illustrator/EXTEND.md` | Current project |
-| User | `~/.baoyu-skills/baoyu-article-illustrator/EXTEND.md` | All projects |
+| Project | `.ai-ggbond-skills/ai-ggbond-article-illustrator/EXTEND.md` | Current project |
+| User | `~/.ai-ggbond-skills/ai-ggbond-article-illustrator/EXTEND.md` | All projects |
 
 ## After Setup
 
