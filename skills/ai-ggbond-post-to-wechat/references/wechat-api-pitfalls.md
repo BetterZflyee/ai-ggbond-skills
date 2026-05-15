@@ -1,4 +1,4 @@
-# aiggbond-post-to-wechat 踩坑记录
+# ai-ggbond-post-to-wechat 踩坑记录
 
 > 版本：v2.0 | 更新日期：2026-05-11
 

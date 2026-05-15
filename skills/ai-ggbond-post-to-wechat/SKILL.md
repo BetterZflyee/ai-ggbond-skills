@@ -1,9 +1,9 @@
 ---
-name: aiggbond-post-to-wechat
+name: ai-ggbond-post-to-wechat
 description: "推送文章到微信公众号（草稿箱）。支持 Markdown/HTML 输入，自动图片上传（正文内联 + 封面），主题样式，API 模式（推荐）和 Chrome CDP 模式（备用）。基于 baoyu-post-to-wechat 迭代，修复了图片处理、路径配置等关键问题。"
 ---
 
-# 推送到微信公众号 (aiggbond-post-to-wechat)
+# 推送到微信公众号 (ai-ggbond-post-to-wechat)
 
 ## 概述
 
@@ -60,7 +60,7 @@ Markdown 文件 (含 ![alt](path) 图片引用)
 ## 快速使用
 
 ```bash
-cd ~/.ai-ggbond-skills/aiggbond-post-to-wechat/scripts
+cd ~/.ai-ggbond-skills/ai-ggbond-post-to-wechat/scripts
 
 npx -y bun wechat-api.ts \
   /path/to/article.md \
@@ -113,7 +113,7 @@ tailscale up --exit-node=100.xxx.xxx.xxx --accept-routes
 curl -s ifconfig.me  # 应显示 159.75.220.145
 
 # 推送
-cd ~/.ai-ggbond-skills/aiggbond-post-to-wechat/scripts
+cd ~/.ai-ggbond-skills/ai-ggbond-post-to-wechat/scripts
 npx -y bun wechat-api.ts /path/to/article.md --cover images/cover.png
 
 # 用完关闭
@@ -166,7 +166,7 @@ npx -y bun wechat-api.ts <file> [options]
 
 1. 用 `ai-ggbond-article-writer` 生成文章 Markdown + 配图
 2. **🔴 确认 Markdown 中包含 `![alt](images/xxx.png)` 图片引用**
-3. 用 `aiggbond-post-to-wechat` 推送到公众号草稿箱
+3. 用 `ai-ggbond-post-to-wechat` 推送到公众号草稿箱
 4. 在公众号后台预览、调整、发布
 
 ## 已知踩坑
