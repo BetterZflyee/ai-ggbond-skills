@@ -1,4 +1,4 @@
-# ai-ggbond-post-to-wechat 踩坑记录
+# aiggbond-post-to-wechat 踩坑记录
 
 > 版本：v2.0 | 更新日期：2026-05-11
 
@@ -8,7 +8,11 @@
 
 ### 症状
 
-推送成功，但公众号草稿里**只有封面图，正文没有图片**。脚本日志显示：`Placeholder images: 0`
+推送成功，但公众号草稿里**只有封面图，正文没有图片**。脚本日志显示：
+
+```
+Placeholder images: 0
+```
 
 ### 根因
 
@@ -52,6 +56,12 @@ ls images/*.png | while read f; do
 done
 ```
 
+### 正确流程
+
+```
+生成文章 → 确认 images/ 目录有图 → 在 Markdown 中插入 ![alt](images/xxx.png) → 推送
+```
+
 ---
 
 ## 问题 2：IP 白名单限制（错误码 40164）
@@ -67,19 +77,36 @@ done
 **动态 IP 环境 → Tailscale exit node 走固定 IP VPS：**
 
 ```bash
-# 激活 exit node
+# 1. 激活 exit node
 tailscale up --exit-node=<vps-tailscale-ip> --accept-routes
 
-# 验证出口 IP
-curl -s ifconfig.me  # 应显示 VPS 的固定 IP
+# 2. 验证出口 IP
+curl -s ifconfig.me
+# 应显示 VPS 的固定 IP（如 159.75.220.145）
 
-# 推送完成后关闭
+# 3. 推送
+cd ~/.ai-ggbond-skills/aiggbond-post-to-wechat/scripts
+npx -y bun wechat-api.ts /path/to/article.md ...
+
+# 4. 用完关闭 exit node
 tailscale up --exit-node=
 ```
+
+### 注意
+
+- 每次推送前都要 `curl -s ifconfig.me` 确认出口 IP
+- 如果 VPS 重启了，Tailscale exit node 可能需要重新配置
+- 微信公众号 IP 白名单最多 5 个 IP
 
 ---
 
 ## 问题 3：文件路径参数格式
+
+### 症状
+
+`bun run wechat-api.ts --markdown article.md` 报错：`Error: File path required`
+
+### 原因
 
 文件路径是**第一个位置参数**，不是 `--markdown` flag。
 
@@ -95,38 +122,81 @@ npx -y bun wechat-api.ts --markdown article.md
 
 ## 问题 4：图片格式/大小问题
 
-脚本内置自动处理：
+### 症状
+
+上传失败或图片显示异常。
+
+### 解决方案
+
+脚本内置了自动处理：
 - **格式转换**：WebP/BMP/TIFF → PNG/JPEG（自动）
 - **大小压缩**：超过 1MB 自动压缩（先降质量，再缩尺寸）
 - **透明度处理**：PNG 透明背景自动叠加白色背景
 
----
-
-## 问题 5：推送成功但公众号后台看不到
-
-API 模式推送到的是**草稿箱**，不是直接发布。需要在公众号后台 → 内容管理 → 草稿箱中找到并发布。
-
----
-
-## 问题 6：封面图不显示
-
-封面图必须通过 `--cover` 参数单独指定：
+如果自动处理失败，手动预处理：
 
 ```bash
-npx -y bun wechat-api.ts article.md --cover images/cover.png
+# macOS 用 sips 转换格式
+sips -s format png image.webp --out image.png
+
+# 或者用 ImageMagick
+convert image.webp image.png
 ```
 
 ---
 
-## 问题 7：Tailscale exit node 不生效
+## 问题 5：Tailscale exit node 不生效
+
+### 症状
+
+`tailscale up --exit-node=<ip>` 后 `curl ifconfig.me` 仍然显示本地 IP。
+
+### 解决方案
 
 ```bash
 # 检查 exit node 状态
 tailscale exit-node list
 
-# 重新设置
+# 重新设置（注意格式）
 tailscale up --exit-node=100.xxx.xxx.xxx --accept-routes
 
-# 验证
+# 如果仍然不生效，检查 DNS
+nslookup ifconfig.me
+
+# 或者用其他方式验证
 curl -s https://api.ipify.org
+```
+
+---
+
+## 问题 6：推送成功但公众号后台看不到
+
+### 原因
+
+API 模式推送到的是**草稿箱**，不是直接发布。
+
+### 解决方案
+
+1. 登录公众号后台 → 内容管理 → 草稿箱
+2. 找到刚推送的文章
+3. 预览 → 确认图片和排版 → 发布
+
+---
+
+## 问题 7：封面图不显示
+
+### 症状
+
+推送成功，封面图位置是空白。
+
+### 原因
+
+封面图必须通过 `--cover` 参数单独指定，且必须是本地文件路径或可访问的 URL。
+
+```bash
+# ✅ 正确：本地封面图
+npx -y bun wechat-api.ts article.md --cover images/cover.png
+
+# ❌ 错误：没有指定封面图
+npx -y bun wechat-api.ts article.md
 ```

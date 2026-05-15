@@ -1,13 +1,19 @@
 ---
-name: ai-ggbond-post-to-wechat
-description: "推送文章到微信公众号（草稿箱）。支持 Markdown/HTML 输入，自动图片上传（正文内联 + 封面），主题样式，API 模式（推荐）和 Chrome CDP 模式（备用）。支持 API 模式和 Chrome CDP 模式，含图片自动压缩、IP 白名单适配等。"
+name: aiggbond-post-to-wechat
+description: "推送文章到微信公众号（草稿箱）。支持 Markdown/HTML 输入，自动图片上传（正文内联 + 封面），主题样式，API 模式（推荐）和 Chrome CDP 模式（备用）。"
+version: "2.0.0"
+author: "AI朱朱侠 (基于 JimLiu/baoyu-skills 迭代)"
+metadata:
+  hermes:
+    tags: [wechat, publishing, article, draft, api, feishu]
+    original_repo: https://github.com/JimLiu/baoyu-skills/tree/main/skills/baoyu-post-to-wechat
 ---
 
-# 推送到微信公众号 (ai-ggbond-post-to-wechat)
+# 推送到微信公众号 (aiggbond-post-to-wechat)
 
 ## 概述
 
-将文章推送到微信公众号草稿箱。两种方式：
+将文章推送到微信公众号草稿箱。支持两种方式：
 
 | 方式 | 速度 | 要求 | 适用场景 |
 |------|------|------|----------|
@@ -60,7 +66,7 @@ Markdown 文件 (含 ![alt](path) 图片引用)
 ## 快速使用
 
 ```bash
-cd ~/.ai-ggbond-skills/ai-ggbond-post-to-wechat/scripts
+cd ~/.ai-ggbond-skills/aiggbond-post-to-wechat/scripts
 
 npx -y bun wechat-api.ts \
   /path/to/article.md \
@@ -88,7 +94,9 @@ WECHAT_APP_SECRET=...
 2. `<cwd>/.ai-ggbond-skills/.env`
 3. `~/.ai-ggbond-skills/.env`
 
-## ⚠️ IP 白名单问题（动态 IP → Tailscale exit node）
+## ⚠️ IP 白名单问题
+
+微信 API 要求调用方 IP 在公众号的 IP 白名单中。如果机器是**动态公网 IP**，用 **Tailscale exit node** 走固定 IP VPS：
 
 ```
 Mac Mini (动态 IP) → Tailscale → VPS (固定 IP 159.75.220.145) → 微信 API
@@ -103,21 +111,12 @@ Mac Mini (动态 IP) → Tailscale → VPS (固定 IP 159.75.220.145) → 微信
 5. 将 VPS 的固定公网 IP 加入微信公众号 IP 白名单
 6. 验证：`curl -s ifconfig.me` 应显示 VPS 的 IP
 
-### 推送时操作
+### 检查 Tailscale 状态
 
 ```bash
-# 激活 exit node
-tailscale up --exit-node=100.xxx.xxx.xxx --accept-routes
-
-# 验证出口 IP
-curl -s ifconfig.me  # 应显示 159.75.220.145
-
-# 推送
-cd ~/.ai-ggbond-skills/ai-ggbond-post-to-wechat/scripts
-npx -y bun wechat-api.ts /path/to/article.md --cover images/cover.png
-
-# 用完关闭
-tailscale up --exit-node=
+tailscale status          # 查看节点列表
+tailscale exit-node list  # 查看可用 exit node
+curl -s ifconfig.me       # 验证当前出口 IP
 ```
 
 ## 主题选项
@@ -135,7 +134,7 @@ npx -y bun wechat-api.ts <file> [options]
   file                Markdown (.md) 或 HTML (.html) 文件
 
 选项：
-  --type <type>       news（文章，默认）或 newspic（图文）
+  --type <type>       文章类型：news（文章，默认）或 newspic（图文）
   --title <title>     覆盖标题
   --author <name>     作者名（最多 16 字符）
   --summary <text>    摘要（最多 128 字符）
@@ -148,6 +147,24 @@ npx -y bun wechat-api.ts <file> [options]
   --help              帮助
 ```
 
+## Frontmatter 字段（Markdown）
+
+```yaml
+---
+title: 文章标题
+author: 作者名
+---
+```
+
+## 环境检查
+
+```bash
+cd ~/.ai-ggbond-skills/aiggbond-post-to-wechat/scripts
+npx -y bun check-permissions.ts
+```
+
+检查项：Chrome、Bun、API 凭证、剪贴板等。
+
 ## 脚本列表
 
 | 脚本 | 用途 |
@@ -158,22 +175,23 @@ npx -y bun wechat-api.ts <file> [options]
 | `md-to-wechat.ts` | Markdown → 微信 HTML |
 | `check-permissions.ts` | 环境检查 |
 | `wechat-image-processor.ts` | 图片压缩/格式转换 |
-| `preflight.ts` | 推送前预检（图片引用、文件存在、Tailscale 状态） |
 
-## 与 ai-ggbond-article-writer 配合
+## 参考文档
+
+| 文件 | 内容 |
+|------|------|
+| `references/api-setup.md` | 凭证配置指南 |
+| `references/article-posting.md` | 文章推送流程 |
+| `references/image-text-posting.md` | 图文帖参数 |
+| `references/multi-account.md` | 多账号支持 |
+| `references/wechat-api-setup.md` | Tailscale + IP 白名单配置 |
+| `references/wechat-api-pitfalls.md` | API 踩坑记录 |
+
+## 与 ai-ggbond-article-writer 配合使用
 
 典型工作流：
 
 1. 用 `ai-ggbond-article-writer` 生成文章 Markdown + 配图
-2. **🔴 确认 Markdown 中包含 `![alt](images/xxx.png)` 图片引用**
-3. 用 `ai-ggbond-post-to-wechat` 推送到公众号草稿箱
+2. 确认 Markdown 中包含 `![alt](images/xxx.png)` 图片引用
+3. 用 `aiggbond-post-to-wechat` 推送到公众号草稿箱
 4. 在公众号后台预览、调整、发布
-
-## 已知踩坑
-
-详见技能安装目录下的 `references/wechat-api-pitfalls.md`，包含 7 个已知问题及解决方案。
-
-关键踩坑：
-- **正文图片丢失**：Markdown 中没有 `![alt](path)` 引用
-- **IP 白名单 40164**：动态 IP 需要 Tailscale exit node
-- **文件路径格式**：文件是第一个位置参数，不是 `--markdown` flag
