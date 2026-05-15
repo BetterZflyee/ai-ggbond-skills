@@ -23,18 +23,35 @@ description: |
 
 Auto-fetch latest tweets from your followings and generate structured AI digest.
 
+**Hermes 路径:** `~/.hermes/skills/ai-ggbond-x-followings-feed/`
+**GitHub:** `github.com/BetterZflyee/ai-ggbond-skills/skills/ai-ggbond-x-followings-feed/`
+
 ## 快速开始 / Quick Start
 
 ### 1. 配置X授权 / Configure X Auth
+
+从浏览器提取 cookie：
+1. 登录 x.com
+2. 打开 DevTools → Application → Cookies → x.com
+3. 复制 `auth_token` 和 `ct0` 的值
 
 ```bash
 export AUTH_TOKEN="your_auth_token"
 export CT0="your_ct0"
 ```
 
+持久化到 Hermes 环境（推荐）：
+```bash
+echo 'AUTH_TOKEN=your_auth_token' >> ~/.hermes/.env
+echo 'CT0=your_ct0' >> ~/.hermes/.env
+# 重启 gateway 使生效
+```
+
+**安全提醒**：这两个 cookie 等同于你的 X 账号 session，不要转发给别人，配置完建议每隔几个月刷新一次。
+
 ### 2. 获取关注列表推文 / Fetch Tweets
 
-**⚠️ 关键纠正 / CRITICAL FIX：**
+**⚠️ 踩坑记录 / Pitfall：**
 
 原脚本使用 `bird following --json`，该命令返回的是**关注用户列表**（profile），不是推文内容。
 正确的命令是 `bird home --json -n <count>`，获取 Home Timeline 推文。
