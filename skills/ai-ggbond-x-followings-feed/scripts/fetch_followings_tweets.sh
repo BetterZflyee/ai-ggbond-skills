@@ -25,8 +25,8 @@ if ! curl -s -o /dev/null -w "" --max-time 5 https://x.com 2>/dev/null; then
     exit 1
 fi
 
-# 获取 Home Timeline 推文
-if ! TWEETS=$(bird home --json -n "$LIMIT" 2>/dev/null) || [ -z "$TWEETS" ]; then
+# 获取 Following 关注流推文（--following 获取关注列表，不加则获取推荐流）
+if ! TWEETS=$(bird home --following --json -n "$LIMIT" 2>/dev/null) || [ -z "$TWEETS" ]; then
     echo '{"error": "Failed to fetch tweets from home timeline"}' >&2
     exit 1
 fi

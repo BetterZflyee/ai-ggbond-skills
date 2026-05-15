@@ -1,6 +1,6 @@
 ---
 name: ai-ggbond-x-followings-feed
-version: 1.2.0
+version: 1.3.0
 author: "AI GGBond"
 license: MIT
 description: |
@@ -14,7 +14,7 @@ description: |
   **触发词：**
   - "总结关注列表", "X日报", "Twitter摘要", "过去3天的推文", "一周摘要"
 
-  **Prerequisites:** X auth via AUTH_TOKEN & CT0 env vars
+  **Prerequisites:** X auth via AUTH_TOKEN & CT0 env vars + Proxy (HTTPS_PROXY) for China users
 ---
 
 # X关注列表日报生成器 / X Followings Digest Generator
@@ -49,28 +49,52 @@ echo 'CT0=your_ct0' >> ~/.hermes/.env
 
 **安全提醒**：这两个 cookie 等同于你的 X 账号 session，不要转发给别人，配置完建议每隔几个月刷新一次。
 
-### 2. 获取关注列表推文 / Fetch Tweets
+### 2. 配置代理（中国大陆必需）
 
-**⚠️ 踩坑记录 / Pitfall：**
-
-原脚本使用 `bird following --json`，该命令返回的是**关注用户列表**（profile），不是推文内容。
-正确的命令是 `bird home --json -n <count>`，获取 Home Timeline 推文。
+在中国大陆，`x.com` 被 SNI 封锁，**必须通过代理**访问。
 
 ```bash
-# 获取最近推文（推荐方式）
-# 20条推文，默认
-bird home --json -n 20
+# 临时设置（替换为你的代理端口）
+export HTTPS_PROXY=http://127.0.0.1:7897  # Clash Verge 默认端口
 
-# 50条推文
-bird home --json -n 50
-
-# 也可以用脚本（脚本内部已修复为 bird home）
-./scripts/fetch_followings_tweets.sh        # 默认20条
-./scripts/fetch_followings_tweets.sh 50 1   # 50条, 最近1天
-./scripts/fetch_followings_tweets.sh 100 7  # 100条, 最近7天
+# 持久化到 Hermes（推荐）
+echo 'HTTPS_PROXY=http://127.0.0.1:7897' >> ~/.hermes/.env
 ```
 
-**注意：** `bird home` 返回的 JSON 中，每条推文包含 `text`, `author.username`, `author.name`, `createdAt`, `likeCount`, `retweetCount`, `replyCount` 等字段，以及可选的 `quotedTweet`（引用推文）。
+**验证代理可用**：
+```bash
+curl -I --max-time 5 -x http://127.0.0.1:7897 https://x.com
+# 应返回 HTTP 200 或 302
+```
+
+### 3. 获取关注列表推文 / Fetch Tweets
+
+**⚠️ 重要：使用 Python 脚本获取关注流（推荐）**
+
+bird CLI 不支持代理，且获取的是 "For You" 推荐流。**推荐使用 Python 脚本直接获取关注流**：
+
+```bash
+# 设置代理（中国大陆必需）
+export HTTPS_PROXY=http://127.0.0.1:7897
+
+# 获取关注流（推荐：分页获取更多数据）
+python3 ~/.hermes/skills/ai-ggbond-x-followings-feed/scripts/fetch_x_following_paginated.py 5
+# 参数：页数（默认3页，约120条推文；5页约200条）
+
+# 快速获取（单页约40条）
+python3 ~/.hermes/skills/ai-ggbond-x-followings-feed/scripts/fetch_x_timeline.py 40
+```
+
+**用户偏好**：飞哥希望获取尽可能多的关注流数据，不要只获取20条。建议默认使用分页脚本获取 3-5 页（120-200条推文）。
+
+**也可以用 bird CLI（不推荐，有局限）**：
+```bash
+# bird CLI 获取 "For You" 推荐流（不是关注流！）
+bird home --json -n 20
+
+# bird CLI 获取关注流（但不支持代理，中国大陆无法使用）
+bird home --following --json -n 20
+```
 
 ### 3. 生成日报 / Generate Digest
 
@@ -103,16 +127,55 @@ When calling the AI, specify output language in the prompt:
 
 ## 依赖 / Dependencies
 
-- `bird` CLI (X/Twitter client)
+- `bird` CLI (X/Twitter client) — **不支持代理，中国大陆需用 Python fallback**
 - `AUTH_TOKEN` & `CT0` from browser cookies
+- Python 3 + `requests` 库（作为 bird CLI 的代理环境 fallback）
 
 ## Pitfalls / 踩坑记录
 
-1. **`bird following` ≠ 推文**：`bird following --json` 返回的是关注用户列表（profile），不是推文内容。获取推文必须用 `bird home --json -n <count>`。
-2. **网络不通时 bird 会挂起30秒+**：如果 x.com 不可达（无VPN/代理），bird CLI 会超时。脚本已加入 `curl` 连通性预检，5秒内快速失败。
-3. **cookie 会过期**：AUTH_TOKEN 和 CT0 来自浏览器 session cookie，浏览器登出或 session 刷新后需要重新提取。
-4. **env 变量需 source**：`~/.hermes/.env` 中的变量需要 gateway 重启后才对 Hermes 生效；直接命令行使用需 `export` 或 `source`。
-5. **日期过滤是 best-effort**：脚本计算了 `SINCE_TIMESTAMP` 但 bird CLI 本身不支持时间过滤，实际过滤靠 AI 分析时判断推文日期。
+> **详细踩坑记录**：[references/x-api-pitfalls.md](references/x-api-pitfalls.md)
+
+**核心踩坑点**：
+
+1. **`bird home` ≠ 关注流**：`bird home` 获取的是 "For You" 推荐流（算法推荐），不是你关注的人的推文。必须加 `--following` 参数：`bird home --following --json -n <count>` 才能获取 "Following" 关注流。
+
+2. **bird CLI 不支持代理**：bird CLI 是 Node.js 脚本，使用原生 `fetch` API，**不响应** `HTTP_PROXY`/`HTTPS_PROXY` 环境变量。中国大陆必须使用 Python 脚本 fallback。
+
+3. **Following 流数据结构不同**：用户信息在 `.core` 不是 `.legacy`，解析时需兼容两种结构。
+
+4. **数据量偏好**：用户希望获取更多数据（120-200条），不要只获取 20-40 条。使用分页脚本 `fetch_x_following_paginated.py`。
+
+## Fallback: Python 直连 X GraphQL API（代理环境）
+
+当 bird CLI 不可用时（特别是需要代理的环境），使用 Python 脚本直接调用 X 的 GraphQL API：
+
+```bash
+# 设置代理并运行
+export HTTPS_PROXY=http://127.0.0.1:7897
+
+# 分页获取关注流（推荐，3页约120条，5页约200条）
+python3 ~/.hermes/skills/ai-ggbond-x-followings-feed/scripts/fetch_x_following_paginated.py 5
+
+# 单页快速获取（约40条）
+python3 ~/.hermes/skills/ai-ggbond-x-followings-feed/scripts/fetch_x_timeline.py 40
+```
+
+脚本位置：
+- `scripts/fetch_x_following_paginated.py` — 分页获取关注流（推荐）
+- `scripts/fetch_x_timeline.py` — 单页获取 For You 推荐流
+- `scripts/fetch_followings_tweets.sh` — bird CLI 封装（不支持代理）
+
+API 详情：
+- [references/x-api-pitfalls.md](references/x-api-pitfalls.md) — 踩坑记录与 API 细节
+- [references/x-graphql-api.md](references/x-graphql-api.md) — GraphQL API 文档
+
+## 写作与推广 / Writing & Positioning
+
+写文章或向他人介绍本 skill 时，可参考 `references/market-context.md`，包含：
+- X/Twitter API 市场现状与竞品对比
+- 信息聚合工具生态概览
+- 本 skill 的差异化定位与核心痛点
+- 适用人群画像
 
 ## 注意事项 / Notes
 
