@@ -61,12 +61,13 @@ Markdown 文件 (含 ![alt](path) 图片引用)
 
 ### 推送前必须检查清单
 
-1. ✅ Markdown 文件中每张图片都有 `![alt](images/xxx.png)` 引用
-2. ✅ 图片路径是相对于 Markdown 文件的相对路径
+1. ✅ Markdown 文件中每张图片都有 `![alt](images/xxx.png)` 引用；HTML 文件中 `<img src="images/xxx.png">` 相对路径存在
+2. ✅ 图片路径是相对于文章文件的相对路径
 3. ✅ 图片文件实际存在且非空
 4. ✅ 封面图通过 `--cover` 参数单独指定
 5. ✅ Tailscale exit node 已激活（动态 IP 环境）
 6. ✅ `curl -s ifconfig.me` 返回的是白名单 IP
+7. ✅ 飞哥公众号发布前必须做正文洁净度预检：不得出现 `建议阅读`、`点击右上角`、`全文核心信息图`、`配图：`、`图片说明`、`figcaption` 等可见模板/图注痕迹；详见 `references/wechat-clean-publish-preflight.md`
 
 ### ⚠️ 文章查找位置提醒
 
@@ -217,6 +218,7 @@ npx -y bun check-permissions.ts
 | `references/wechat-api-setup.md` | Tailscale + IP 白名单配置 |
 | `references/wechat-api-pitfalls.md` | API 踩坑记录 |
 | `references/session-2026-05-19-ai-tools-article-push.md` | 《AI工具的下半场》12图长文成功推送案例：dry-run、Tailscale IP 验证、中文路径 workdir 坑 |
+| `references/wechat-clean-publish-preflight.md` | 飞哥公众号发布前正文洁净度预检：拦截阅读元信息、图片图注、alt 可见化、卡片堆叠等问题 |
 
 ## 贴图发表（图文帖）注意事项
 
