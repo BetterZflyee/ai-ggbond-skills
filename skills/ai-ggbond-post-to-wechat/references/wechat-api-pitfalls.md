@@ -200,3 +200,53 @@ npx -y bun wechat-api.ts article.md --cover images/cover.png
 # ❌ 错误：没有指定封面图
 npx -y bun wechat-api.ts article.md
 ```
+
+---
+
+## 问题 8：newspic 类型推送报错 45166（invalid content hint）
+
+### 症状
+
+```json
+{"errcode": 45166, "errmsg": "invalid content hint: [SEdl8a083105-0]"}
+```
+
+使用 `--type newspic` 推送贴图时，API 模式报错。图片上传成功（cover media_id 正常返回），但最终发布失败。
+
+### 根因
+
+微信 API 对 `newspic`（贴图/图文）类型的内容校验比普通文章更严格，某些内容或格式会触发 `invalid content hint`。具体触发条件不完全明确，但与以下因素相关：
+- 内容涉及敏感话题（国际政治等）
+- 文本长度或格式不符合 newspic 类型要求
+- 图片数量与内容比例不匹配
+
+### 解决方案
+
+**降级到 Browser 模式**（`wechat-browser.ts`），它直接操作公众号后台编辑器，不受 API 内容校验限制：
+
+```bash
+cd ~/.hermes/skills/productivity/ai-ggbond-post-to-wechat/scripts
+
+npx -y bun wechat-browser.ts \
+  --markdown /path/to/article.md \
+  --images /path/to/images/ \
+  --submit
+```
+
+### Browser 模式注意事项
+
+1. **需要扫码登录**：脚本会打开 Chrome，提示用微信扫码登录公众号
+2. **标题自动压缩**：超过 20 字符会被截断
+3. **内容自动压缩**：超过 1000 字符会被截断
+4. **图片上限 9 张**：微信贴图限制
+5. **Chrome 需要关闭再开**：如果之前有 Chrome 实例，先 `pkill -f "Google Chrome"` 再运行
+6. **Chrome debug port 连接失败**：如果报 `Chrome debug port not ready`，先关闭所有 Chrome 进程再重试
+
+### 判断用哪种模式
+
+| 场景 | 推荐模式 | 原因 |
+|------|---------|------|
+| 普通文章（news） | API 模式 | 快速、不需要浏览器 |
+| 贴图（newspic）+ 无敏感内容 | API 模式 | 可能成功 |
+| 贴图（newspic）+ 45166 报错 | Browser 模式 | 绕过 API 校验 |
+| 贴图（newspic）+ 敏感话题 | Browser 模式 | 最可靠 |

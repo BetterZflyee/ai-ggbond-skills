@@ -1,123 +1,48 @@
-# 图片生成踩坑记录
+# 图片生成陷阱与解决方案
 
-> 实战中遇到的问题和解决方案，按出现频率排序。
-> 更新日期：2026-05-11
+## ⚠️ 超时问题（2026-05-18验证）
 
----
+**问题**：在单个 Python 脚本中生成 3+ 张图片时，总耗时超过 300 秒默认超时，脚本被强制终止。
 
-## 坑1：yunwu.ai gpt-image-2 持续限流（429）
-
-**表现**：三个 API 端点（yunwu.ai / api3.wai.vip / api.apiplus.org）同时返回 429 或"当前分组上游负载已饱和"。
-
-**根因**：gpt-image-2 走 Azure OpenAI Sweden Central，共享配额池，工作日上午容易饱和。`generate_images_v4.py` 脚本内置重试间隔太短（3秒），快速轮询端点会加剧限流。
+**根因**：每张 gpt-image-2 图片生成耗时约 90-130 秒，3 张 = 270-390 秒，容易超过 300 秒限制。
 
 **解决方案**：
-1. **降级到 gpt-image-1**（推荐）：质量接近，限流阈值更高，且走不同渠道
-2. **手动控制请求间隔**：每次请求间隔 **12秒以上**，避免连锁限流
-3. **直接调用 API**：用 `config_loader` 加载密钥后直接 `requests.post`，比脚本更可控
+- **每次最多生成 2 张图片**，分多轮执行
+- 封面图（2.35:1）单独一轮生成
+- 信息图（16:9）单独一轮生成
+- 章节配图每轮生成 2 张
+- 每轮之间间隔 3-5 秒
 
----
-
-## 坑2：gpt-image-1 尺寸参数不同于 gpt-image-2
-
-**表现**：`gpt-image-1` 传 `1792x1024` 报错 `Invalid size`。
-
-**gpt-image-1 支持的尺寸**：
-- `1024x1024`（正方形）
-- `1024x1536`（竖版 2:3）
-- `1536x1024`（横版 3:2）← **公众号封面/配图用这个**
-- `auto`
-
-**gpt-image-2 支持的尺寸**：
-- `1792x1024`（16:9 横版）
-- `1024x1792`（9:16 竖版）
-- `1024x1024`（正方形）
-- `auto`
-
-**教训**：降级模型时必须同步修改 size 参数。
-
----
-
-## 坑3：FAL_KEY 未配置
-
-**表现**：`image_generate` 工具报错 "FAL_KEY environment variable not set"。
-
-**解决方案**：在 `~/.ai-ggbond-skills/.env` 中添加 `FAL_KEY=your-key`，或继续使用 yunwu.ai API。
-
----
-
-## 坑4：API Key 被临时封禁
-
-**表现**：多次使用无效令牌后，返回"您多次使用无效令牌，请等待 120 秒后再试"。
-
-**根因**：通过 `execute_code` 工具提取 API Key 时，Hermes 会将密钥脱敏为 `***`，导致传入无效 Key。
-
-**解决方案**：始终在 `terminal` 工具中使用 `config_loader` 加载密钥，不要尝试从输出中提取 Key。
-
----
-
-## 降级调用模板（gpt-image-1）
-
-```python
-import os, requests, base64, time
-from config_loader import load_all_env, apply_env_to_os
-apply_env_to_os()
-
-api_key = os.environ.get('YUNWU_API_KEY')
-url = 'https://yunwu.ai/v1/images/generations'
-headers = {
-    'Authorization': f'Bearer {api_key}',
-    'Content-Type': 'application/json'
-}
-
-def gen_image(prompt, output_path, size='1536x1024'):
-    """生成单张图片，自动处理 URL 和 base64 两种响应格式"""
-    payload = {
-        'model': 'gpt-image-1',
-        'prompt': prompt,
-        'n': 1,
-        'size': size
-    }
-    resp = requests.post(url, headers=headers, json=payload, timeout=180)
-    if resp.status_code != 200:
-        print(f'❌ HTTP {resp.status_code}: {resp.text[:200]}')
-        return False
-    
-    data = resp.json()
-    img_data = data.get('data', [{}])[0]
-    img_url = img_data.get('url', '')
-    b64_data = img_data.get('b64_json', '')
-    
-    if img_url:
-        img_resp = requests.get(img_url, timeout=60)
-        with open(output_path, 'wb') as f:
-            f.write(img_resp.content)
-    elif b64_data:
-        with open(output_path, 'wb') as f:
-            f.write(base64.b64decode(b64_data))
-    else:
-        return False
-    return True
-
-# 批量生成时，每次间隔12秒
-images = [
-    ('prompt1...', 'images/cover.png'),
-    ('prompt2...', 'images/infographic.png'),
-]
-for prompt, path in images:
-    if gen_image(prompt, path):
-        print(f'✅ {path}')
-    time.sleep(12)  # 防限流
+**生成顺序建议**：
+```
+第1轮：cover.png + infographic.png（约 260 秒）
+第2轮：01-xxx.png + 02-xxx.png（约 260 秒）
+第3轮：03-xxx.png + 04-xxx.png（约 260 秒）
+...依此类推
 ```
 
----
+## 封面图尺寸
 
-## 端点优先级
+- 2.35:1 比例使用 `2304x1024`（不是 2350x1000，API 不支持该分辨率）
+- 16:9 比例使用 `1792x1024`
 
-| 端点 | 状态 | 备注 |
-|------|------|------|
-| `https://yunwu.ai` | 主站，限流最严 | gpt-image-2 高峰期不可用 |
-| `https://api3.wai.vip` | 国内服务器 | SSL 偶发问题 |
-| `https://api.apiplus.org` | CF站 | 超时较多 |
+## API 节点自动切换
 
-**建议**：默认用 yunwu.ai，失败后等待 12 秒重试，不要快速轮询。
+脚本会按优先级尝试：
+1. `https://yunwu.ai` - 主站
+2. `https://api3.wai.vip` - 国内服务器
+3. `https://api.apiplus.org` - CF 站
+
+如果主站返回 429/503，会自动切换到备用节点。
+
+## 中文文字质量
+
+- `gpt-image-2` 中文渲染效果最佳，是默认推荐模型
+- 提示词中必须包含"所有文字必须使用简体中文，确保中文文字清晰无乱码无变形"
+- 生成后检查文字清晰度，如有乱码立即重新生成
+
+## 飞哥配图风格偏好
+
+- 科技蓝扁平矢量 `#1E88E5`，拒绝手绘莫兰迪
+- 但信息图可以用手绘风格（手账风格）+ cool 配色
+- 配图风格必须统一：所有配图采用一致的选定风格

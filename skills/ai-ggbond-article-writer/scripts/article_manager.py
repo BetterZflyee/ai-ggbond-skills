@@ -21,9 +21,11 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional, Tuple, Dict, List
 
-# 配置
-ARTICLE_BASE_DIR = Path(r"F:\AI Workstation\AI\Super_OPC\SuperIp\Article")
-LOG_FILE = ARTICLE_BASE_DIR / "article_manager.log"
+# 配置 - 跨平台兼容
+# 优先使用环境变量，否则使用脚本所在目录的父目录
+_skill_dir = Path(__file__).parent.parent
+ARTICLE_BASE_DIR = Path(os.environ.get("ARTICLE_BASE_DIR", str(_skill_dir / "Article")))
+LOG_FILE = _skill_dir / "article_manager.log"
 
 # 设置日志
 logging.basicConfig(

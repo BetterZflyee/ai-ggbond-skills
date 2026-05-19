@@ -145,6 +145,8 @@ When calling the AI, specify output language in the prompt:
 
 4. **数据量偏好**：用户希望获取更多数据（120-200条），不要只获取 20-40 条。使用分页脚本 `fetch_x_following_paginated.py`。
 
+5. **飞书链接格式**：输出日报时，链接**不要用反引号包裹**。裸URL `https://x.com/...` 在飞书会自动识别为可点击超链接；反引号 `` `https://...` `` 会渲染成代码块，不可点击。已更新 `analyst_prompt_template.md` 中所有链接为裸URL格式。
+
 ## Fallback: Python 直连 X GraphQL API（代理环境）
 
 当 bird CLI 不可用时（特别是需要代理的环境），使用 Python 脚本直接调用 X 的 GraphQL API：
@@ -189,3 +191,9 @@ API 详情：
 - 脚本自动为每条推文和引用推文拼接 `url` 字段（格式: `https://x.com/{username}/status/{id}`）
 - Prompt 模板强制每条内容附带原推链接，不得省略
 - 网络预检：脚本会先 curl x.com 测试连通性，不通则快速报错（避免 bird 挂起 30 秒）
+- **飞书链接格式**：详见 [references/feishu-rendering.md](references/feishu-rendering.md) — 裸URL自动识别为超链接，反引号包裹会渲染为代码块（不可点击）
+- **汇总取舍**：默认优先整理最近 120–200 条中的高信号内容；纯 RT 仅在自身信息量高时保留。
+- **筛选策略**：优先保留含版本号、benchmark、价格、产品名、仓库/论文链接的内容；对泛泛观点做降权处理。
+- **避免终端输出截断**：分页脚本抓 5 页会产生 10万+ 字符 JSON，直接在终端展示容易被截断。生产流程应先重定向到 `/tmp/x_following_latest.json`，再用 Python/execute_code 解析、打分和精选，最后只输出高信号摘要。
+- **脚本笔记**：常见解析坑与精选规则见 [references/curation-heuristics.md](references/curation-heuristics.md)
+- **会话案例**：5页关注流抓取、避免 stdout 截断、Python精选与微信私聊摘要结构见 [references/session-2026-05-19-output-workflow.md](references/session-2026-05-19-output-workflow.md)

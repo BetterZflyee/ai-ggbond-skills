@@ -150,12 +150,9 @@
     正文内容。可以使用 <strong style="color: {{PRIMARY_COLOR}};">加粗强调</strong> 突出关键词。
   </p>
 
-  <!-- 图片 -->
+  <!-- 图片：发布版不显示图注/figcaption，alt 仅用于可访问性 -->
   <div style="text-align: center; margin: 30px 0;">
     <img src="[IMAGE_URL]" alt="描述" style="max-width: 100%; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-    <p style="font-size: 12px; color: #999; text-align: center; margin-top: 10px;">
-      图片说明
-    </p>
   </div>
 
   <!-- 底部CTA -->

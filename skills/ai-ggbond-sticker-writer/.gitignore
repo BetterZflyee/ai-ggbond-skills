@@ -1,0 +1,5 @@
+.env
+__pycache__/
+*.pyc
+wechat_stickers/
+output/
