@@ -1,6 +1,6 @@
 ---
 name: ai-ggbond-x-followings-feed
-version: 1.3.0
+version: 1.5.0
 author: "AI GGBond"
 license: MIT
 description: |
@@ -25,6 +25,8 @@ Auto-fetch latest tweets from your followings and generate structured AI digest.
 
 **Hermes 路径:** `~/.hermes/skills/ai-ggbond-x-followings-feed/`
 **GitHub:** `github.com/BetterZflyee/ai-ggbond-skills/skills/ai-ggbond-x-followings-feed/`
+
+**v1.5.0 更新：** 新增「🎯 个人视角」Personal Lens 汇总分析。日报末尾从 Hermes Memory 动态读取当前用户的身份、主线和偏好，生成定制化的信号解读与行动建议。**用户无关设计**：技能本身不硬编码任何用户状态，谁用就结合谁的 Memory — 飞哥用就是求职/制造业/IP，别人用就是别人的主线。每期日报不再只是信息搬运，而是当前用户的私人战略情报官。
 
 ## 快速开始 / Quick Start
 
@@ -102,6 +104,26 @@ bird home --following --json -n 20
 
 Feed the fetched tweets to the AI using the prompt template in `references/analyst_prompt_template.md`.
 
+**推荐流程 / Recommended workflow:**
+
+```bash
+# 1. 抓取推文到文件
+python3 ~/.hermes/skills/ai-ggbond-x-followings-feed/scripts/fetch_x_following_paginated.py 5 > /tmp/x_following_latest.json
+```
+
+```python
+# 2. 内联打分过滤（推荐：用 execute_code，逻辑可见可调）
+#    移除 RT、低信号，按 engagement + 信号关键词排序，取 top 50
+#    详见 references/curation-heuristics.md
+```
+
+```
+# 3. 基于过滤结果 + analyst_prompt_template.md 生成日报
+#    日报末尾自动追加「🎯 个人视角」— 从 Memory 读取用户状态生成
+```
+
+也可用 `scripts/curate_and_score.py` 做离线打分（`python3 .../curate_and_score.py /tmp/x_following_latest.json --top 50`），但推荐内联方式以便按场景调整信号权重。
+
 ## 输出格式 / Output Format
 
 日报包含以下分类（仅显示有内容的类别）：
@@ -114,6 +136,7 @@ Digest includes (only shows categories with content):
 - **🔗 资源汇总 / Resources** - 论文、开源项目、教程、工具 / Papers, OSS, tutorials, tools
 - **🎁 福利羊毛 / Deals & Freebies** - 免费额度、优惠、赠品 / Free credits, discounts, giveaways
 - **📊 舆情信号 / Signals** - 争议话题、预测、警告 / Controversies, predictions, warnings
+- **🎯 个人视角 / Personal Lens** - 从 Memory 动态读取当前用户状态，生成定制化信号解读与行动建议（用户无关设计，谁用就结合谁的记忆）— 详见 [references/curation-heuristics.md](references/curation-heuristics.md) § Memory-driven Personal Lens workflow
 
 ## 语言设置 / Language Setting
 

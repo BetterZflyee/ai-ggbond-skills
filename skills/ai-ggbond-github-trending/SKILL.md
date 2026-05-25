@@ -162,7 +162,27 @@ python /Users/admin/.hermes/skills/creative/ai-ggbond-github-trending/scripts/fe
 
 ## Cross-Agent User Profile Adaptation
 
-当本 Skill 被不同用户或不同 Agent 使用时，不要把某一个人的身份写死进分析。优先将 GitHub Trending 项目映射到**当前用户画像**：Hermes 可参考 `USER.md`/`MEMORY.md`，Claude Code 可参考 `CLAUDE.md`，OpenCode/Codex 可参考 `AGENTS.md` 或对应配置。若要实现跨 Agent 自动检测，先查看 `references/cross-agent-user-profile-adaptation.md`，并在修改前确认隐私边界、读取策略、优先级和是否保留私有模式。
+当本 Skill 被不同用户或不同 Agent 使用时，**不要把某一个人的身份写死进分析**。Skill 负责“怎么分析 GitHub Trending”，用户画像负责“为谁分析”。
+
+本 Skill 的默认产品边界已确认：
+
+1. **策略 + 脚本双层适配**：`SKILL.md` 要写清识别逻辑；脚本侧也应支持环境探测，且不要假设只存在 Hermes/Claude Code/Codex/OpenCode/OpenClaw，需保留未来 Agent 扩展位。
+2. **只检测，不读取隐私内容**：脚本默认只检测 profile / memory / instruction 文件是否存在，不自动读取内容；由当前 Agent 已注入上下文或用户明确授权决定是否读取。
+3. **三层上下文合并**：用户级 Profile 决定“为谁分析”，项目级 Context 决定“在什么项目语境里分析”，Skill 决定“怎么做分析”。多个 profile 同时存在时，不简单互相覆盖。
+4. **保留 AI朱朱侠 IP 名称**：继续迭代 `ai-ggbond-github-trending`，但内部分析逻辑要可迁移，不写死“飞哥专属”。
+5. **适配说明简短透明**：最终报告只简短显示“已按当前用户画像/当前 Agent 环境调整分析重点”，不要暴露具体 profile 路径或隐私内容。
+6. **无画像时用通用五类框架**：Developer value、Product value、Business value、Content value、Network value。
+
+常见 profile/context 探测位置（仅检测存在）：
+
+| Agent / Context | 用户级画像候选 | 项目级上下文候选 |
+|---|---|---|
+| Hermes Agent | `~/.hermes/memories/USER.md`, `~/.hermes/memories/MEMORY.md` | `AGENTS.md`, `CLAUDE.md`, project skills |
+| Claude Code | `~/.claude/CLAUDE.md`, `~/.claude/rules/*.md` | `./CLAUDE.md`, `./.claude/rules/*.md` |
+| Codex | 全局 instructions/上层 `AGENTS.md`（若存在） | `./AGENTS.md`, 子目录 `AGENTS.md` |
+| OpenCode/OpenClaw/Other | `~/.config/<agent>/AGENTS.md` 或工具配置 | `./AGENTS.md`, `./CLAUDE.md`, custom instructions |
+
+详细设计与后续实现记录见 `references/cross-agent-user-profile-adaptation.md`。
 
 ## Fallback Strategy
 

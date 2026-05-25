@@ -249,3 +249,4 @@ Memory 增强：
 ### 基于
 - 运营框架参考 `Xiangyu-CAS/xiaohongshu-ops`（MIT License）
 - 增强：Memory 集成、Hermes 适配、通用 Persona 系统
+- 设计原则详见 `references/design-principles.md`

@@ -82,7 +82,7 @@ tailscale up --exit-node=<vps-tailscale-ip> --accept-routes
 
 # 2. 验证出口 IP
 curl -s ifconfig.me
-# 应显示 VPS 的固定 IP（如 159.75.220.145）
+# 应显示 VPS 的固定 IP（如 43.156.151.87）
 
 # 3. 推送
 cd ~/.hermes/skills/productivity/ai-ggbond-post-to-wechat/scripts
@@ -250,3 +250,27 @@ npx -y bun wechat-browser.ts \
 | 贴图（newspic）+ 无敏感内容 | API 模式 | 可能成功 |
 | 贴图（newspic）+ 45166 报错 | Browser 模式 | 绕过 API 校验 |
 | 贴图（newspic）+ 敏感话题 | Browser 模式 | 最可靠 |
+
+---
+
+## 问题 9：多图推送超时（9+ 张图需 12-15 分钟）
+
+### 症状
+
+前台 `terminal` 超时（`[Command timed out after 600s]`），或后台进程跑 10+ 分钟无日志输出，中途 kill 后重试仍超时。
+
+### 根因
+
+每张正文图需本地压缩（3MB→1MB）+ HTTP 上传到微信素材库，约 60-90 秒/张。9 张图 + 1 张封面 ≈ 12-15 分钟。前台最大超时 600s 不够用。后台模式输出被缓冲，看起来像卡死但实际在上传。
+
+### 解决方案
+
+**必须使用后台模式**，不要中途 kill：
+
+```bash
+terminal --background true --notify_on_complete true "cd scripts && npx -y bun wechat-api.ts article.html --title '...' --cover images/cover.png"
+```
+
+- 系统完成通知是唯一可靠的完成信号
+- 每次重试从零开始上传全部图片，素材库无跨次缓存
+- 若日志末行出现 `tcsetattr: Inappropriate ioctl for device`，非致命错误，封面上传未完成，重推即可

@@ -38,9 +38,9 @@ placeholderImageCount: 12
 curl -s --max-time 12 ifconfig.me && printf '\n'
 ```
 
-如果返回 IPv6 或非 `159.75.220.145`，不要正式推送。让用户在 Mac Mini 上打开 Tailscale 并启用 exit node，再重试。
+如果返回 IPv6 或非 `43.156.151.87`，不要正式推送。让用户在 Mac Mini 上打开 Tailscale 并启用 exit node，再重试。
 
-3. IP 返回 `159.75.220.145` 后，去掉 `--dry-run` 正式推送。
+3. IP 返回 `43.156.151.87` 后，去掉 `--dry-run` 正式推送。
 
 成功信号：
 

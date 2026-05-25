@@ -68,6 +68,7 @@ Markdown 文件 (含 ![alt](path) 图片引用)
 5. ✅ Tailscale exit node 已激活（动态 IP 环境）
 6. ✅ `curl -s ifconfig.me` 返回的是白名单 IP
 7. ✅ 飞哥公众号发布前必须做正文洁净度预检：不得出现 `建议阅读`、`点击右上角`、`全文核心信息图`、`配图：`、`图片说明`、`figcaption` 等可见模板/图注痕迹；详见 `references/wechat-clean-publish-preflight.md`
+8. ✅ 飞哥公众号 HTML 正文不要重复主标题/副标题；标题、摘要只放微信草稿箱栏位。封面图只通过 `--cover` 设置，不插入正文。引用框只放名言原文/出处，不要把正文解释一起包进引用框。
 
 ### ⚠️ 文章查找位置提醒
 
@@ -112,7 +113,7 @@ WECHAT_APP_SECRET=...
 微信 API 要求调用方 IP 在公众号的 IP 白名单中。如果机器是**动态公网 IP**，用 **Tailscale exit node** 走固定 IP VPS：
 
 ```
-Mac Mini (动态 IP) → Tailscale → VPS (固定 IP 159.75.220.145) → 微信 API
+Mac Mini (动态 IP) → Tailscale → VPS (固定 IP 43.156.151.87) → 微信 API
 ```
 
 ### Tailscale 配置步骤
@@ -139,7 +140,7 @@ Tailscale CLI 在本机**未安装**（`command not found`），用户通过 **T
 **推送前强制检查流程**：
 1. 告诉用户"请打开 Tailscale"
 2. 等待用户确认
-3. 执行 `curl -s ifconfig.me` 验证出口 IP 为 `159.75.220.145`
+3. 执行 `curl -s ifconfig.me` 验证出口 IP 为 `43.156.151.87`
 4. IP 确认无误后再执行推送命令
 
 **常见失败场景**：
@@ -147,7 +148,17 @@ Tailscale CLI 在本机**未安装**（`command not found`），用户通过 **T
 - Tailscale 开启但 exit node 未生效 → 返回 IPv6 地址（如 `2408:8256:...`）→ 同样白名单错误
 - VPN 软件冲突 → 可能导致出口 IP 在 VPN IP 和 Tailscale IP 之间跳动
 
-**正确的出口 IP**：`159.75.220.145`（VPS 固定 IP，已加入微信公众号白名单）
+**正确的出口 IP**：`43.156.151.87`（VPS 固定 IP，已加入微信公众号白名单）
+
+### ⚠️ 长耗时推送：不要杀进程（2026-05-25 实战教训）
+
+微信 API 上传图片是串行的，每张图需要 60-90 秒（压缩 + HTTP 上传）。9 张正文图 + 1 张封面的全量推送需要 **12-15 分钟**，这是微信 API 的硬限制，不是网络或脚本问题。
+
+**关键规则**：
+- 后台推送进程（`npx -y bun wechat-api.ts`）启动了就不要杀。每次杀了重跑，所有图片从零重新上传，永远跑不完。
+- 后台进程输出被缓冲，看不到实时日志是正常的。用 `process poll` 检查状态，不要因为"没有输出"就判定卡死。
+- 推送完成系统会自动通知。等待 15 分钟是正常的。
+- 如果推送在封面上传阶段被杀（exit_code 143），正文图片已在素材库中缓存，重推会快很多。
 
 ## 主题选项
 
@@ -218,7 +229,10 @@ npx -y bun check-permissions.ts
 | `references/wechat-api-setup.md` | Tailscale + IP 白名单配置 |
 | `references/wechat-api-pitfalls.md` | API 踩坑记录 |
 | `references/session-2026-05-19-ai-tools-article-push.md` | 《AI工具的下半场》12图长文成功推送案例：dry-run、Tailscale IP 验证、中文路径 workdir 坑 |
+| `references/session-2026-05-21-html-precision-push.md` | HTML 精排版成功推送案例：自定义 HTML、正文 `<img>` 相对路径上传、洁净度预检、dry-run 后正式推送 |
 | `references/wechat-clean-publish-preflight.md` | 飞哥公众号发布前正文洁净度预检：拦截阅读元信息、图片图注、alt 可见化、卡片堆叠等问题 |
+| `references/session-2026-05-25-github-trending-9img-push.md` | 9图长文推送实录：耗时公式、不杀进程铁律、VPS IP变更全量替换 |
+| `references/vps-ip-change-procedure.md` | VPS 出口 IP 变更时全量替换操作手册 |
 
 ## 贴图发表（图文帖）注意事项
 
@@ -242,8 +256,27 @@ npx -y bun check-permissions.ts
 ### 关键踩坑
 - **Markdown 必须包含图片引用** `![alt](images/xxx.png)`，否则正文图片丢失
 - **图片按文件名排序上传**，命名建议：`01-封面.png`、`02-内容.png`...
-- **Tailscale 必须开启**，出口 IP 必须为 `159.75.220.145`
+- **Tailscale 必须开启**，出口 IP 必须为 `43.156.151.87`
 - **Chrome profile** 路径：`/Users/admin/Library/Application Support/baoyu-skills/chrome-profile`
+
+### ⚠️ 多图长文超时问题（2026-05-25 实战，v2.1.0）
+
+文章配图超过 6 张时，`wechat-api.ts` 逐张压缩+上传+草稿创建的总耗时远超直觉预期。**这不是脚本挂了，是微信 API 慢。**
+
+**耗时公式**：
+- 每张图：压缩（3MB→1MB）+ HTTP 上传 → **60-90 秒**
+- 9 张正文图 + 1 张封面 ≈ **12-18 分钟**
+- 每次重试都会**从零开始重新上传所有图片**（微信素材库不跨请求缓存）
+
+**铁律：绝不杀后台推送进程。**
+- 症状：`process log` 返回空输出、`process poll` 显示 running 很久 → 这是 stdout 被缓冲，不是卡死
+- 正确做法：设置 `background=true, notify_on_complete=true`，等待系统通知
+- 错误做法：反复 `kill` + 重试 → 每次都从零上传，总耗时累加，永远推不上去
+- 如需实时进度，用 `pty=true` 前台跑（但 timeout 最大 600s 可能不够）
+
+**已成功案例**：2026-05-25 v2 版 9 张图，后台推送成功（exit_code=0，返回 media_id），用户等待约 15 分钟。
+
+**前置条件**：Tailscale exit node 已确认，出口 IP 为白名单 IP（当前 43.156.151.87）。
 
 ## 与 ai-ggbond-article-writer 配合使用
 

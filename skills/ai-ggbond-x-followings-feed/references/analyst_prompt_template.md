@@ -48,6 +48,32 @@
 - 值得关注的预测/警告
 - 每条末尾附：🔗 https://x.com/{username}/status/{tweet_id}
 
+##### 🎯 个人视角 / Personal Lens
+
+**⚠️ 首步：从 Hermes Memory 读取用户状态。** 在生成此节之前，必须先回顾系统提示中的 MEMORY 和 USER PROFILE 区块，提取以下信息：
+- 用户的核心身份和定位
+- 当前的几条主线任务（带优先级权重）
+- 关注的技术/行业方向
+- 内容/个人品牌偏好（如有）
+- 近期关键提醒和边界约束
+- 回复风格偏好（如：引经据典金句、数理理论辅助等）
+
+然后基于**读取到的实际用户状态**，从本期日报中提炼与用户直接相关的信号和行动建议。
+
+**输出格式（按用户实际主线动态生成，不要套用固定模板）：**
+- **📌 与[用户第一条主线]相关**：该领域可用的谈资、叙事素材、竞品/行业动态
+- **📌 与[用户第二条主线]相关**：可借鉴的案例、技术方案、落地思路
+- **📌 与[用户第三条主线]相关**：（如无此主线则省略）
+- **📌 与内容/IP相关**（如用户在建设个人品牌）：可写文章的话题、可做贴图的素材
+- **📌 值得关注的信号**：机会、风险、值得深挖的方向
+- **⚡ 今日行动建议**：从本期信息中提取 1-3 条"今天就能做的事"，直接映射到用户的当前主线
+
+**风格要求：**
+- 不写"建议你关注"，而是写"这条可以直接用在你XX场景"
+- 遵照用户在 Memory 中存储的回复风格偏好（如引经据典金句、数理理论辅助表达等）
+- 如果本期没有与某条线相关的内容，直接省略该条线
+- 所有的角色、主线、关注方向**必须来自 Memory**，不要凭空编造
+
 **规则：**
 1. 只输出有**具体信息**的内容
 2. 数字、名称、链接必须来自原文
@@ -55,6 +81,7 @@
 4. 中文输出，技术术语保留英文
 5. **每条内容必须附带原推链接**，格式：https://x.com/{username}/status/{tweet_id}，从推文JSON中的 `author.username` 和 `id` 字段拼接，不要省略任何链接
 6. **链接不要用反引号包裹**，直接写裸URL，否则在飞书等平台不会渲染为可点击超链接
+7. **个人视角必须基于 Memory 中存储的最新用户状态生成**，不要凭空编造用户的身份、主线和关注方向
 
 ---
 
@@ -104,6 +131,32 @@ You are a top-tier AI industry analyst, focused on extracting **specific, action
 - Notable predictions/warnings
 - Each item: 🔗 https://x.com/{username}/status/{tweet_id}
 
+##### 🎯 Personal Lens
+
+**⚠️ FIRST: Read user state from Hermes Memory.** Before generating this section, review the MEMORY and USER PROFILE blocks in the system prompt and extract:
+- User's core identity and positioning
+- Current main threads/tasks (with priority weights)
+- Technical/industry focus areas
+- Content/personal brand preferences (if any)
+- Recent key reminders and boundary constraints
+- Response style preferences (e.g., classic quotes, mathematical theories, etc.)
+
+Then, based on the **actual user state read from Memory**, extract signals and action suggestions from today's digest that are directly relevant to the user.
+
+**Output format (dynamically generated from user's actual threads, do NOT use a fixed template):**
+- **📌 [User's thread #1]**: Talking points, narrative material, competitor/industry updates for this area
+- **📌 [User's thread #2]**: Applicable cases, technical approaches, implementation ideas
+- **📌 [User's thread #3]**: (omit if user doesn't have this thread)
+- **📌 Content/IP** (if user is building a personal brand): Article topics, sticker/image material
+- **📌 Signals to watch**: Opportunities, risks, directions worth digging into
+- **⚡ Today's actions**: 1-3 "do it today" items extracted from this digest, directly mapped to user's current threads
+
+**Style:**
+- Say "You can use this directly in your X scenario" rather than "I suggest you pay attention to"
+- Follow the user's response style preferences stored in Memory (e.g., classic quotes as anchors, mathematical theories for rigor)
+- Skip any line if no relevant content today
+- All roles, threads, and focus areas **MUST come from Memory** — do not fabricate
+
 **Rules:**
 1. Only output content with **specific information**
 2. Numbers, names, links must be from source
@@ -111,6 +164,7 @@ You are a top-tier AI industry analyst, focused on extracting **specific, action
 4. English output, keep technical terms as-is
 5. **Every item MUST include the original tweet link**: https://x.com/{username}/status/{tweet_id}, constructed from the tweet JSON `author.username` and `id` fields. Never omit links.
 6. **Do NOT wrap links in backticks**, write bare URLs directly, otherwise they won't render as clickable hyperlinks in platforms like Feishu/Lark
+7. **Personal Lens must be based on the latest user state stored in Memory** — do not fabricate user identity, threads, or focus areas
 
 ---
 
