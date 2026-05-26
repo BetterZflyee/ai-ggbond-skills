@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://github.com/BetterZflyee/ai-ggbond-skills/stargazers"><img src="https://img.shields.io/github/stars/BetterZflyee/ai-ggbond-skills?style=for-the-badge&color=facc15" alt="Stars"></a>
-  <a href="https://github.com/BetterZflyee/ai-ggbond-skills/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT--0-green?style=for-the-badge" alt="License"></a>
+  <a href="https://github.com/BetterZflyee/ai-ggbond-skills/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="License"></a>
   <a href="https://zflyee.com/"><img src="https://img.shields.io/badge/built%20by-AI%20朱朱侠-8b5cf6?style=for-the-badge" alt="AI 朱朱侠"></a>
   <a href="#changelog"><img src="https://img.shields.io/badge/version-1.0-0891b2?style=for-the-badge" alt="Version"></a>
   <a href="README.md"><img src="https://img.shields.io/badge/English-📖-2563eb?style=for-the-badge" alt="English"></a>
@@ -288,6 +288,15 @@ hermes skills list | grep publish-to-x
 
 ---
 
+## 关注
+
+<p align="center">
+  <img src="assets/wechat-qr.jpg" width="180" alt="AI 朱朱侠 公众号"><br>
+  <sub><b>AI 朱朱侠</b> · 公众号</sub>
+</p>
+
+---
+
 ## 许可
 
-[MIT-0](LICENSE) · 无任何限制。自由使用、修改、分发。Build in public.
+[MIT](LICENSE) · 无任何限制。自由使用、修改、分发。Build in public.
