@@ -10,8 +10,6 @@
 
 > **为 AI Native 超级个体&amp;OPC打造的 Agent Skills 技能集合。**
 >
-> **A curated collection of Agent Skills for the AI Native solopreneur &amp; OPC.**
->
 > 每个技能都是一个完整的自动化工作流——不是聊天玩具，是能发文章、能运营社媒、能抓趋势、能沉淀知识的 AI 劳动力。即插即用，持续迭代，所有经验教训沉淀在 `references/` 目录中。
 
 ---
@@ -53,7 +51,7 @@
        │            │             │
   ┌────▼─────┐ ┌───▼────┐ ┌─────▼──────┐
   │ 内容生产   │ │信号采集 │ │ 多渠道发布   │
-  │ Creative  │ │ Signal  │ │ Distribution │
+  │            │ │        │ │              │
   └────┬─────┘ └───┬────┘ └─────┬──────┘
        │            │             │
   ┌────┼─────┐      │      ┌─────┼──────┐
@@ -64,7 +62,7 @@
        └────────────┴─────────────┘
                     │
               用户画像适配层
-           (Hermes Memory 千人千面)
+           (Hermes Memory 用户画像适配层)
 ```
 
 **设计哲学：可组合的工作流**
@@ -311,4 +309,4 @@ hermes skills list | grep publish-to-x
 
 ## 许可
 
-[MIT](LICENSE) · 无任何限制。自由使用、修改、分发。Build in public.
+[MIT](LICENSE) · 无任何限制。自由使用、修改、分发。

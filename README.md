@@ -10,8 +10,6 @@
 
 > **A curated collection of Agent Skills for the AI Native solopreneur &amp; OPC.**
 >
-> **为 AI Native 超级个体&amp;OPC打造的 Agent Skills 技能集合。**
->
 > Every skill is a complete, battle-tested automation workflow — not a chatbot toy, but an AI workforce that publishes articles, runs social media, tracks trends, and builds knowledge. Plug-and-play. Continuously refined. All lessons learned are preserved in `references/`.
 
 ---
@@ -274,7 +272,7 @@ hermes skills list | grep publish-to-x
 | Date | Milestone |
 |:---|:---|
 | 2026-05-26 | 📦 `ai-ggbond-brain-setup` released · `push-to-x` deprecated, replaced by `publish-to-x` |
-| 2026-05-20 | 🔍 `ai-ggbond-github-trending` released · All skills achieve persona-adaptive "千人千面" v1.0 |
+| 2026-05-20 | 🔍 `ai-ggbond-github-trending` released · All skills achieve persona-adaptive v1.0 |
 | 2026-04-20 | 🏗️ Repository created — skill system formalized |
 | 2026-02-28 | ✍️ `ai-ggbond-article-writer` debut — first end-to-end automated article published |
 
