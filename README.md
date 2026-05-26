@@ -1,4 +1,4 @@
-# AI GGBond Skills · Focus on<br>Making AI Your Automated Money-Making &amp; IP Operations System
+# AI GGBond Skills<br><small>专注让 AI 成为你的自动化搞钱和IP运营系统</small>
 
 <p align="center">
   <a href="https://github.com/BetterZflyee/ai-ggbond-skills/stargazers"><img src="https://img.shields.io/github/stars/BetterZflyee/ai-ggbond-skills?style=for-the-badge&color=facc15" alt="Stars"></a>
@@ -8,7 +8,9 @@
   <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/中文版-📖-dc2626?style=for-the-badge" alt="中文版"></a>
 </p>
 
-> **A curated collection of Hermes Agent skills for the AI Native solopreneur.**
+> **A curated collection of Agent Skills for the AI Native solopreneur &amp; OPC.**
+>
+> **为 AI Native 超级个体&amp;OPC打造的 Agent Skills 技能集合。**
 >
 > Every skill is a complete, battle-tested automation workflow — not a chatbot toy, but an AI workforce that publishes articles, runs social media, tracks trends, and builds knowledge. Plug-and-play. Continuously refined. All lessons learned are preserved in `references/`.
 
