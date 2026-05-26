@@ -5,6 +5,7 @@
   <a href="https://github.com/BetterZflyee/ai-ggbond-skills/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT--0-green?style=for-the-badge" alt="License"></a>
   <a href="https://github.com/NousResearch/hermes-agent"><img src="https://img.shields.io/badge/platform-Hermes%20Agent-8b5cf6?style=for-the-badge" alt="Hermes Agent"></a>
   <a href="#changelog"><img src="https://img.shields.io/badge/version-1.0-0891b2?style=for-the-badge" alt="Version"></a>
+  <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/中文版-📖-dc2626?style=for-the-badge" alt="中文版"></a>
 </p>
 
 > **A curated collection of Hermes Agent skills for the AI Native solopreneur.**
