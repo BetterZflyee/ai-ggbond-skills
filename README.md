@@ -1,178 +1,292 @@
-# AI GGBond Skills · 飞哥 AI 技能库
+# AI GGBond Skills · Focus on Making AI Your Automated Money-Making & IP Operations System
 
-> **为 AI Native 超级个体打造的 Hermes Agent 技能集合。**
-> 覆盖内容创作、社交媒体运营、知识管理、趋势洞察的全链路 AI 工作流。
-> 即插即用，每个技能沉淀了真实场景的实战经验与迭代优化。
+<p align="center">
+  <a href="https://github.com/BetterZflyee/ai-ggbond-skills/stargazers"><img src="https://img.shields.io/github/stars/BetterZflyee/ai-ggbond-skills?style=for-the-badge&color=facc15" alt="Stars"></a>
+  <a href="https://github.com/BetterZflyee/ai-ggbond-skills/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT--0-green?style=for-the-badge" alt="License"></a>
+  <a href="https://github.com/NousResearch/hermes-agent"><img src="https://img.shields.io/badge/platform-Hermes%20Agent-8b5cf6?style=for-the-badge" alt="Hermes Agent"></a>
+  <a href="#changelog"><img src="https://img.shields.io/badge/version-1.0-0891b2?style=for-the-badge" alt="Version"></a>
+</p>
 
 > **A curated collection of Hermes Agent skills for the AI Native solopreneur.**
-> End-to-end AI workflows covering content creation, social media ops, knowledge management, and trend intelligence.
-> Plug-and-play — each skill is battle-tested and iteratively refined from real-world usage.
+>
+> Every skill is a complete, battle-tested automation workflow — not a chatbot toy, but an AI workforce that publishes articles, runs social media, tracks trends, and builds knowledge. Plug-and-play. Continuously refined. All lessons learned are preserved in `references/`.
 
 ---
 
-## 技能矩阵 / Skill Matrix
+## Why AI GGBond Skills
 
-| 技能 / Skill | 分类 / Category | 一句话 / TL;DR |
+Built on [Hermes Agent](https://github.com/NousResearch/hermes-agent) — the only AI agent with a **built-in learning loop**: autonomous skill creation from experience, self-improvement during use, and persistent memory across sessions. AI GGBond Skills takes it further: instead of just "chatting," each skill delivers **end-to-end automation for revenue generation and IP operations**.
+
+Bring your own model — OpenAI, DeepSeek, OpenRouter (200+ models), Nous Portal, or your own endpoint. Switch models anytime with `hermes model`. The skills don't care.
+
+---
+
+## Skill Matrix
+
+| Skill | Category | What It Does |
 |:---|:---|:---|
-| `ai-ggbond-article-writer` | 创作 / Creative | 公众号长文写作，AI Native 视角，排版→配图→发布全流程 |
-| `ai-ggbond-post-to-wechat` | 效率 / Productivity | 一键推送文章到微信公众号草稿箱，API + Browser 双模式 |
-| `ai-ggbond-sticker-writer` | 创作 / Creative | 内容转小红书风微信贴图，总结→标题→排版→配图 |
-| `ai-ggbond-github-trending` | 研究 / Research | GitHub Trending 检索解读，AI/Agent/MCP 趋势洞察 |
-| `ai-ggbond-x-followings-feed` | 社媒 / Social | X/Twitter 关注流抓取 + AI 结构化日报 |
-| `ai-ggbond-publish-to-x` | 社媒 / Social | 发布到 X/Twitter，支持短帖、引用、长文、Thread |
-| `ai-ggbond-run-xiaohongshu` | 社媒 / Social | 小红书全链路运营，定位→选题→生产→发布→复盘 |
-| `ai-ggbond-brain-setup` | 知识 / Knowledge | GBrain 记忆层安装配置，让 AI 拥有长期记忆 |
+| `ai-ggbond-article-writer` | 📝 Creative | Full pipeline: topic → outline → draft → typesetting → images → publish to WeChat |
+| `ai-ggbond-post-to-wechat` | 🚀 Publishing | One-click push to WeChat Official Account drafts. API + Browser CDP modes |
+| `ai-ggbond-sticker-writer` | 🎨 Creative | Convert content to social-ready image cards (Xiaohongshu-style stickers) |
+| `ai-ggbond-github-trending` | 🔍 Research | GitHub Trending discovery + AI-powered analysis for AI/Agent/MCP trends |
+| `ai-ggbond-x-followings-feed` | 📡 Signal | X/Twitter followings scraper + AI-structured daily digest with curation scoring |
+| `ai-ggbond-publish-to-x` | 📢 Social | Full-featured X/Twitter publishing: posts, quotes, long-form, Threads |
+| `ai-ggbond-run-xiaohongshu` | 📕 Social | End-to-end Xiaohongshu ops: positioning → ideation → creation → publishing → engagement → iteration |
+| `ai-ggbond-brain-setup` | 🧠 Knowledge | GBrain memory layer integration — give your AI long-term memory and knowledge retrieval |
+
+> All skills support **persona-adaptive output** (v1.0 milestone) — they automatically read your profile from Hermes Memory and tailor content to your unique voice, instead of producing generic AI-sounding text.
 
 ---
 
-## 系统架构 / Architecture
+## Architecture
 
 ```
-┌─────────────────────────────────────────────────┐
-│                   Hermes Agent                    │
-│         (AI 朱朱侠 · PMO 指挥决策中枢)              │
-└────────┬──────────┬──────────┬──────────────────┘
-         │          │          │
-    ┌────▼────┐ ┌───▼───┐ ┌───▼────┐
-    │ 创作流水线 │ │社媒矩阵 │ │知识引擎 │
-    │ Creative │ │ Social │ │Knowledge│
-    └────┬─────┘ └───┬───┘ └───┬─────┘
-         │            │          │
-  ┌──────┼──────┐  ┌──┼───┐     │
-  ▼      ▼      ▼  ▼  ▼   ▼     ▼
-文章   贴图   GitHub X  小红书  GBrain
-写作   转换   Trending 发布  运营   记忆层
-  │      │              │
-  └──────┴──────────────┘
-         │
-    ┌────▼────┐
-    │ 微信草稿箱 │
-    │ WeChat   │
-    └─────────┘
+┌──────────────────────────────────────────────────┐
+│                  Hermes Agent                      │
+│           (AI 朱朱侠 · Command Center)              │
+│                                                    │
+│  Memory ←→ GBrain (ai-ggbond-brain-setup)          │
+└──────┬────────────┬─────────────┬─────────────────┘
+       │            │             │
+  ┌────▼─────┐ ┌───▼────┐ ┌─────▼──────┐
+  │ Content   │ │ Signal  │ │ Distribution│
+  │ Creation  │ │ Capture │ │             │
+  └────┬─────┘ └───┬────┘ └─────┬──────┘
+       │            │             │
+  ┌────┼─────┐      │      ┌─────┼──────┐
+  ▼    ▼     ▼      ▼      ▼     ▼      ▼
+Article Sticker GitHub   X    WeChat   X   Xiaohong
+Writer  Writer Trending Feed  Publish Publish shuOps
+       │            │             │
+       └────────────┴─────────────┘
+                    │
+          Persona Adaptation Layer
+        (Hermes Memory — Your Voice)
 ```
 
-**设计哲学 / Design Philosophy**
+**Design Philosophy: Composable Workflows**
 
-每个技能不是孤立工具，而是可组合的工作流节点：
-- `ai-ggbond-x-followings-feed` 抓取信号 → `ai-ggbond-article-writer` 生成文章 → `ai-ggbond-post-to-wechat` 发布
-- `ai-ggbond-x-followings-feed` 抓取信号 → `ai-ggbond-publish-to-x` 发推评论
-- `ai-ggbond-github-trending` 发现项目 → `ai-ggbond-article-writer` 选题创作
+Skills are not isolated tools — they chain into automation pipelines:
+
+```
+X Following Feed ──→ Topic Ideas ──→ Article Writer ──→ WeChat Publish
+       │                              │
+       └──→ X Post/Comment ←─────────┘
+
+GitHub Trending ──→ Topic Ideas ──→ Article Writer ──→ WeChat Publish
+```
 
 ---
 
-## 快速开始 / Quick Start
+## Quick Install
 
-### 前置条件 / Prerequisites
+### Prerequisites
 
-- [Hermes Agent](https://github.com/NousResearch/hermes-agent) 已安装并运行
-- 各技能的前置依赖（见各技能 SKILL.md）
+- [Hermes Agent](https://github.com/NousResearch/hermes-agent) installed and running
+- macOS / Linux / WSL2 (all skills are CLI-based; OS-agnostic)
 
-### 安装 / Installation
+### Install All Skills
 
 ```bash
-# 克隆到 Hermes 技能目录
+# Clone the repository
 git clone https://github.com/BetterZflyee/ai-ggbond-skills.git /tmp/ai-ggbond-skills
 
-# 安装全部技能
+# Install all skills to Hermes
 cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-* ~/.hermes/skills/
 
-# 或按需安装单个技能
+# Verify installation
+hermes skills list | grep ai-ggbond
+```
+
+### Install Individual Skills
+
+```bash
+# Example: install only the article writer
 cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-article-writer ~/.hermes/skills/creative/
 ```
 
-### 触发使用 / Trigger
+### Update Skills
 
-在 Hermes 对话中自然语言触发：
-
-| 你说 / You Say | 触发技能 / Triggers |
-|:---|:---|
-| "写一篇关于 AI Agent 的文章" | `ai-ggbond-article-writer` |
-| "发到微信公众号" | `ai-ggbond-post-to-wechat` |
-| "把这个转成贴图" | `ai-ggbond-sticker-writer` |
-| "看看 GitHub Trending" | `ai-ggbond-github-trending` |
-| "X 日报" / "总结关注列表" | `ai-ggbond-x-followings-feed` |
-| "发推" / "tweet" | `ai-ggbond-publish-to-x` |
-| "帮我运营小红书" | `ai-ggbond-run-xiaohongshu` |
-| "配置 brain / gbrain" | `ai-ggbond-brain-setup` |
+```bash
+cd /tmp/ai-ggbond-skills && git pull
+cp -r skills/ai-ggbond-* ~/.hermes/skills/
+```
 
 ---
 
-## 技能详情 / Skill Details
+## Usage
+
+### Natural Language Triggers (Recommended)
+
+Just talk to your Hermes Agent naturally:
+
+| You Say | Skill Triggered |
+|:---|:---|
+| "Write an article about AI Agents" | `ai-ggbond-article-writer` |
+| "Push this to my WeChat blog" | `ai-ggbond-post-to-wechat` |
+| "Turn this into image stickers" | `ai-ggbond-sticker-writer` |
+| "What's trending on GitHub today?" | `ai-ggbond-github-trending` |
+| "X digest" / "Summarize my followings" | `ai-ggbond-x-followings-feed` |
+| "Tweet this" / "Publish to X" | `ai-ggbond-publish-to-x` |
+| "Help me run Xiaohongshu" | `ai-ggbond-run-xiaohongshu` |
+| "Set up gbrain" / "Configure brain" | `ai-ggbond-brain-setup` |
+
+### CLI Command Reference
+
+```bash
+# List all installed skills
+hermes skills list
+
+# Filter to AI GGBond skills only
+hermes skills list | grep ai-ggbond
+
+# View detailed documentation for a skill
+hermes skills view ai-ggbond-article-writer
+
+# Update Hermes Agent itself
+hermes update
+
+# Diagnose any issues
+hermes doctor
+```
+
+---
+
+## Skill Details
 
 ### ai-ggbond-article-writer
 
-公众号长文写作，从 AI Native 超级个体视角输出。支持：
-- 选题判断 → 大纲 → 初稿 → 排版 → 配图 → 发布 全流水线
-- Anthropic 暖米白 + Tech Blue v3 双排版主题
-- 信息图生成（课程表隐喻、陶土橙/鼠尾草绿配色）
-- 图片 OCR 质检、金句断点、引用框规范
+End-to-end WeChat long-form article creation. Written from an AI Native solopreneur's perspective.
+
+**Capabilities**: Topic selection → outline → first draft → semantic rhythm typesetting → AI illustration → push to WeChat drafts
+
+**Highlights**:
+- Dual typesetting themes: Anthropic warm beige & Tech Blue v3
+- Auto-generated infographics (syllabus metaphor, terracotta orange / sage green palette)
+- Image OCR quality checks, golden-quote breakpoints, blockquote conventions
+- Persona-adaptive: output depth and style auto-matched to your profile
 
 ### ai-ggbond-post-to-wechat
 
-推送文章到微信公众号草稿箱：
-- **API 模式**（推荐）：AppID + AppSecret，快速可靠
-- **Browser CDP 模式**（备用）：直连 Chrome，绕过 API 敏感词拦截
-- 自动图片上传（正文内联 + 封面图）、主题样式注入
-- Tailscale 出口 IP 适配（国内网络环境）
+Push articles to WeChat Official Account drafts.
+
+**Dual Mode**:
+- **API Mode** (recommended): AppID + AppSecret, fast and reliable
+- **Browser CDP Mode** (fallback): connects to your Chrome session, bypasses content-sensitive API blocks
+
+**Automation**: in-body image upload, cover extraction, HTML style injection, Tailscale exit-IP adaptation for China network environments
 
 ### ai-ggbond-sticker-writer
 
-内容转微信贴图（小红书风格）：
-- 输入文章/要点 → 自动总结提炼 → 标题生成 → Markdown 排版 → 配图生成
-- 支持知识卡片、清单体、对比图等多种贴图样式
+Convert articles or key points into social-ready image cards (Xiaohongshu-style).
+
+**Pipeline**: Input content → auto-summarize → title generation → Markdown layout → AI image generation
+
+**Formats**: Knowledge cards, checklists, comparison charts, step diagrams, opinion cards
 
 ### ai-ggbond-github-trending
 
-GitHub Trending 趋势洞察：
-- 支持 daily/weekly/monthly 时间窗
-- AI/Agent/MCP/LLM 领域关键词过滤
-- P0/P1/P2 优先级自动分级
-- 输出 Markdown 报告 + 选题建议
+GitHub Trending discovery and AI-powered analysis.
+
+**Capabilities**: daily / weekly / monthly time windows · AI / Agent / MCP / LLM domain filtering · P0 / P1 / P2 automatic prioritization · Markdown report + topic suggestion output
 
 ### ai-ggbond-x-followings-feed
 
-X/Twitter 关注流 AI 日报：
-- 获取关注列表推文（非推荐算法流）
-- 单次 200+ 条，支持 1/3/7 天时间窗
-- AI 自动分类：重大事件、产品发布、技术洞察、资源汇总、舆情信号
-- 内置评分策展 (curate_and_score.py)
+X/Twitter AI daily digest from your followings.
+
+**Capabilities**: Fetches tweets from accounts you follow (not algorithmic feed) · 200+ per batch · 1 / 3 / 7 day windows · AI auto-classification (breaking news / product launches / technical insights / resources / sentiment signals) · Built-in `curate_and_score.py` curation engine
 
 ### ai-ggbond-publish-to-x
 
-X/Twitter 全功能发布：
-- 短帖（文字 + 图片 + 视频）
-- 引用转发、长文（X Articles / Markdown）
-- 帖子串（Thread）
-- 对接 article-writer 和 followings-feed 形成闭环
+Full-featured X/Twitter publishing client.
+
+**Capabilities**: Regular posts (text + images + video) · quote retweets · long-form (X Articles / Markdown) · Threads · Integrates with article-writer and followings-feed for content loops
 
 ### ai-ggbond-run-xiaohongshu
 
-小红书全链路运营：
-- 自动读取 Hermes Memory 适配用户定位
-- 选题研究 → 内容生产 → 发布执行 → 评论回复 → 爆款复刻 → 复盘沉淀
-- CDP 浏览器适配（绕过反爬）
+End-to-end Xiaohongshu operations.
+
+**Capabilities**: Auto-reads Hermes Memory for persona positioning → topic research → content creation → publishing → comment replies → viral replication → retrospective · CDP browser adaptation
 
 ### ai-ggbond-brain-setup
 
-GBrain 记忆层集成：
-- 在 Hermes 环境下安装配置 GBrain
-- PGLite 本地向量存储
-- 桥接 signal-detector / brain-ops / conventions 等上游技能
-- 知识库内容灌入工作流
+GBrain memory layer integration — give your AI long-term memory.
+
+**Capabilities**: PGLite local vector storage · bridges upstream skills (signal-detector / brain-ops / conventions) · knowledge base ingestion workflow
 
 ---
 
-## 贡献与迭代 / Contributing
+## Ecosystem Integration
 
-本仓库为个人自用技能库，持续迭代中。每个技能的 `references/` 目录沉淀了真实会话中的经验教训和踩坑记录。
+### Skill Dependencies
 
-技能更新流程：
 ```
-实战使用 → 发现问题 → 更新 SKILL.md + references/ → 同步 GitHub
+ai-ggbond-brain-setup (Memory Foundation)
+        ↓
+Hermes Memory (User Profile)
+        ↓
+┌───────┼──────────┬──────────────┐
+↓       ↓          ↓              ↓
+article  sticker   xiaohongshu   github
+writer   writer    ops           trending
+   ↓       ↓          ↓
+post-to   publish    (built-in
+-wechat   -to-x      publishing)
 ```
+
+### Workflow Examples
+
+| Workflow | Skill Chain |
+|:---|:---|
+| Daily signal → article → publish | `x-followings-feed` → `article-writer` → `post-to-wechat` |
+| Hot take → X thread | `x-followings-feed` → `publish-to-x` |
+| Open-source project → article | `github-trending` → `article-writer` → `post-to-wechat` |
+| Knowledge capture → memory | `article-writer` output → `brain-setup` ingest to GBrain |
 
 ---
 
-## 许可 / License
+## Migration Guide
 
-[MIT-0](LICENSE) · 无任何限制，自由使用、修改、分发。
+### Migrating from ai-ggbond-push-to-x to ai-ggbond-publish-to-x
+
+`ai-ggbond-push-to-x` was deprecated on May 26, 2026. Migrate to `ai-ggbond-publish-to-x`:
+
+```bash
+# 1. Remove the deprecated skill
+rm -rf ~/.hermes/skills/ai-ggbond-push-to-x
+
+# 2. Install the replacement
+cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-publish-to-x ~/.hermes/skills/social-media/
+
+# 3. Verify
+hermes skills list | grep publish-to-x
+```
+
+**What changed**: The new skill is backward-compatible with all original trigger words. New capabilities: X Articles long-form Markdown publishing, Thread support.
+
+---
+
+## Changelog
+
+| Date | Milestone |
+|:---|:---|
+| 2026-05-26 | 📦 `ai-ggbond-brain-setup` released · `push-to-x` deprecated, replaced by `publish-to-x` |
+| 2026-05-20 | 🔍 `ai-ggbond-github-trending` released · All skills achieve persona-adaptive "千人千面" v1.0 |
+| 2026-04-20 | 🏗️ Repository created — skill system formalized |
+| 2026-02-28 | ✍️ `ai-ggbond-article-writer` debut — first end-to-end automated article published |
+
+---
+
+## Contributing
+
+This is the battle-tested skill collection of an AI Native solopreneur. The `references/` directory in each skill preserves real-session lessons and iteration logs — that's where the real value lives.
+
+**Iteration loop**: Use in production → discover issues → update SKILL.md + references/ → sync to GitHub
+
+Issues and discussions welcome. Fork to create your own customized skill variants.
+
+---
+
+## License
+
+[MIT-0](LICENSE) · No restrictions. Use freely, modify, distribute. Build in public.
