@@ -291,8 +291,11 @@ Issues and discussions welcome. Fork to create your own customized skill variant
 ## Connect
 
 <p align="center">
-  <img src="assets/wechat-qr.jpg" width="180" alt="AI 朱朱侠 公众号"><br>
-  <sub><b>AI 朱朱侠</b> · 公众号</sub>
+  <img src="assets/wechat-qr.jpg" width="160" alt="AI 朱朱侠 WeChat"><br>
+  <sub><b>WeChat</b> · AI 朱朱侠</sub>
+  <br><br>
+  <a href="https://x.com/Zflyee">𝕏 · @Zflyee</a> &nbsp;·&nbsp;
+  <a href="https://zflyee.com/">🌐 · zflyee.com</a>
 </p>
 
 ---

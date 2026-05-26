@@ -291,8 +291,11 @@ hermes skills list | grep publish-to-x
 ## 关注
 
 <p align="center">
-  <img src="assets/wechat-qr.jpg" width="180" alt="AI 朱朱侠 公众号"><br>
-  <sub><b>AI 朱朱侠</b> · 公众号</sub>
+  <img src="assets/wechat-qr.jpg" width="160" alt="AI 朱朱侠 公众号"><br>
+  <sub><b>公众号</b> · AI 朱朱侠</sub>
+  <br><br>
+  <a href="https://x.com/Zflyee">𝕏 · @Zflyee</a> &nbsp;·&nbsp;
+  <a href="https://zflyee.com/">🌐 · zflyee.com</a>
 </p>
 
 ---
