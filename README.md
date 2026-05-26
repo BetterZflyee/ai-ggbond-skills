@@ -1,4 +1,4 @@
-# AI GGBond Skills · Focus on Making AI Your Automated Money-Making & IP Operations System
+# AI GGBond Skills · Focus on<br>Making AI Your Automated Money-Making &amp; IP Operations System
 
 <p align="center">
   <a href="https://github.com/BetterZflyee/ai-ggbond-skills/stargazers"><img src="https://img.shields.io/github/stars/BetterZflyee/ai-ggbond-skills?style=for-the-badge&color=facc15" alt="Stars"></a>
