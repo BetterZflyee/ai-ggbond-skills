@@ -291,11 +291,18 @@ Issues and discussions welcome. Fork to create your own customized skill variant
 ## Connect
 
 <p align="center">
-  <img src="assets/wechat-qr.jpg" width="160" alt="AI 朱朱侠 WeChat"><br>
-  <sub><b>WeChat</b> · AI 朱朱侠</sub>
-  <br><br>
-  <a href="https://x.com/Zflyee">𝕏 · @Zflyee</a> &nbsp;·&nbsp;
-  <a href="https://zflyee.com/">🌐 · zflyee.com</a>
+  <table>
+    <tr align="center">
+      <td><b>WeChat</b></td>
+      <td><b>X / Twitter</b></td>
+      <td><b>Blog</b></td>
+    </tr>
+    <tr align="center">
+      <td><img src="assets/wechat-qr.jpg" width="140" alt="AI 朱朱侠 WeChat"></td>
+      <td><a href="https://x.com/Zflyee">𝕏 · @Zflyee</a></td>
+      <td><a href="https://zflyee.com/">🌐 · zflyee.com</a></td>
+    </tr>
+  </table>
 </p>
 
 ---
