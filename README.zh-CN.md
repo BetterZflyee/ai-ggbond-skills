@@ -18,7 +18,7 @@
 
 ## 为什么选择 AI GGBond Skills
 
-本技能库运行在 [Hermes Agent](https://github.com/NousResearch/hermes-agent) 之上——Hermes 是目前唯一具备**内建学习闭环**的 AI Agent：自动从经验中创建技能、使用中自我改进、跨会话持久记忆。AI GGBond Skills 则更进一步——不满足于"聊天"，直接面向**搞钱和 IP 运营**场景提供端到端自动化。
+本技能库可运行在 [Hermes Agent](https://github.com/NousResearch/hermes-agent)、[Claude Code](https://claude.ai)、[Codex](https://github.com/openai/codex)、[OpenClaw](https://github.com/nousresearch/openclaw) 等主流 AI Agent 平台之上。所有技能都支持**用户记忆与对话适配**——自动读取你的偏好和历史，实现千人千面的个人化定制，谁用谁知道。
 
 你可以自由选择底层模型——OpenAI、DeepSeek、OpenRouter 200+ 模型、Nous Portal、或是你自己的部署——模型随你换，技能不用改。
 

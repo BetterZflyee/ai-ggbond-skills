@@ -18,7 +18,7 @@
 
 ## Why AI GGBond Skills
 
-Built on [Hermes Agent](https://github.com/NousResearch/hermes-agent) — the only AI agent with a **built-in learning loop**: autonomous skill creation from experience, self-improvement during use, and persistent memory across sessions. AI GGBond Skills takes it further: instead of just "chatting," each skill delivers **end-to-end automation for revenue generation and IP operations**.
+Runs on [Hermes Agent](https://github.com/NousResearch/hermes-agent), [Claude Code](https://claude.ai), [Codex](https://github.com/openai/codex), [OpenClaw](https://github.com/nousresearch/openclaw), and other major AI Agent platforms. Every skill supports **memory & conversation adaptation** — automatically reads your preferences and history for personalized, persona-matched output.
 
 Bring your own model — OpenAI, DeepSeek, OpenRouter (200+ models), Nous Portal, or your own endpoint. Switch models anytime with `hermes model`. The skills don't care.
 
