@@ -8,6 +8,10 @@
   <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/中文版-📖-dc2626?style=for-the-badge" alt="中文版"></a>
 </p>
 
+<p align="center">
+  <img src="assets/banner.jpg" alt="AI GGBond Skills" width="800">
+</p>
+
 > **A curated collection of Agent Skills for the AI Native solopreneur &amp; OPC.**
 >
 > Every skill is a complete, battle-tested automation workflow — not a chatbot toy, but an AI workforce that publishes articles, runs social media, tracks trends, and builds knowledge. Plug-and-play. Continuously refined. All lessons learned are preserved in `references/`.
