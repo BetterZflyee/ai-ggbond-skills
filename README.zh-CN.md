@@ -136,6 +136,7 @@ cp -r skills/ai-ggbond-* ~/.hermes/skills/
 | "发推" / "publish to X" | `ai-ggbond-publish-to-x` |
 | "帮我运营小红书" | `ai-ggbond-run-xiaohongshu` |
 | "配置 brain" / "灌内容到 gbrain" | `ai-ggbond-brain-setup` |
+| "去水印" / "洗图" / "清除AI标记" | `ai-ggbond-remove-ai-marks` |
 
 ### CLI 命令参考
 
@@ -220,6 +221,14 @@ GBrain 记忆层集成——让 AI 拥有长期记忆。
 
 **能力**：PGLite 本地向量存储 · 桥接 signal-detector / brain-ops / conventions 等上游技能 · 知识库内容灌入工作流
 
+### ai-ggbond-remove-ai-marks
+
+清除 AI 生成图片的水印和元数据标记。
+
+**能力**：可见水印清除（Gemini 火花，Alpha 通道反算）· 不可见水印清除（SynthID v1+v2、DWT-DCT，扩散重生成）· 元数据剥离（C2PA/EXIF/XMP）· 批量扫描+清洗 · 对抗 AI 检测的人化处理（胶片颗粒）· 单张图片深度检测
+
+**场景**：发布前的配图清洗（微信/X/小红书）· 批量清洗文章封面图 · 社交平台 AI 检测对抗
+
 ---
 
 ## 集成生态
@@ -276,6 +285,7 @@ hermes skills list | grep publish-to-x
 
 | 日期 | 里程碑 |
 |:---|:---|
+| 2026-05-28 | 🧹 `ai-ggbond-remove-ai-marks` 上线 — AI 图片可见+不可见水印清除 |
 | 2026-05-26 | 📦 `ai-ggbond-brain-setup` 上线 · `push-to-x` 废弃，`publish-to-x` 替代 |
 | 2026-05-20 | 🔍 `ai-ggbond-github-trending` 上线 · 全部技能达成"千人千面"用户适配 v1.0 |
 | 2026-04-20 | 🏗️ 仓库创建，技能体系正式工程化 |

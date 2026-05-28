@@ -136,6 +136,7 @@ Just talk to your Hermes Agent naturally:
 | "Tweet this" / "Publish to X" | `ai-ggbond-publish-to-x` |
 | "Help me run Xiaohongshu" | `ai-ggbond-run-xiaohongshu` |
 | "Set up gbrain" / "Configure brain" | `ai-ggbond-brain-setup` |
+| "Remove AI watermark" / "Clean this image" | `ai-ggbond-remove-ai-marks` |
 
 ### CLI Command Reference
 
@@ -220,6 +221,14 @@ GBrain memory layer integration — give your AI long-term memory.
 
 **Capabilities**: PGLite local vector storage · bridges upstream skills (signal-detector / brain-ops / conventions) · knowledge base ingestion workflow
 
+### ai-ggbond-remove-ai-marks
+
+Remove AI-generated watermarks and metadata from images.
+
+**Capabilities**: Visible watermark removal (Gemini sparkle, Alpha-channel reconstruction) · invisible watermark removal (SynthID v1+v2, DWT-DCT, diffusion regeneration) · metadata stripping (C2PA/EXIF/XMP) · batch scanning + cleaning · humanization (film grain anti-AI-detection) · single-image deep inspection
+
+**Use cases**: Pre-publish image sanitation for WeChat, X, Xiaohongshu · batch clean article cover images · anti-AI-detection for social platforms
+
 ---
 
 ## Ecosystem Integration
@@ -276,6 +285,7 @@ hermes skills list | grep publish-to-x
 
 | Date | Milestone |
 |:---|:---|
+| 2026-05-28 | 🧹 `ai-ggbond-remove-ai-marks` released — visible + invisible watermark removal for AI-generated images |
 | 2026-05-26 | 📦 `ai-ggbond-brain-setup` released · `push-to-x` deprecated, replaced by `publish-to-x` |
 | 2026-05-20 | 🔍 `ai-ggbond-github-trending` released · All skills achieve persona-adaptive v1.0 |
 | 2026-04-20 | 🏗️ Repository created — skill system formalized |
