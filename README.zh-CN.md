@@ -38,6 +38,7 @@
 | `ai-ggbond-publish-to-x` | 📢 社媒 | X/Twitter 全功能发布：短帖、引用、长文、Thread |
 | `ai-ggbond-run-xiaohongshu` | 📕 社媒 | 小红书全链路运营：定位→选题→生产→发布→评论→复盘 |
 | `ai-ggbond-brain-setup` | 🧠 知识 | GBrain 记忆层集成：让 AI 拥有长期记忆和知识检索 |
+| `ai-ggbond-remove-ai-marks` | 🧹 工具 | 清除 AI 生成图片的可见水印（Gemini火花）和不可见标记（SynthID/C2PA） |
 
 > 所有技能均支持 **"千人千面"用户适配**（v1.0 里程碑）——自动读取 Hermes Memory 中的用户画像，输出贴合你个人风格的内容，而不是千篇一律的 AI 味。
 
