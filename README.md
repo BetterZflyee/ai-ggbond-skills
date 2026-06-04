@@ -4,7 +4,7 @@
   <a href="https://github.com/BetterZflyee/ai-ggbond-skills/stargazers"><img src="https://img.shields.io/github/stars/BetterZflyee/ai-ggbond-skills?style=for-the-badge&color=facc15" alt="Stars"></a>
   <a href="https://github.com/BetterZflyee/ai-ggbond-skills/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="License"></a>
   <a href="https://zflyee.com/"><img src="https://img.shields.io/badge/built%20by-AI%20GGBond-8b5cf6?style=for-the-badge" alt="AI GGBond"></a>
-  <a href="#changelog"><img src="https://img.shields.io/badge/version-1.0-0891b2?style=for-the-badge" alt="Version"></a>
+  <a href="#changelog"><img src="https://img.shields.io/badge/version-1.2-0891b2?style=for-the-badge" alt="Version"></a>
   <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/中文版-📖-dc2626?style=for-the-badge" alt="中文版"></a>
 </p>
 
@@ -37,7 +37,7 @@ Bring your own model — OpenAI, DeepSeek, OpenRouter (200+ models), Nous Portal
 | `ai-ggbond-x-followings-feed` | 📡 Signal | X/Twitter followings scraper + AI-structured daily digest with curation scoring |
 | `ai-ggbond-publish-to-x` | 📢 Social | Full-featured X/Twitter publishing: posts, quotes, long-form, Threads |
 | `ai-ggbond-run-xiaohongshu` | 📕 Social | End-to-end Xiaohongshu ops: positioning → ideation → creation → publishing → engagement → iteration |
-| `ai-ggbond-brain-setup` | 🧠 Knowledge | GBrain memory layer integration — give your AI long-term memory and knowledge retrieval |
+| `ai-ggbond-brain-setup` | 🧠 Knowledge | GBrain memory layer with DashScope/Qwen3-Embedding support — 9 documented pitfalls, proxy config, recipe patching |
 | `ai-ggbond-remove-ai-marks` | 🧹 Utility | Remove visible (Gemini sparkle) & invisible (SynthID/C2PA) AI watermarks from images |
 
 > All skills support **persona-adaptive output** (v1.0 milestone) — they automatically read your profile from Hermes Memory and tailor content to your unique voice, instead of producing generic AI-sounding text.
@@ -217,9 +217,9 @@ End-to-end Xiaohongshu operations.
 
 ### ai-ggbond-brain-setup
 
-GBrain memory layer integration — give your AI long-term memory.
+GBrain memory layer integration — DashScope text-embedding-v4 (Qwen3) + balanced search mode + proxy-aware config.
 
-**Capabilities**: PGLite local vector storage · bridges upstream skills (signal-detector / brain-ops / conventions) · knowledge base ingestion workflow
+**Capabilities**: PGLite local vector storage · DashScope text-embedding-v4 (Qwen3-Embedding, 1024d) · balanced search mode · proxy-aware fetch (uppercase HTTPS_PROXY) · recipe patching for China-region keys · 9 documented pitfalls with fixes · bridges upstream skills (signal-detector / brain-ops / conventions) · knowledge base ingestion workflow
 
 ### ai-ggbond-remove-ai-marks
 
@@ -285,6 +285,7 @@ hermes skills list | grep publish-to-x
 
 | Date | Milestone |
 |:---|:---|
+| 2026-06-04 | 🧠 `ai-ggbond-brain-setup` v1.2 — DashScope/Qwen3-Embedding support, 9 pitfalls documented, proxy config, recipe patching |
 | 2026-05-28 | 🧹 `ai-ggbond-remove-ai-marks` released — visible + invisible watermark removal for AI-generated images |
 | 2026-05-26 | 📦 `ai-ggbond-brain-setup` released · `push-to-x` deprecated, replaced by `publish-to-x` |
 | 2026-05-20 | 🔍 `ai-ggbond-github-trending` released · All skills achieve persona-adaptive v1.0 |
