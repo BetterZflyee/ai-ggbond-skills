@@ -4,7 +4,7 @@
   <a href="https://github.com/BetterZflyee/ai-ggbond-skills/stargazers"><img src="https://img.shields.io/github/stars/BetterZflyee/ai-ggbond-skills?style=for-the-badge&color=facc15" alt="Stars"></a>
   <a href="https://github.com/BetterZflyee/ai-ggbond-skills/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="License"></a>
   <a href="https://zflyee.com/"><img src="https://img.shields.io/badge/built%20by-AI%20朱朱侠-8b5cf6?style=for-the-badge" alt="AI 朱朱侠"></a>
-  <a href="#changelog"><img src="https://img.shields.io/badge/version-1.0-0891b2?style=for-the-badge" alt="Version"></a>
+  <a href="#changelog"><img src="https://img.shields.io/badge/version-1.3-0891b2?style=for-the-badge" alt="Version"></a>
   <a href="README.md"><img src="https://img.shields.io/badge/English-📖-2563eb?style=for-the-badge" alt="English"></a>
 </p>
 
@@ -39,6 +39,7 @@
 | `ai-ggbond-run-xiaohongshu` | 📕 社媒 | 小红书全链路运营：定位→选题→生产→发布→评论→复盘 |
 | `ai-ggbond-brain-setup` | 🧠 知识 | GBrain 记忆层集成：让 AI 拥有长期记忆和知识检索 |
 | `ai-ggbond-remove-ai-marks` | 🧹 工具 | 清除 AI 生成图片的可见水印（Gemini火花）和不可见标记（SynthID/C2PA） |
+| `ai-ggbond-youtube-script` | 🎬 媒体 | YouTube 字幕/封面下载：InnerTube API + yt-dlp + 三方摘要三级容灾 |
 
 > 所有技能均支持 **"千人千面"用户适配**（v1.0 里程碑）——自动读取 Hermes Memory 中的用户画像，输出贴合你个人风格的内容，而不是千篇一律的 AI 味。
 
@@ -137,6 +138,7 @@ cp -r skills/ai-ggbond-* ~/.hermes/skills/
 | "帮我运营小红书" | `ai-ggbond-run-xiaohongshu` |
 | "配置 brain" / "灌内容到 gbrain" | `ai-ggbond-brain-setup` |
 | "去水印" / "洗图" / "清除AI标记" | `ai-ggbond-remove-ai-marks` |
+| "YouTube字幕" / "YouTube封面" / "获取字幕" | `ai-ggbond-youtube-script` |
 
 ### CLI 命令参考
 
@@ -229,6 +231,19 @@ GBrain 记忆层集成——让 AI 拥有长期记忆。
 
 **场景**：发布前的配图清洗（微信/X/小红书）· 批量清洗文章封面图 · 社交平台 AI 检测对抗
 
+### ai-ggbond-youtube-script
+
+YouTube 视频字幕、封面图下载工具。无需 API Key，直接调用 YouTube InnerTube API，自动容灾到 yt-dlp 和三方摘要搜索。
+
+**能力**：多语言字幕下载 · 翻译 · 章节切分 · 说话人识别（AI 后处理）· SRT/文本输出 · 封面图缓存 · 支持自动和手动字幕
+
+**特色**：
+- 三级容灾：InnerTube API → yt-dlp → 搜索三方摘要
+- 句级时间戳切分（支持 CJK 文本合并）
+- 智能缓存——仅在语言切换或 `--refresh` 时重新抓取
+- 代理感知，适配网络受限环境（国内、Hermes VM）
+- 6 个已验证踩坑记录与解决方案
+
 ---
 
 ## 集成生态
@@ -285,6 +300,7 @@ hermes skills list | grep publish-to-x
 
 | 日期 | 里程碑 |
 |:---|:---|
+| 2026-06-08 | 🎬 `ai-ggbond-youtube-script` 上线 — YouTube 字幕/封面下载，三级容灾（InnerTube + yt-dlp + 三方摘要） |
 | 2026-05-28 | 🧹 `ai-ggbond-remove-ai-marks` 上线 — AI 图片可见+不可见水印清除 |
 | 2026-05-26 | 📦 `ai-ggbond-brain-setup` 上线 · `push-to-x` 废弃，`publish-to-x` 替代 |
 | 2026-05-20 | 🔍 `ai-ggbond-github-trending` 上线 · 全部技能达成"千人千面"用户适配 v1.0 |

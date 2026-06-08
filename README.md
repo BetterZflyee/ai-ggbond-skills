@@ -4,7 +4,7 @@
   <a href="https://github.com/BetterZflyee/ai-ggbond-skills/stargazers"><img src="https://img.shields.io/github/stars/BetterZflyee/ai-ggbond-skills?style=for-the-badge&color=facc15" alt="Stars"></a>
   <a href="https://github.com/BetterZflyee/ai-ggbond-skills/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="License"></a>
   <a href="https://zflyee.com/"><img src="https://img.shields.io/badge/built%20by-AI%20GGBond-8b5cf6?style=for-the-badge" alt="AI GGBond"></a>
-  <a href="#changelog"><img src="https://img.shields.io/badge/version-1.2-0891b2?style=for-the-badge" alt="Version"></a>
+  <a href="#changelog"><img src="https://img.shields.io/badge/version-1.3-0891b2?style=for-the-badge" alt="Version"></a>
   <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/中文版-📖-dc2626?style=for-the-badge" alt="中文版"></a>
 </p>
 
@@ -39,6 +39,7 @@ Bring your own model — OpenAI, DeepSeek, OpenRouter (200+ models), Nous Portal
 | `ai-ggbond-run-xiaohongshu` | 📕 Social | End-to-end Xiaohongshu ops: positioning → ideation → creation → publishing → engagement → iteration |
 | `ai-ggbond-brain-setup` | 🧠 Knowledge | GBrain memory layer with DashScope/Qwen3-Embedding support — 9 documented pitfalls, proxy config, recipe patching |
 | `ai-ggbond-remove-ai-marks` | 🧹 Utility | Remove visible (Gemini sparkle) & invisible (SynthID/C2PA) AI watermarks from images |
+| `ai-ggbond-youtube-script` | 🎬 Media | Download YouTube transcripts, subtitles & cover images. InnerTube + yt-dlp fallback + web search triple-fallback |
 
 > All skills support **persona-adaptive output** (v1.0 milestone) — they automatically read your profile from Hermes Memory and tailor content to your unique voice, instead of producing generic AI-sounding text.
 
@@ -137,6 +138,7 @@ Just talk to your Hermes Agent naturally:
 | "Help me run Xiaohongshu" | `ai-ggbond-run-xiaohongshu` |
 | "Set up gbrain" / "Configure brain" | `ai-ggbond-brain-setup` |
 | "Remove AI watermark" / "Clean this image" | `ai-ggbond-remove-ai-marks` |
+| "YouTube transcript" / "Get subtitles" / "YouTube字幕" | `ai-ggbond-youtube-script` |
 
 ### CLI Command Reference
 
@@ -229,6 +231,19 @@ Remove AI-generated watermarks and metadata from images.
 
 **Use cases**: Pre-publish image sanitation for WeChat, X, Xiaohongshu · batch clean article cover images · anti-AI-detection for social platforms
 
+### ai-ggbond-youtube-script
+
+Download YouTube video transcripts, subtitles and cover images. No API key required — uses YouTube's InnerTube API directly with automatic yt-dlp fallback and web search triple-fallback.
+
+**Capabilities**: Multi-language subtitle download · translation · chapter segmentation · speaker identification (AI post-processing) · SRT/text output · cover image caching · auto-generated & manual transcript support
+
+**Highlights**:
+- Triple-fallback: InnerTube API → yt-dlp → web search for third-party summaries
+- Sentence-level timestamp segmentation (CJK-aware)
+- Smart caching — re-fetch only on language change or `--refresh`
+- Proxy-aware for network-restricted environments (China, Hermes VM)
+- 6 documented pitfalls with verified workarounds
+
 ---
 
 ## Ecosystem Integration
@@ -285,6 +300,7 @@ hermes skills list | grep publish-to-x
 
 | Date | Milestone |
 |:---|:---|
+| 2026-06-08 | 🎬 `ai-ggbond-youtube-script` released — YouTube transcript/subtitle/cover download with triple-fallback (InnerTube + yt-dlp + web search) |
 | 2026-06-04 | 🧠 `ai-ggbond-brain-setup` v1.2 — DashScope/Qwen3-Embedding support, 9 pitfalls documented, proxy config, recipe patching |
 | 2026-05-28 | 🧹 `ai-ggbond-remove-ai-marks` released — visible + invisible watermark removal for AI-generated images |
 | 2026-05-26 | 📦 `ai-ggbond-brain-setup` released · `push-to-x` deprecated, replaced by `publish-to-x` |
