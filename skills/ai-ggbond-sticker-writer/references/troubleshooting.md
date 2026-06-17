@@ -10,6 +10,7 @@
 | 生成 429 或超时 | 稍后重试；脚本已支持多端点自动切换；若持续429，改用直接Python API调用+简化提示词 |
 | HTTP 500 "sensitive words detected" | 政治人物姓名触发过滤器。解决方案：用职位代替姓名（"国家主席"、"美国总统"），或改用英文提示词 |
 | 中文文字乱码 | 使用 `gpt-image-2` 或 `qwen-image-edit-2509` 并加强中文约束 |
+| execute_code中API key被审查 | execute_code工具会审查/替换.env中的API key为`***`，导致Python语法错误。**解决方案**：不要在execute_code中读取.env文件，改用`write_file`写脚本到`/tmp/gen_xxx.py`，再用`terminal`执行`python3 /tmp/gen_xxx.py` |
 | 输出目录不对 | 通过 `WECHAT_STICKER_OUTPUT_DIR` 或 `--output-dir` 指定 |
 | 比例不符合预期 | 在提示词开头和结尾都声明比例，并检查 `--ratio` 参数 |
 | 脚本路径错误(文件不存在) | 脚本使用相对路径，需确保CWD正确；建议使用绝对路径 `--markdown /full/path/to/file.md` |

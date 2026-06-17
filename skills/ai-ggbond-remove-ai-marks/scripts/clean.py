@@ -26,9 +26,9 @@ if Path(sys.executable).resolve() != _UV_PYTHON.resolve() and _UV_PYTHON.exists(
     os.execv(str(_UV_PYTHON), [str(_UV_PYTHON), __file__] + sys.argv[1:])
 
 # ── 以下代码在 uv Python 3.10 环境中运行 ──
+import cv2
 from remove_ai_watermarks.gemini_engine import GeminiEngine
 from remove_ai_watermarks.noai.cleaner import remove_ai_metadata, has_ai_content
-import cv2
 
 
 def _verbose_print(msg: str) -> None:
@@ -66,9 +66,7 @@ def clean_all(source: Path, output: Path, humanize: float = 0.0) -> Path:
     """完整清洗管线：可见水印 → 不可见水印 → 元数据。"""
     import tempfile
 
-    fd, tmp = tempfile.mkstemp(suffix=".png")
-    os.close(fd)
-    tmp_path = Path(tmp)
+    img = cv2.imread(str(source))
     if img is None:
         print(f"  ✗ 无法读取图片: {source}")
         return source
@@ -103,7 +101,7 @@ def clean_all(source: Path, output: Path, humanize: float = 0.0) -> Path:
 
     # ── Step 3: 元数据 ──
     _verbose_print("③ AI 元数据…")
-    remove_ai_metadata(tmp_path, output)
+    remove_ai_metadata(tmp, output)
     _verbose_print(f"  ✓ 已剥离")
 
     # ── Step 4: 模拟胶片颗粒（可选）──

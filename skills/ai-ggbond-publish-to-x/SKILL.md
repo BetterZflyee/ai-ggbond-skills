@@ -1,7 +1,7 @@
 ---
 name: ai-ggbond-publish-to-x
 description: 发布内容到 X (Twitter)。支持短帖(文字+图片+视频)、引用转发、长文(X Articles/Markdown)、帖子串(Thread)。对接 ai-ggbond-article-writer 和 ai-ggbond-x-followings-feed。当用户说"发到X""发推""tweet""publish to X"时触发。
-version: 2.0.0
+version: 2.1.0
 metadata:
   openclaw:
     homepage: https://github.com/BetterZflyee/ai-ggbond-skills#ai-ggbond-publish-to-x
@@ -16,6 +16,8 @@ metadata:
 将内容策略化发布到 X（原 Twitter），支持短帖、图片、视频、引用转发、长文和帖子串。
 
 设计原则：发布不是"推一条"——发布是分发策略的终点。每条内容都应服务于飞哥的 AI Native 超级个体定位。
+
+> 📝 **发帖写作风格铁律**：`references/x-post-writing-style.md`。核心：**不劝、不邀、不推销——让人自己点进来。** 禁止"你怎么看""来聊聊""推荐你看看"等强引导语。写文案前先读这个。
 
 ---
 
@@ -44,12 +46,33 @@ metadata:
 
 ---
 
-## 执行模式选择（必须二选一）
+## 执行模式选择（三选一，按优先级）
 
-1. **Hermes Browser 模式**（首选）：使用 Hermes 的 `browser_*` 工具操控真实 Chrome，复用用户已登录的 X 会话。
-2. **CDP 脚本模式**（后备）：Browser 模式不可用时，通过 CDP 直连 Chrome，脚本自动填充内容。
+1. **CDP Cookie 注入模式**（⭐推荐）：Hermes browser 和 CDP 脚本均不可靠时，这是**唯一稳定方案**。通过 Python websocket 直连 Chrome CDP，注入 X cookies 后操作编辑器。
+2. **CDP 脚本模式**（后备）：通过 `x-browser.ts` 自动启动 Chrome + CDP。前提是 Chrome profile 已有 X cookies。
+3. **Hermes Browser 模式**（❌已知不可用）：X.com 被 Browserbase 屏蔽，会超时。仅当其他模式都失败时尝试。
 
-两种模式都**打开浏览器让用户审核**，绝不自动点击发布按钮（除非用户明确说"直接发"）。
+**核心原则**：所有模式都**打开浏览器让用户审核**，绝不自动点击发布按钮（除非用户明确说"直接发"）。
+
+**CDP Cookie 注入模式快速指南**（完整文档见 `references/cdp-cookie-injection-workaround.md`）：
+
+```bash
+# 1. 启动 Chrome（必须带这些 flag）
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --remote-debugging-port=9222 \
+  --remote-allow-origins=* \
+  --proxy-server="http://127.0.0.1:7897" \
+  --user-data-dir="/Users/admin/Library/Application Support/ai-ggbond-skills/chrome-profile" \
+  --no-first-run --no-default-browser-check &
+
+# 2. 注入 cookies 并操作（Python 脚本模式见 references/）
+# 核心步骤：Enable Runtime/Page/Network → setCookie(auth_token+ct0) → navigate → execCommand('insertText')
+```
+
+**关键标志位**：
+- `--remote-allow-origins=*`：**必须**。否则 Python websocket 连接被 403 拒绝
+- `--proxy-server="http://127.0.0.1:7897"`：Clash 代理，否则 X 加载慢/失败
+- `Runtime.enable`：必须显式启用，否则 evaluate 返回 `?`
 
 ---
 
@@ -64,9 +87,11 @@ metadata:
 
 ---
 
-## Hermes Browser 模式（首选）
+## Hermes Browser 模式（❌ 不可用于 X.com）
 
-使用 Hermes 内置 `browser_navigate` / `browser_click` / `browser_type` / `browser_snapshot` 工具操控 Chrome。
+**警告**：Hermes 内置 browser 访问 X.com 会 60s 超时（X 屏蔽 Browserbase IP）。Google 等其他站点正常，但 X 专用功能不可用此模式。
+
+以下为历史文档，仅在将来 browser 修复后参考。当前直接跳到 CDP Cookie 注入模式。
 
 **通用规则**：
 - 始终先 `browser_navigate` 到目标页面
@@ -109,9 +134,11 @@ metadata:
 
 ---
 
-## CDP 脚本模式（后备）
+## CDP 脚本模式（⚠️ 需 Chrome profile 已登录 X）
 
 Browser 模式不可用时使用。脚本自动启动 Chrome + CDP，填充内容后浏览器保持打开供审核。
+
+**前置条件**：Chrome profile 必须已有 X 登录 cookies，否则脚本会卡在登录页无输出。首次使用前先用 CDP Cookie 注入模式手动登录一次。
 
 ### 短帖
 
@@ -158,17 +185,34 @@ cover_image: /path/to/cover.jpg
 
 当内容超过 280 字符时，自动拆分为帖子串（1/N 格式）。
 
-**拆分规则**：
-- 按句号/段落自然断点拆分
-- 每条 ≤ 280 字符
-- 自动添加 `1/N` `2/N` 标记
-- 第一条包含核心观点/钩子
-- 最后一条包含 CTA 或链接
+> 📘 **公众号长文转 X Thread 压缩指南**：`references/article-to-thread-compression.md`。
 
-**实现方式**：
-1. AI 先手动拆分内容为 N 条
-2. 第一条用短帖发布
-3. 后续每条作为回复追加到前一条
+**拆分规则**：
+- 按语义/段落自然断点拆分，每条 ≤ 280 字符
+- 自动添加 `1/N` `2/N` 标记
+- 第一条包含核心观点/钩子（现象+判断）
+- 中间条依次展开：机制→案例→理论→行动→冷思考
+- 最后一条金句收尾
+
+**Thread 发布流程（CDP Cookie 注入模式实操）**：
+
+```
+1. 注入 cookies → navigate compose/post → 填入文字 → 用户点发布
+2. 等用户确认"发完了"
+3. navigate 到首条推文 URL（https://x.com/{user}/status/{id}）
+4. click [data-testid="reply"]
+5. 填入第 N 条文字 → 用户点发布
+6. 重复 3-5 直到全部发完
+```
+
+**每条间等待时间**：navigate 后等 4s，click 后等 2s，确保 DOM 就绪。
+
+**文本填入方法**（X 编辑器是 contenteditable div）：
+```javascript
+const editor = document.querySelector('[data-testid="tweetTextarea_0"]');
+editor.focus();
+document.execCommand('insertText', false, text);
+```
 
 ---
 
@@ -242,23 +286,34 @@ cover_image: /path/to/cover.jpg
 
 ## Troubleshooting
 
-### Chrome debug port 不可用
+### 已知不可用方案（直接跳过）
 
-CDP 模式遇到 `Chrome debug port not ready` 错误时，自动执行：
-```bash
-pkill -f "Chrome.*remote-debugging-port" 2>/dev/null; sleep 2
-```
-然后重试。不要问用户。
+| 方案 | 现象 | 原因 |
+|------|------|------|
+| Hermes browser → X.com | 60s 超时（Google 正常） | X 屏蔽 Browserbase IP |
+| X GraphQL API | 所有 CreateTweet query ID 返回 404 | query ID 已过期 |
+| xurl CLI | 安装后二进制不在 PATH | npm 全局链接问题 |
+| CDP x-browser.ts 脚本 | 无输出挂起 | Chrome profile 无 cookies，卡在登录页 |
+
+### 唯一稳定方案：CDP Cookie 注入
+
+详见 `references/cdp-cookie-injection-workaround.md`。
+
+**快速排查**：
+
+1. **Chrome 启动不了** → 杀残留进程：`pkill -f "Google Chrome" ; sleep 3`
+2. **CDP WebSocket 403** → 加 `--remote-allow-origins=*` 重启动 Chrome
+3. **X 页面是登录页** → 用 CDP 注入 `auth_token` + `ct0` cookies（从 `~/.hermes/.env` 读取）
+4. **Runtime.evaluate 返回 `?`** → 没调 `Runtime.enable`，先 enable
+5. **Cookie 注入后仍登录页** → navigate 到 compose/post 让页面用新 cookies 刷新
+6. **execCommand 没反应** → 确保先 `editor.focus()` 再 `execCommand`
+7. **回复按钮找不到** → 主页面上用 `[data-testid="reply"]`，弹窗里也是同一个 selector
+8. **Thread 回复串到错误位置** → 每次都 navigate 回原始推文 URL 再点回复
 
 ### 图片粘贴失败
 - 检查剪贴板权限：运行 `check-paste-permissions.ts`
 - 确保 Chrome 窗口可见且在前台
 - macOS：确认辅助功能权限已开启
-
-### X 编辑器找不到
-- 检查是否已登录 X
-- 确认浏览器未处于离线状态
-- CDP 模式会等待手动登录
 
 ### 发布按钮灰色/不可点击
 - 检查图片是否上传完成（等待 blob: URL 出现）

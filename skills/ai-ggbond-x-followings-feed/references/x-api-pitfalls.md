@@ -54,6 +54,20 @@ bird CLI 是 Node.js 脚本（v0.8.4），使用原生 `fetch` API，**不响应
 
 **解决方案**：使用 Python 脚本 + `requests` 库（自动响应代理环境变量）
 
+## 3.5. requests 不可用时的 curl Fallback（2026-06-03 新增）
+
+**场景**：Hermes VM 系统 Python 3.9 未安装 `requests`，且 `pip install` 因网络不通失败（pip 源被墙或代理不透传）。
+
+**尝试过的方案**：
+1. `pip3 install requests` → `Failed to establish a new connection`（pip 不走 HTTPS_PROXY）
+2. Python `urllib` + `ProxyHandler` → 请求返回 **401 Unauthorized**
+
+**可靠方案**：直接用 `curl -x` 调 X GraphQL API。curl 的代理实现与 X API 完全兼容。
+
+**关键差异**：同一组 Cookie + Bearer Token + Headers，curl 返回 200，urllib 返回 401。不要浪费时间调试 urllib 代理问题，直接切 curl。
+
+详见 `references/curl-x-api-workflow.md`。
+
 ## 4. Clash Verge 代理端口
 
 飞哥机器上 Clash Verge 的 `mixed-port` 是 **7897**（不是默认的 7890）。

@@ -2,7 +2,7 @@
 
 ## Context
 
-The user asked whether the learning from a WeChat article (`https://mp.weixin.qq.com/s/93VMIcvAt4LT5n8vyZ0BYA`) could be incorporated into their writing rules. The article summarized 卡兹克内部分享 on content creation.
+The user asked whether the learning from a WeChat article (`https://mp.weixin.qq.com/s/93VMIcvAt4LT5n8vyZ0BYA`) could be incorporated into their writing rules. The article summarized 朱朱侠内部分享 on content creation.
 
 This session updated `ai-ggbond-article-writer` from v2.1.0 to v2.2.0, then this review tightened it to v2.2.1 by adding explicit review/verification lessons.
 

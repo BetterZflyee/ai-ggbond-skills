@@ -1,7 +1,7 @@
 ---
 name: ai-ggbond-brain-setup
 description: GBrain 记忆层在 Hermes 环境下的安装、配置与内容灌入。当用户提到"brain""gbrain""灌内容""记忆层""知识库搭建"时触发。桥接 gbrain 上游技能（RESOLVER/signal-detector/brain-ops）与飞哥的 Hermes agent 生态。
-version: 1.1.0
+version: 1.2.0
 metadata:
   openclaw:
     homepage: https://github.com/BetterZflyee/ai-ggbond-skills#ai-ggbond-brain-setup
@@ -209,7 +209,7 @@ gbrain stats                                 # 统计
 ## Related Workflows
 
 - **[GitHub 仓库同步](references/github-repo-sync.md)** — 将本地全部 ai-ggbond-* 技能同步到 GitHub 仓库 `BetterZflyee/ai-ggbond-skills`。含完整复制脚本和技能分布一览表。
-- **[GBrain Embedding 陷阱](references/gbrain-embedding-pitfalls.md)** — 实测发现的 5 个配置陷阱：`--embedding-model` 被忽略、`config set` 是 no-op、DeepSeek 不支持 embedding、维度不匹配、bun 符号链接。
+- **[GBrain Embedding 陷阱](references/gbrain-embedding-pitfalls.md)** — 实测发现的 9 个配置陷阱：维度冲突、config set no-op、DashScope 中国区 recipe patch、DeepSeek 不支持 embedding、schema 损坏、bun 符号链接、base_urls 不生效、fetch() 代理大小写、brew malloc bug。
 
 ## Embedding 提供商配置（关键流程）
 

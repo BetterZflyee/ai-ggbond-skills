@@ -120,17 +120,18 @@ class StickerManager:
         logger.info(f"贴图文案已保存: {file_path}")
         return file_path
     
-    def save_image_prompts(self, folder_path: Path, prompts: Dict[str, Any], ratio: str = "16:9") -> Path:
+    def save_image_prompts(self, folder_path, prompts: Dict[str, Any], ratio: str = "16:9") -> Path:
         """
         保存配图提示词
         
         Args:
-            folder_path: 贴图文件夹路径
+            folder_path: 贴图文件夹路径（str 或 Path）
             prompts: 提示词字典
             
         Returns:
             保存的文件路径
         """
+        folder_path = Path(folder_path) if not isinstance(folder_path, Path) else folder_path
         images_dir = folder_path / "images"
         prompt_file = images_dir / "prompt.md"
         

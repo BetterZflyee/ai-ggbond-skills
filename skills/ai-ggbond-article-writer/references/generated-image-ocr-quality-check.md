@@ -40,3 +40,28 @@ If the shell security scanner warns about piping `uv` output to `python`, either
 
 ## Practical Rule
 For公众号配图，文字正确性 beats decorative richness. The more tiny text in an AI-generated image, the higher the error probability. Use OCR as a gate before publishing.
+
+## gpt-image-2 Chinese Character Dropping & Spacing Fix
+
+### Symptom
+gpt-image-2 occasionally drops or tangles individual Chinese characters, especially in short, dense titles. Example: "不是作弊" rendered as "不是作" (missing "弊").
+
+### Root Cause
+gpt-image-2 struggles with tightly-packed Chinese characters in decorative/title contexts. Without explicit spacing, adjacent characters can merge or drop during rendering.
+
+### Fix: Add Character Spacing to Prompt
+When generating Chinese title text, explicitly request spacing between characters:
+
+```
+标题：不是作弊 四个汉字 每个字之间有明显间距 字体清晰无重叠无变形
+```
+
+This may cause the title to split into two lines ("不是" / "作弊") — this is acceptable as long as all characters are present and legible.
+
+### Regeneration Workflow
+When OCR reveals a dropped character in a title/label:
+1. Do NOT re-run the same prompt (will likely produce same defect)
+2. Add spacing instructions to the prompt: `每个字之间有明显间距 字体清晰无重叠无变形`
+3. Add `无重影` to the negative constraints
+4. Regenerate and re-OCR to verify all characters present
+5. Accept two-line rendering if all characters are correct
