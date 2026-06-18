@@ -4,7 +4,7 @@
   <a href="https://github.com/BetterZflyee/ai-ggbond-skills/stargazers"><img src="https://img.shields.io/github/stars/BetterZflyee/ai-ggbond-skills?style=for-the-badge&color=facc15" alt="Stars"></a>
   <a href="https://github.com/BetterZflyee/ai-ggbond-skills/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="License"></a>
   <a href="https://zflyee.com/"><img src="https://img.shields.io/badge/built%20by-AI%20朱朱侠-8b5cf6?style=for-the-badge" alt="AI 朱朱侠"></a>
-  <a href="#changelog"><img src="https://img.shields.io/badge/version-1.3-0891b2?style=for-the-badge" alt="Version"></a>
+  <a href="#changelog"><img src="https://img.shields.io/badge/version-1.4-0891b2?style=for-the-badge" alt="Version"></a>
   <a href="README.md"><img src="https://img.shields.io/badge/English-📖-2563eb?style=for-the-badge" alt="English"></a>
 </p>
 
@@ -12,7 +12,7 @@
   <img src="assets/banner.jpg" alt="AI GGBond Skills" width="800">
 </p>
 
-> **为 AI Native 超级个体&amp;OPC打造的 Agent Skills 技能集合。**
+> **为 AI Native 超级个体&OPC打造的 Agent Skills 技能集合。**
 >
 > 每个技能都是一个完整的自动化工作流——不是聊天玩具，是能发文章、能运营社媒、能抓趋势、能沉淀知识的 AI 劳动力。即插即用，持续迭代，所有经验教训沉淀在 `references/` 目录中。
 
@@ -33,6 +33,9 @@
 | `ai-ggbond-article-writer` | 📝 创作 | 公众号长文全流水线：选题→大纲→初稿→排版→配图→发布 |
 | `ai-ggbond-post-to-wechat` | 🚀 发布 | 一键推送微信公众号草稿箱，API + Browser CDP 双模式 |
 | `ai-ggbond-sticker-writer` | 🎨 创作 | 内容转小红书风微信贴图，自动总结→排版→配图 |
+| `ai-ggbond-poster-portrait` | 🎨 创作 | GPT Image 2 女性肖像海报生成——摄影感、电影感、情绪感，安全审核绕过 |
+| `ai-ggbond-worldcup-kv-poster` | 🎨 创作 | 世界杯国家概念 KV 海报——把国家当品牌，高级商业体育海报质感 |
+| `ai-ggbond-skill-matrix` | 🧭 元技能 | 181 个 Skill 元路由表，7 大场景×22 分类，触发词映射+链式工作流编排 |
 | `ai-ggbond-github-trending` | 🔍 研究 | GitHub Trending 抓取+AI 解读，AI/Agent/MCP 趋势洞察 |
 | `ai-ggbond-x-followings-feed` | 📡 信号 | X/Twitter 关注流抓取 + AI 结构化日报 + 策展评分 |
 | `ai-ggbond-publish-to-x` | 📢 社媒 | X/Twitter 全功能发布：短帖、引用、长文、Thread |
@@ -62,8 +65,8 @@
        │            │             │
   ┌────┼─────┐      │      ┌─────┼──────┐
   ▼    ▼     ▼      ▼      ▼     ▼      ▼
-文章  贴图  GitHub   X      微信   X     小红书
-写作  转换  Trending 关注流  公众号  发布   运营
+文章  贴图  肖像海报  X      微信   X     小红书
+写作  转换  世界杯KV  关注流  公众号  发布   运营
        │            │             │
        └────────────┴─────────────┘
                     │
@@ -132,6 +135,9 @@ cp -r skills/ai-ggbond-* ~/.hermes/skills/
 | "写一篇关于 AI Agent 的文章" | `ai-ggbond-article-writer` |
 | "发到微信公众号" | `ai-ggbond-post-to-wechat` |
 | "把这个转成贴图" | `ai-ggbond-sticker-writer` |
+| "生成肖像海报" / "CCD风格照片" | `ai-ggbond-poster-portrait` |
+| "世界杯海报" / "国家KV海报" | `ai-ggbond-worldcup-kv-poster` |
+| "我该用哪个skill" / "帮我选skill" | `ai-ggbond-skill-matrix` |
 | "看看 GitHub Trending 今天有什么" | `ai-ggbond-github-trending` |
 | "X 日报" / "总结关注列表" | `ai-ggbond-x-followings-feed` |
 | "发推" / "publish to X" | `ai-ggbond-publish-to-x` |
@@ -193,6 +199,41 @@ hermes doctor
 
 **样式**：知识卡片、清单体、对比图、步骤图、观点卡
 
+### ai-ggbond-poster-portrait
+
+GPT Image 2 女性肖像海报生成系统——摄影感、电影感、情绪感的高质量人像海报。
+
+**能力**：电影感人像生成 · CCD 街拍风格 · 情绪感写真 · 安全审核绕过的 prompt 工程（结构化网格 > 叙述性段落）· 云雾 API 直接对接，生成稳定可靠
+
+**特色**：
+- 结构化网格/表格布局 prompt，防止模型"自由发挥"偏离内容
+- 多种摄影风格：CCD、胶片颗粒、街拍、影棚
+- 肖像专用负面提示词，确保质量一致
+- 绕过脚本 ContentAnalyzer 直接调 API 的工作流
+
+### ai-ggbond-worldcup-kv-poster
+
+世界杯国家概念 KV 海报生成系统——把每个国家当成一个完整的视觉品牌来设计。
+
+**能力**：国家视觉资产自动识别 · 球星/足球宝贝形象整合 · 多画幅比例支持（9:16、16:9、4:5、1:1、2.35:1）· 高级商业体育海报质感 · 高辨识度设计语言
+
+**特色**：
+- 不是国旗+足球的拼凑——是完整的品牌视觉识别设计
+- 自动识别国家配色、文化符号、字体风格
+- 支持球星肖像和品牌吉祥物两种模式
+- 针对社媒传播和商业印刷双重优化
+
+### ai-ggbond-skill-matrix
+
+飞哥的全量 Skill 元路由表——181 个 Skill 按 7 大场景分类的完整索引。
+
+**能力**：181 Skills × 7 大场景 × 22 分类 · 触发词→Skill 映射 · 全链路编排（选题→研究→写作→发布）· 技能链推荐
+
+**使用场景**：
+- "我该用哪个 skill？"——扫描矩阵，推荐最佳匹配
+- "从选题到发布的全链路"——串联正确的技能链
+- "我有哪些技能？"——按场景分类的技能全景图
+
 ### ai-ggbond-github-trending
 
 GitHub Trending 趋势发现与解读。
@@ -221,7 +262,7 @@ X/Twitter 全功能发布客户端。
 
 GBrain 记忆层集成——让 AI 拥有长期记忆。
 
-**能力**：PGLite 本地向量存储 · 桥接 signal-detector / brain-ops / conventions 等上游技能 · 知识库内容灌入工作流
+**能力**：PGLite 本地向量存储 · DashScope text-embedding-v4（Qwen3-Embedding, 1024d）· balanced search mode · 代理感知 fetch（大写 HTTPS_PROXY）· recipe patching 适配国内 key · 9 个已验证踩坑记录与修复方案 · 桥接 signal-detector / brain-ops / conventions 等上游技能 · 知识库内容灌入工作流
 
 ### ai-ggbond-remove-ai-marks
 
@@ -261,7 +302,7 @@ article  sticker   xiaohongshu   github
 writer   writer    ops           trending
    ↓       ↓          ↓
 post-to   publish    (内置发布)
--wechat   -to-x
+|-wechat   -to-x
 ```
 
 ### 技能间串联示例
@@ -272,6 +313,8 @@ post-to   publish    (内置发布)
 | 热点快评→X 推文 | `x-followings-feed` → `publish-to-x` |
 | 开源项目→选题创作 | `github-trending` → `article-writer` → `post-to-wechat` |
 | 知识沉淀→长期记忆 | `article-writer` 产出 → `brain-setup` 灌入 GBrain |
+| 文章配肖像海报 | `article-writer` → `poster-portrait` 生成封面 |
+| 世界杯内容系列 | `worldcup-kv-poster` → `article-writer` → `post-to-wechat` |
 
 ---
 
@@ -300,7 +343,9 @@ hermes skills list | grep publish-to-x
 
 | 日期 | 里程碑 |
 |:---|:---|
+| 2026-06-17 | 🎯 `ai-ggbond-poster-portrait` + `ai-ggbond-worldcup-kv-poster` + `ai-ggbond-skill-matrix` 同步上线——肖像海报、世界杯 KV、181 技能路由表 |
 | 2026-06-08 | 🎬 `ai-ggbond-youtube-script` 上线 — YouTube 字幕/封面下载，三级容灾（InnerTube + yt-dlp + 三方摘要） |
+| 2026-06-04 | 🧠 `ai-ggbond-brain-setup` v1.2 — DashScope/Qwen3-Embedding 支持，9 个踩坑记录，代理配置，recipe patching |
 | 2026-05-28 | 🧹 `ai-ggbond-remove-ai-marks` 上线 — AI 图片可见+不可见水印清除 |
 | 2026-05-26 | 📦 `ai-ggbond-brain-setup` 上线 · `push-to-x` 废弃，`publish-to-x` 替代 |
 | 2026-05-20 | 🔍 `ai-ggbond-github-trending` 上线 · 全部技能达成"千人千面"用户适配 v1.0 |

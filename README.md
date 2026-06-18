@@ -1,10 +1,10 @@
-# AI GGBond Skills<br><small>Focus on Making AI Your Automated Money-Making &amp; IP Operations System</small>
+# AI GGBond Skills<br><small>Focus on Making AI Your Automated Money-Making & IP Operations System</small>
 
 <p align="center">
   <a href="https://github.com/BetterZflyee/ai-ggbond-skills/stargazers"><img src="https://img.shields.io/github/stars/BetterZflyee/ai-ggbond-skills?style=for-the-badge&color=facc15" alt="Stars"></a>
   <a href="https://github.com/BetterZflyee/ai-ggbond-skills/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="License"></a>
   <a href="https://zflyee.com/"><img src="https://img.shields.io/badge/built%20by-AI%20GGBond-8b5cf6?style=for-the-badge" alt="AI GGBond"></a>
-  <a href="#changelog"><img src="https://img.shields.io/badge/version-1.3-0891b2?style=for-the-badge" alt="Version"></a>
+  <a href="#changelog"><img src="https://img.shields.io/badge/version-1.4-0891b2?style=for-the-badge" alt="Version"></a>
   <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/中文版-📖-dc2626?style=for-the-badge" alt="中文版"></a>
 </p>
 
@@ -12,7 +12,7 @@
   <img src="assets/banner.jpg" alt="AI GGBond Skills" width="800">
 </p>
 
-> **A curated collection of Agent Skills for the AI Native solopreneur &amp; OPC.**
+> **A curated collection of Agent Skills for the AI Native solopreneur & OPC.**
 >
 > Every skill is a complete, battle-tested automation workflow — not a chatbot toy, but an AI workforce that publishes articles, runs social media, tracks trends, and builds knowledge. Plug-and-play. Continuously refined. All lessons learned are preserved in `references/`.
 
@@ -33,6 +33,9 @@ Bring your own model — OpenAI, DeepSeek, OpenRouter (200+ models), Nous Portal
 | `ai-ggbond-article-writer` | 📝 Creative | Full pipeline: topic → outline → draft → typesetting → images → publish to WeChat |
 | `ai-ggbond-post-to-wechat` | 🚀 Publishing | One-click push to WeChat Official Account drafts. API + Browser CDP modes |
 | `ai-ggbond-sticker-writer` | 🎨 Creative | Convert content to social-ready image cards (Xiaohongshu-style stickers) |
+| `ai-ggbond-poster-portrait` | 🎨 Creative | GPT Image 2 portrait poster generation — cinematic, emotional, photography-style female portraits with safety-compliant prompts |
+| `ai-ggbond-worldcup-kv-poster` | 🎨 Creative | World Cup country concept KV posters — treat countries as visual brands with high commercial sports aesthetics |
+| `ai-ggbond-skill-matrix` | 🧭 Meta | 181-skill routing table across 7 scenarios — trigger words, skill chains, full-pipeline orchestration |
 | `ai-ggbond-github-trending` | 🔍 Research | GitHub Trending discovery + AI-powered analysis for AI/Agent/MCP trends |
 | `ai-ggbond-x-followings-feed` | 📡 Signal | X/Twitter followings scraper + AI-structured daily digest with curation scoring |
 | `ai-ggbond-publish-to-x` | 📢 Social | Full-featured X/Twitter publishing: posts, quotes, long-form, Threads |
@@ -62,8 +65,8 @@ Bring your own model — OpenAI, DeepSeek, OpenRouter (200+ models), Nous Portal
        │            │             │
   ┌────┼─────┐      │      ┌─────┼──────┐
   ▼    ▼     ▼      ▼      ▼     ▼      ▼
-Article Sticker GitHub   X    WeChat   X   Xiaohong
-Writer  Writer Trending Feed  Publish Publish shuOps
+Article Sticker Poster   X    WeChat   X   Xiaohong
+Writer  Writer Portrait Feed  Publish Publish shuOps
        │            │             │
        └────────────┴─────────────┘
                     │
@@ -132,6 +135,9 @@ Just talk to your Hermes Agent naturally:
 | "Write an article about AI Agents" | `ai-ggbond-article-writer` |
 | "Push this to my WeChat blog" | `ai-ggbond-post-to-wechat` |
 | "Turn this into image stickers" | `ai-ggbond-sticker-writer` |
+| "Generate a portrait poster" / "CCD style photo" | `ai-ggbond-poster-portrait` |
+| "World Cup poster" / "Country KV poster" | `ai-ggbond-worldcup-kv-poster` |
+| "Which skill should I use?" / "Skill routing" | `ai-ggbond-skill-matrix` |
 | "What's trending on GitHub today?" | `ai-ggbond-github-trending` |
 | "X digest" / "Summarize my followings" | `ai-ggbond-x-followings-feed` |
 | "Tweet this" / "Publish to X" | `ai-ggbond-publish-to-x` |
@@ -192,6 +198,41 @@ Convert articles or key points into social-ready image cards (Xiaohongshu-style)
 **Pipeline**: Input content → auto-summarize → title generation → Markdown layout → AI image generation
 
 **Formats**: Knowledge cards, checklists, comparison charts, step diagrams, opinion cards
+
+### ai-ggbond-poster-portrait
+
+GPT Image 2 portrait poster generation system for cinematic, emotional, photography-style female portraits.
+
+**Capabilities**: Cinematic portrait generation · CCD street photography style · Emotional mood shots · Safety-compliant prompt engineering (avoids GPT Image 2 content policy blocks) · YunWu API direct integration for stable generation
+
+**Highlights**:
+- Structured grid-based prompts (not narrative paragraphs) to prevent model drift
+- Multiple photography styles: CCD, film grain, street photography, studio
+- Portrait-specific negative prompts to ensure consistent quality
+- Direct API call workflow bypassing script auto-analysis
+
+### ai-ggbond-worldcup-kv-poster
+
+World Cup country concept KV poster generation — treat each country as a complete visual brand.
+
+**Capabilities**: Country visual asset auto-recognition · Star player / football babe integration · Multi-aspect ratio support (9:16, 16:9, 4:5, 1:1, 2.35:1) · Commercial sports poster aesthetics · High-recognition design language
+
+**Highlights**:
+- Not flag + football collage — full brand identity treatment
+- Auto-identifies country colors, cultural symbols, typography style
+- Supports both star player portraits and mascot/brand ambassador modes
+- Designed for social media virality and commercial print quality
+
+### ai-ggbond-skill-matrix
+
+Meta-routing table covering 181 skills across 7 scenarios with trigger-word mapping and workflow orchestration.
+
+**Capabilities**: 181 skills × 7 scenarios × 22 categories · Trigger word → skill mapping · Full-pipeline orchestration (topic → research → writing → publishing) · Skill chain recommendations
+
+**Use cases**:
+- "Which skill should I use for X?" — scans the matrix and recommends
+- "Full pipeline from topic to publish" — chains the right skills in order
+- "What skills do I have?" — categorized overview of entire skill ecosystem
 
 ### ai-ggbond-github-trending
 
@@ -261,7 +302,7 @@ article  sticker   xiaohongshu   github
 writer   writer    ops           trending
    ↓       ↓          ↓
 post-to   publish    (built-in
--wechat   -to-x      publishing)
+|-wechat   -to-x      publishing)
 ```
 
 ### Workflow Examples
@@ -272,6 +313,8 @@ post-to   publish    (built-in
 | Hot take → X thread | `x-followings-feed` → `publish-to-x` |
 | Open-source project → article | `github-trending` → `article-writer` → `post-to-wechat` |
 | Knowledge capture → memory | `article-writer` output → `brain-setup` ingest to GBrain |
+| Portrait poster for article | `article-writer` → `poster-portrait` for cover image |
+| World Cup content series | `worldcup-kv-poster` → `article-writer` → `post-to-wechat` |
 
 ---
 
@@ -300,6 +343,7 @@ hermes skills list | grep publish-to-x
 
 | Date | Milestone |
 |:---|:---|
+| 2026-06-17 | 🎯 `ai-ggbond-poster-portrait` + `ai-ggbond-worldcup-kv-poster` + `ai-ggbond-skill-matrix` synced — portrait posters, World Cup KV, 181-skill routing table |
 | 2026-06-08 | 🎬 `ai-ggbond-youtube-script` released — YouTube transcript/subtitle/cover download with triple-fallback (InnerTube + yt-dlp + web search) |
 | 2026-06-04 | 🧠 `ai-ggbond-brain-setup` v1.2 — DashScope/Qwen3-Embedding support, 9 pitfalls documented, proxy config, recipe patching |
 | 2026-05-28 | 🧹 `ai-ggbond-remove-ai-marks` released — visible + invisible watermark removal for AI-generated images |
