@@ -50,76 +50,257 @@
 
 ## 系统架构
 
-```
-┌──────────────────────────────────────────────────┐
-│                  Hermes Agent                      │
-│          (AI 朱朱侠 · PMO 指挥决策中枢)              │
-│                                                    │
-│  记忆层 ←→ GBrain (ai-ggbond-brain-setup)          │
-└──────┬────────────┬─────────────┬─────────────────┘
-       │            │             │
-  ┌────▼─────┐ ┌───▼────┐ ┌─────▼──────┐
-  │ 内容生产   │ │信号采集 │ │ 多渠道发布   │
-  │            │ │        │ │              │
-  └────┬─────┘ └───┬────┘ └─────┬──────┘
-       │            │             │
-  ┌────┼─────┐      │      ┌─────┼──────┐
-  ▼    ▼     ▼      ▼      ▼     ▼      ▼
-文章  贴图  肖像海报  X      微信   X     小红书
-写作  转换  世界杯KV  关注流  公众号  发布   运营
-       │            │             │
-       └────────────┴─────────────┘
-                    │
-              用户画像适配层
-           (Hermes Memory 用户画像适配层)
-```
-
-**设计哲学：可组合的工作流**
-
-每个技能不是孤岛——它们是可串联的流水线节点：
+### 技能生态全景图
 
 ```
-X 关注流日报 ──→ 选题灵感 ──→ 文章写作 ──→ 微信发布
-       │                          │
-       └────→ X 发推评论 ←────────┘
-
-GitHub Trending ──→ 选题灵感 ──→ 文章写作 ──→ 微信发布
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           AI GGBond Skills                                   │
+│                      (13 Skills × 7 大分类)                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                        🧭 元技能层                                    │   │
+│  │  skill-matrix ──→ 将任务路由到正确的技能链                             │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                        │
+│                                    ▼                                        │
+│  ┌──────────────────────┐  ┌──────────────────┐  ┌───────────────────────┐ │
+│  │    📡 信号采集层       │  │  🧠 记忆层        │  │    🔍 研究层           │ │
+│  │                      │  │                  │  │                       │ │
+│  │  x-followings-feed   │  │   brain-setup    │  │   github-trending     │ │
+│  │  (X/Twitter 日报)    │  │   (GBrain 知识库) │  │   (开源趋势扫描)       │ │
+│  └──────────┬───────────┘  └────────┬─────────┘  └───────────┬───────────┘ │
+│             │                       │                        │             │
+│             └───────────────────────┼────────────────────────┘             │
+│                                     │                                       │
+│                                     ▼                                       │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                     📝 内容创作层                                     │   │
+│  │                                                                      │   │
+│  │  ┌─────────────┐  ┌──────────────┐  ┌─────────────────────────────┐ │   │
+│  │  │ article-    │  │ sticker-     │  │ 视觉内容                    │ │   │
+│  │  │ writer      │  │ writer       │  │                             │ │   │
+│  │  │ (长文写作)   │  │ (图片卡片)   │  │  poster-portrait            │ │   │
+│  │  └──────┬──────┘  └──────┬───────┘  │  (肖像海报)                 │ │   │
+│  │         │                │          │                             │ │   │
+│  │         │                │          │  worldcup-kv-poster          │ │   │
+│  │         │                │          │  (世界杯 KV 海报)            │ │   │
+│  │         │                │          └─────────────┬───────────────┘ │   │
+│  └─────────┼────────────────┼────────────────────────┼─────────────────┘   │
+│            │                │                        │                      │
+│            ▼                ▼                        ▼                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                     🚀 多渠道发布层                                   │   │
+│  │                                                                      │   │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌─────────────────────────────┐│   │
+│  │  │ post-to-     │  │ publish-to-x │  │ run-xiaohongshu             ││   │
+│  │  │ wechat       │  │              │  │ (全链路运营，内置发布)        ││   │
+│  │  │ (微信公众号)  │  │ (X/Twitter)  │  │                             ││   │
+│  │  └──────────────┘  └──────────────┘  └─────────────────────────────┘│   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                      🧹 工具层                                       │   │
+│  │                                                                      │   │
+│  │  ┌──────────────────┐  ┌──────────────────────────────────────────┐ │   │
+│  │  │ remove-ai-marks  │  │ youtube-script                          │ │   │
+│  │  │ (水印清除)       │  │ (字幕/封面下载)                          │ │   │
+│  │  └──────────────────┘  └──────────────────────────────────────────┘ │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                   🎯 用户画像适配层                                    │   │
+│  │                  (Hermes Memory / 用户画像)                           │   │
+│  │        自动读取你的风格、定位、偏好，输出千人千面                       │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
+
+### 工作流链式组合
+
+每个技能既可独立使用，也可串联成自动化流水线：
+
+#### 内容生产流水线
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                      主线内容生产流水线                               │
+│                                                                      │
+│  信号源                  内容创作                 分发渠道            │
+│  ──────                 ────────                 ────────           │
+│                                                                      │
+│  x-followings-feed ──┐                                               │
+│                      ├──→ article-writer ──→ post-to-wechat          │
+│  github-trending ────┘        │                                      │
+│                               │                                      │
+│                               ├──→ sticker-writer ──→ (手动分享)      │
+│                               │                                      │
+│                               └──→ publish-to-x                      │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+#### 视觉内容流水线
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                      视觉内容生产流水线                               │
+│                                                                      │
+│  article-writer ──→ poster-portrait (封面图)                         │
+│                                                                      │
+│  article-writer ──→ worldcup-kv-poster (赛事主题封面)                 │
+│                                                                      │
+│  article-writer ──→ sticker-writer (社交卡片)                        │
+│                                                                      │
+│  poster-portrait ──→ remove-ai-marks ──→ 发布                        │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+#### 研究与记忆流水线
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                      研究与知识沉淀流水线                             │
+│                                                                      │
+│  github-trending ──→ article-writer ──→ brain-setup (知识灌入)        │
+│                                                                      │
+│  x-followings-feed ──→ article-writer ──→ brain-setup (知识灌入)      │
+│                                                                      │
+│  youtube-script ──→ article-writer (参考素材)                        │
+│                                                                      │
+│  brain-setup ──→ article-writer (召回知识)                           │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+#### 全栈运营流水线
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                      全栈运营流水线                                   │
+│                                                                      │
+│  小红书运营：                                                        │
+│  run-xiaohongshu ──→ (内部：选题→内容→发布)                           │
+│       ↑                                                              │
+│       └── brain-setup (用户定位适配)                                  │
+│                                                                      │
+│  X/Twitter 全闭环：                                                  │
+│  x-followings-feed ──→ publish-to-x (热点快评)                       │
+│       │                                                              │
+│       └── article-writer ──→ publish-to-x (长文)                     │
+│                                                                      │
+│  多平台联发：                                                        │
+│  article-writer ──┬──→ post-to-wechat (主发)                         │
+│                   ├──→ sticker-writer ──→ run-xiaohongshu             │
+│                   └──→ publish-to-x (交叉分发)                       │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### 完整技能组合矩阵
+
+| 源技能 | → 目标技能 | 使用场景 |
+|:---|:---|:---|
+| `x-followings-feed` | `article-writer`, `publish-to-x` | 信号 → 文章或热点快评 |
+| `github-trending` | `article-writer` | 开源项目 → 趋势文章 |
+| `youtube-script` | `article-writer` | 视频字幕 → 文章参考素材 |
+| `article-writer` | `post-to-wechat` | 长文 → 微信公众号发布 |
+| `article-writer` | `publish-to-x` | 长文 → X 推文或长帖 |
+| `article-writer` | `sticker-writer` | 文章 → 社交图片卡片 |
+| `article-writer` | `poster-portrait` | 文章 → 电影感封面图 |
+| `article-writer` | `worldcup-kv-poster` | 文章 → 赛事主题 KV 海报 |
+| `article-writer` | `brain-setup` | 知识 → 长期记忆沉淀 |
+| `article-writer` | `run-xiaohongshu` | 文章 → 小红书内容 |
+| `poster-portrait` | `remove-ai-marks` | 生成图 → 清洗后发布 |
+| `worldcup-kv-poster` | `remove-ai-marks` | 生成图 → 清洗后发布 |
+| `sticker-writer` | `remove-ai-marks` | 生成图 → 清洗后发布 |
+| `run-xiaohongshu` | `brain-setup` | 互动数据 → 记忆沉淀 |
+| `brain-setup` | `article-writer`, `sticker-writer`, `run-xiaohongshu` | 记忆 → 千人千面输出 |
+| `skill-matrix` | ALL | 任务路由 → 技能链选择 |
 
 ---
 
 ## 快速安装
 
-### 前置条件
+### 通用安装（所有平台通用）
 
-- [Hermes Agent](https://github.com/NousResearch/hermes-agent) 已安装并运行
-- macOS / Linux / WSL2（技能均通过命令行操作，对操作系统无特殊要求）
-
-### 一键安装全部技能
+技能本质是标准的 `SKILL.md` 文件 + `references/` 目录，复制到你的 AI Agent 技能目录即可：
 
 ```bash
 # 克隆仓库
 git clone https://github.com/BetterZflyee/ai-ggbond-skills.git /tmp/ai-ggbond-skills
 
-# 安装所有技能到 Hermes
+# 复制技能到你的 Agent 技能目录
+# 将 <SKILL_DIR> 替换为你的平台技能路径（见下方各平台说明）
+cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-* <SKILL_DIR>/
+```
+
+### 各平台安装指南
+
+#### Hermes Agent
+
+```bash
+# 技能目录：~/.hermes/skills/
 cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-* ~/.hermes/skills/
 
 # 验证安装
 hermes skills list | grep ai-ggbond
+
+# 更新技能
+cd /tmp/ai-ggbond-skills && git pull
+cp -r skills/ai-ggbond-* ~/.hermes/skills/
+```
+
+#### Claude Code
+
+```bash
+# 技能目录：~/.claude/skills/ 或项目 .claude/skills/
+mkdir -p ~/.claude/skills
+cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-* ~/.claude/skills/
+
+# 或安装到特定项目
+mkdir -p /path/to/your/project/.claude/skills
+cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-* /path/to/your/project/.claude/skills/
+```
+
+#### Codex (OpenAI)
+
+```bash
+# 技能目录：~/.codex/skills/ 或项目 .codex/skills/
+mkdir -p ~/.codex/skills
+cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-* ~/.codex/skills/
+```
+
+#### OpenClaw
+
+```bash
+# 技能目录：~/.openclaw/skills/
+mkdir -p ~/.openclaw/skills
+cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-* ~/.openclaw/skills/
+```
+
+#### 通用 Agent（自定义）
+
+```bash
+# 任何支持从技能目录读取 SKILL.md 的 Agent
+# 只需复制到你的 Agent 指定的技能路径
+cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-* /your/agent/skill/path/
 ```
 
 ### 按需安装单个技能
 
 ```bash
-# 示例：只安装文章写作技能
-cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-article-writer ~/.hermes/skills/creative/
+# 只安装你需要的技能
+cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-article-writer <SKILL_DIR>/
+cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-post-to-wechat <SKILL_DIR>/
 ```
 
-### 更新技能
+### 更新所有技能
 
 ```bash
 cd /tmp/ai-ggbond-skills && git pull
-cp -r skills/ai-ggbond-* ~/.hermes/skills/
+cp -r skills/ai-ggbond-* <SKILL_DIR>/
 ```
 
 ---
@@ -128,7 +309,7 @@ cp -r skills/ai-ggbond-* ~/.hermes/skills/
 
 ### 自然语言触发（推荐）
 
-在 Hermes 对话中直接说话即可触发对应技能：
+在对话中直接说话即可——技能通过意图识别触发，不需要命令：
 
 | 你对 AI 朱朱侠说 | 自动触发 |
 |:---|:---|
@@ -305,7 +486,7 @@ post-to   publish    (内置发布)
 |-wechat   -to-x
 ```
 
-### 技能间串联示例
+### 工作流示例
 
 | 工作流 | 技能链 |
 |:---|:---|
@@ -315,6 +496,10 @@ post-to   publish    (内置发布)
 | 知识沉淀→长期记忆 | `article-writer` 产出 → `brain-setup` 灌入 GBrain |
 | 文章配肖像海报 | `article-writer` → `poster-portrait` 生成封面 |
 | 世界杯内容系列 | `worldcup-kv-poster` → `article-writer` → `post-to-wechat` |
+| 多平台联发 | `article-writer` → `post-to-wechat` + `publish-to-x` + `sticker-writer` → `run-xiaohongshu` |
+| 视频→文章→发布 | `youtube-script` → `article-writer` → `post-to-wechat` |
+| 图片清洗流水线 | `poster-portrait` → `remove-ai-marks` → 发布 |
+| 完整研究周期 | `github-trending` + `x-followings-feed` → `article-writer` → `brain-setup` |
 
 ---
 

@@ -50,76 +50,257 @@ Bring your own model — OpenAI, DeepSeek, OpenRouter (200+ models), Nous Portal
 
 ## Architecture
 
-```
-┌──────────────────────────────────────────────────┐
-│                  Hermes Agent                      │
-│           (AI 朱朱侠 · Command Center)              │
-│                                                    │
-│  Memory ←→ GBrain (ai-ggbond-brain-setup)          │
-└──────┬────────────┬─────────────┬─────────────────┘
-       │            │             │
-  ┌────▼─────┐ ┌───▼────┐ ┌─────▼──────┐
-  │ Content   │ │ Signal  │ │ Distribution│
-  │ Creation  │ │ Capture │ │             │
-  └────┬─────┘ └───┬────┘ └─────┬──────┘
-       │            │             │
-  ┌────┼─────┐      │      ┌─────┼──────┐
-  ▼    ▼     ▼      ▼      ▼     ▼      ▼
-Article Sticker Poster   X    WeChat   X   Xiaohong
-Writer  Writer Portrait Feed  Publish Publish shuOps
-       │            │             │
-       └────────────┴─────────────┘
-                    │
-          Persona Adaptation Layer
-        (Hermes Memory — Your Voice)
-```
-
-**Design Philosophy: Composable Workflows**
-
-Skills are not isolated tools — they chain into automation pipelines:
+### Skill Ecosystem Map
 
 ```
-X Following Feed ──→ Topic Ideas ──→ Article Writer ──→ WeChat Publish
-       │                              │
-       └──→ X Post/Comment ←─────────┘
-
-GitHub Trending ──→ Topic Ideas ──→ Article Writer ──→ WeChat Publish
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           AI GGBond Skills                                   │
+│                    (13 Skills × 7 Categories)                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                        🧭 META LAYER                                │   │
+│  │  skill-matrix ──→ Routes tasks to skill chains                      │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                        │
+│                                    ▼                                        │
+│  ┌──────────────────────┐  ┌──────────────────┐  ┌───────────────────────┐ │
+│  │    📡 SIGNAL LAYER    │  │  🧠 MEMORY LAYER  │  │    🔍 RESEARCH LAYER  │ │
+│  │                      │  │                  │  │                       │ │
+│  │  x-followings-feed   │  │   brain-setup    │  │   github-trending     │ │
+│  │  (X/Twitter digest)  │  │   (GBrain KB)    │  │   (Open source scan)  │ │
+│  └──────────┬───────────┘  └────────┬─────────┘  └───────────┬───────────┘ │
+│             │                       │                        │             │
+│             └───────────────────────┼────────────────────────┘             │
+│                                     │                                       │
+│                                     ▼                                       │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                     📝 CONTENT CREATION LAYER                        │   │
+│  │                                                                      │   │
+│  │  ┌─────────────┐  ┌──────────────┐  ┌─────────────────────────────┐ │   │
+│  │  │ article-    │  │ sticker-     │  │ Visual Content              │ │   │
+│  │  │ writer      │  │ writer       │  │                             │ │   │
+│  │  │ (Long-form) │  │ (Image cards)│  │  poster-portrait            │ │   │
+│  │  └──────┬──────┘  └──────┬───────┘  │  (Portrait posters)         │ │   │
+│  │         │                │          │                             │ │   │
+│  │         │                │          │  worldcup-kv-poster          │ │   │
+│  │         │                │          │  (Sports KV posters)         │ │   │
+│  │         │                │          └─────────────┬───────────────┘ │   │
+│  └─────────┼────────────────┼────────────────────────┼─────────────────┘   │
+│            │                │                        │                      │
+│            ▼                ▼                        ▼                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                     🚀 DISTRIBUTION LAYER                            │   │
+│  │                                                                      │   │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌─────────────────────────────┐│   │
+│  │  │ post-to-     │  │ publish-to-x │  │ run-xiaohongshu             ││   │
+│  │  │ wechat       │  │              │  │ (Full-ops, built-in publish)││   │
+│  │  │ (WeChat OA)  │  │ (X/Twitter)  │  │                             ││   │
+│  │  └──────────────┘  └──────────────┘  └─────────────────────────────┘│   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                      🧹 UTILITY LAYER                                │   │
+│  │                                                                      │   │
+│  │  ┌──────────────────┐  ┌──────────────────────────────────────────┐ │   │
+│  │  │ remove-ai-marks  │  │ youtube-script                          │ │   │
+│  │  │ (Watermark clean)│  │ (Transcript/Subtitle download)          │ │   │
+│  │  └──────────────────┘  └──────────────────────────────────────────┘ │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                   🎯 PERSONA ADAPTATION LAYER                        │   │
+│  │                  (Hermes Memory / User Profile)                       │   │
+│  │        Auto-reads your voice, style, positioning for output          │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
+
+### Workflow Chains
+
+Every skill can be used standalone or chained into automation pipelines:
+
+#### Content Pipeline Chains
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    PRIMARY CONTENT PIPELINE                          │
+│                                                                      │
+│  Signal Sources          Content Creation         Distribution       │
+│  ──────────────         ────────────────         ────────────       │
+│                                                                      │
+│  x-followings-feed ──┐                                               │
+│                      ├──→ article-writer ──→ post-to-wechat          │
+│  github-trending ────┘        │                                      │
+│                               │                                      │
+│                               ├──→ sticker-writer ──→ (manual share) │
+│                               │                                      │
+│                               └──→ publish-to-x                      │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+#### Visual Content Chains
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    VISUAL CONTENT PIPELINE                           │
+│                                                                      │
+│  article-writer ──→ poster-portrait (cover image)                    │
+│                                                                      │
+│  article-writer ──→ worldcup-kv-poster (event-themed cover)          │
+│                                                                      │
+│  article-writer ──→ sticker-writer (social cards)                    │
+│                                                                      │
+│  poster-portrait ──→ remove-ai-marks ──→ publish                     │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+#### Research & Memory Chains
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    RESEARCH & MEMORY PIPELINE                        │
+│                                                                      │
+│  github-trending ──→ article-writer ──→ brain-setup (ingest)         │
+│                                                                      │
+│  x-followings-feed ──→ article-writer ──→ brain-setup (ingest)       │
+│                                                                      │
+│  youtube-script ──→ article-writer (reference material)              │
+│                                                                      │
+│  brain-setup ──→ article-writer (recall knowledge)                   │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+#### Full-Stack Operations Chains
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    FULL-STACK OPERATIONS                             │
+│                                                                      │
+│  Xiaohongshu Ops:                                                    │
+│  run-xiaohongshu ──→ (internal: ideation → content → publish)        │
+│       ↑                                                              │
+│       └── brain-setup (persona positioning)                          │
+│                                                                      │
+│  X/Twitter Full Loop:                                                │
+│  x-followings-feed ──→ publish-to-x (hot take)                       │
+│       │                                                              │
+│       └── article-writer ──→ publish-to-x (long-form)                │
+│                                                                      │
+│  Multi-Platform Syndication:                                         │
+│  article-writer ──┬──→ post-to-wechat (primary)                      │
+│                   ├──→ sticker-writer ──→ run-xiaohongshu             │
+│                   └──→ publish-to-x (cross-post)                     │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### Complete Skill Combination Matrix
+
+| Source Skill | → Target Skill(s) | Use Case |
+|:---|:---|:---|
+| `x-followings-feed` | `article-writer`, `publish-to-x` | Signal → article or hot take |
+| `github-trending` | `article-writer` | Open source → trend article |
+| `youtube-script` | `article-writer` | Video transcript → article reference |
+| `article-writer` | `post-to-wechat` | Long-form → WeChat publish |
+| `article-writer` | `publish-to-x` | Long-form → X post or thread |
+| `article-writer` | `sticker-writer` | Article → social image cards |
+| `article-writer` | `poster-portrait` | Article → cinematic cover image |
+| `article-writer` | `worldcup-kv-poster` | Article → event-themed KV poster |
+| `article-writer` | `brain-setup` | Knowledge → long-term memory |
+| `article-writer` | `run-xiaohongshu` | Article → Xiaohongshu content |
+| `poster-portrait` | `remove-ai-marks` | Generated image → clean for publish |
+| `worldcup-kv-poster` | `remove-ai-marks` | Generated image → clean for publish |
+| `sticker-writer` | `remove-ai-marks` | Generated image → clean for publish |
+| `run-xiaohongshu` | `brain-setup` | Engagement data → memory |
+| `brain-setup` | `article-writer`, `sticker-writer`, `run-xiaohongshu` | Memory → persona-adaptive output |
+| `skill-matrix` | ALL | Task routing → skill chain selection |
 
 ---
 
 ## Quick Install
 
-### Prerequisites
+### Universal Installation (All Platforms)
 
-- [Hermes Agent](https://github.com/NousResearch/hermes-agent) installed and running
-- macOS / Linux / WSL2 (all skills are CLI-based; OS-agnostic)
-
-### Install All Skills
+Skills are standard `SKILL.md` files with `references/` directories. Copy them to your AI Agent's skill directory:
 
 ```bash
 # Clone the repository
 git clone https://github.com/BetterZflyee/ai-ggbond-skills.git /tmp/ai-ggbond-skills
 
-# Install all skills to Hermes
+# Copy skills to your agent's skill directory
+# Replace <SKILL_DIR> with your platform's skill path (see below)
+cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-* <SKILL_DIR>/
+```
+
+### Platform-Specific Setup
+
+#### Hermes Agent
+
+```bash
+# Skill directory: ~/.hermes/skills/
 cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-* ~/.hermes/skills/
 
-# Verify installation
+# Verify
 hermes skills list | grep ai-ggbond
+
+# Update
+cd /tmp/ai-ggbond-skills && git pull
+cp -r skills/ai-ggbond-* ~/.hermes/skills/
+```
+
+#### Claude Code
+
+```bash
+# Skill directory: ~/.claude/skills/ or project .claude/skills/
+mkdir -p ~/.claude/skills
+cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-* ~/.claude/skills/
+
+# Or install to a specific project
+mkdir -p /path/to/your/project/.claude/skills
+cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-* /path/to/your/project/.claude/skills/
+```
+
+#### Codex (OpenAI)
+
+```bash
+# Skill directory: ~/.codex/skills/ or project .codex/skills/
+mkdir -p ~/.codex/skills
+cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-* ~/.codex/skills/
+```
+
+#### OpenClaw
+
+```bash
+# Skill directory: ~/.openclaw/skills/
+mkdir -p ~/.openclaw/skills
+cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-* ~/.openclaw/skills/
+```
+
+#### Generic Agent (Custom)
+
+```bash
+# Any agent that reads SKILL.md files from a skill directory
+# Just copy the skills to wherever your agent looks for them
+cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-* /your/agent/skill/path/
 ```
 
 ### Install Individual Skills
 
 ```bash
-# Example: install only the article writer
-cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-article-writer ~/.hermes/skills/creative/
+# Install only the skills you need
+cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-article-writer <SKILL_DIR>/
+cp -r /tmp/ai-ggbond-skills/skills/ai-ggbond-post-to-wechat <SKILL_DIR>/
 ```
 
-### Update Skills
+### Update All Skills
 
 ```bash
 cd /tmp/ai-ggbond-skills && git pull
-cp -r skills/ai-ggbond-* ~/.hermes/skills/
+cp -r skills/ai-ggbond-* <SKILL_DIR>/
 ```
 
 ---
@@ -128,7 +309,7 @@ cp -r skills/ai-ggbond-* ~/.hermes/skills/
 
 ### Natural Language Triggers (Recommended)
 
-Just talk to your Hermes Agent naturally:
+Just talk to your AI Agent naturally — skills are triggered by intent, not commands:
 
 | You Say | Skill Triggered |
 |:---|:---|
@@ -315,6 +496,10 @@ post-to   publish    (built-in
 | Knowledge capture → memory | `article-writer` output → `brain-setup` ingest to GBrain |
 | Portrait poster for article | `article-writer` → `poster-portrait` for cover image |
 | World Cup content series | `worldcup-kv-poster` → `article-writer` → `post-to-wechat` |
+| Multi-platform syndication | `article-writer` → `post-to-wechat` + `publish-to-x` + `sticker-writer` → `run-xiaohongshu` |
+| Video → article → publish | `youtube-script` → `article-writer` → `post-to-wechat` |
+| Image cleanup pipeline | `poster-portrait` → `remove-ai-marks` → publish |
+| Full research cycle | `github-trending` + `x-followings-feed` → `article-writer` → `brain-setup` |
 
 ---
 
