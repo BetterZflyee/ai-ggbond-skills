@@ -4,7 +4,7 @@
   <a href="https://github.com/BetterZflyee/ai-ggbond-skills/stargazers"><img src="https://img.shields.io/github/stars/BetterZflyee/ai-ggbond-skills?style=for-the-badge&color=facc15" alt="Stars"></a>
   <a href="https://github.com/BetterZflyee/ai-ggbond-skills/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="License"></a>
   <a href="https://zflyee.com/"><img src="https://img.shields.io/badge/built%20by-AI%20GGBond-8b5cf6?style=for-the-badge" alt="AI GGBond"></a>
-  <a href="#changelog"><img src="https://img.shields.io/badge/version-1.4-0891b2?style=for-the-badge" alt="Version"></a>
+  <a href="#changelog"><img src="https://img.shields.io/badge/version-1.5-0891b2?style=for-the-badge" alt="Version"></a>
   <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/中文版-📖-dc2626?style=for-the-badge" alt="中文版"></a>
 </p>
 
@@ -43,6 +43,7 @@ Bring your own model — OpenAI, DeepSeek, OpenRouter (200+ models), Nous Portal
 | `ai-ggbond-brain-setup` | 🧠 Knowledge | GBrain memory layer with DashScope/Qwen3-Embedding support — 9 documented pitfalls, proxy config, recipe patching |
 | `ai-ggbond-remove-ai-marks` | 🧹 Utility | Remove visible (Gemini sparkle) & invisible (SynthID/C2PA) AI watermarks from images |
 | `ai-ggbond-youtube-script` | 🎬 Media | Download YouTube transcripts, subtitles & cover images. InnerTube + yt-dlp fallback + web search triple-fallback |
+| `ai-ggbond-long-image-generator` | 🎨 Creative | Generate long infographic images using GPT-Image-2 (Yunwu API). Supports Xiaohongshu, WeChat, super-long presets up to 7200px |
 
 > All skills support **persona-adaptive output** (v1.0 milestone) — they automatically read your profile from Hermes Memory and tailor content to your unique voice, instead of producing generic AI-sounding text.
 
@@ -468,6 +469,37 @@ Download YouTube video transcripts, subtitles and cover images. No API key requi
 
 ---
 
+
+
+### ai-ggbond-long-image-generator
+
+Generate professional long infographic images using GPT-Image-2 via Yunwu API. Supports multiple social media presets and super-long images up to 7200px.
+
+**Capabilities**: Xiaohongshu vertical (1080×1440) · WeChat cover (900×383) · Super-long images (1080×3200 to 1080×7200) · Custom sizes · Multi-segment stitching
+
+**Highlights**:
+- GPT-Image-2 powered — generates real visual content, not placeholder graphics
+- Smart segmentation for super-long images (auto-split + overlap stitching)
+- Multiple rendering backends: Playwright, PIL lightweight, GPT-Image-2
+- Dark tech theme with neon blue/orange accents (configurable)
+- 3-step quick start: setup API key → test connection → generate
+- 19 size presets for different platforms
+
+**Usage**:
+```bash
+# Setup API key
+bash ~/.hermes/skills/ai-ggbond-long-image-generator/scripts/setup_yunwu.sh YOUR_API_KEY
+
+# Generate Xiaohongshu image
+python3 ~/.hermes/skills/ai-ggbond-long-image-generator/scripts/generate_long_image.py \
+    --prompt "AI Tools Guide" --preset xiaohongshu --output /tmp/test.png
+
+# Generate super-long image (4x height)
+python3 ~/.hermes/skills/ai-ggbond-long-image-generator/scripts/generate_long_image.py \
+    --prompt "Complete Tutorial" --preset super_long_medium --output /tmp/long.png
+```
+
+
 ## Ecosystem Integration
 
 ### Skill Dependencies
@@ -528,6 +560,7 @@ hermes skills list | grep publish-to-x
 
 | Date | Milestone |
 |:---|:---|
+| 2026-06-25 | 🎨 `ai-ggbond-long-image-generator` released — GPT-Image-2 powered long infographic generation with 19 presets (up to 7200px super-long) |
 | 2026-06-17 | 🎯 `ai-ggbond-poster-portrait` + `ai-ggbond-worldcup-kv-poster` + `ai-ggbond-skill-matrix` synced — portrait posters, World Cup KV, 181-skill routing table |
 | 2026-06-08 | 🎬 `ai-ggbond-youtube-script` released — YouTube transcript/subtitle/cover download with triple-fallback (InnerTube + yt-dlp + web search) |
 | 2026-06-04 | 🧠 `ai-ggbond-brain-setup` v1.2 — DashScope/Qwen3-Embedding support, 9 pitfalls documented, proxy config, recipe patching |

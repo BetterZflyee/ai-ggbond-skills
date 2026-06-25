@@ -4,7 +4,7 @@
   <a href="https://github.com/BetterZflyee/ai-ggbond-skills/stargazers"><img src="https://img.shields.io/github/stars/BetterZflyee/ai-ggbond-skills?style=for-the-badge&color=facc15" alt="Stars"></a>
   <a href="https://github.com/BetterZflyee/ai-ggbond-skills/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="License"></a>
   <a href="https://zflyee.com/"><img src="https://img.shields.io/badge/built%20by-AI%20朱朱侠-8b5cf6?style=for-the-badge" alt="AI 朱朱侠"></a>
-  <a href="#changelog"><img src="https://img.shields.io/badge/version-1.4-0891b2?style=for-the-badge" alt="Version"></a>
+  <a href="#changelog"><img src="https://img.shields.io/badge/version-1.5-0891b2?style=for-the-badge" alt="Version"></a>
   <a href="README.md"><img src="https://img.shields.io/badge/English-📖-2563eb?style=for-the-badge" alt="English"></a>
 </p>
 
@@ -43,10 +43,42 @@
 | `ai-ggbond-brain-setup` | 🧠 知识 | GBrain 记忆层集成：让 AI 拥有长期记忆和知识检索 |
 | `ai-ggbond-remove-ai-marks` | 🧹 工具 | 清除 AI 生成图片的可见水印（Gemini火花）和不可见标记（SynthID/C2PA） |
 | `ai-ggbond-youtube-script` | 🎬 媒体 | YouTube 字幕/封面下载：InnerTube API + yt-dlp + 三方摘要三级容灾 |
+| `ai-ggbond-long-image-generator` | 🎨 创意 | 使用 GPT-Image-2（云雾API）生成长图信息图。支持小红书、公众号、超长图预设（最高7200px）
 
 > 所有技能均支持 **"千人千面"用户适配**（v1.0 里程碑）——自动读取 Hermes Memory 中的用户画像，输出贴合你个人风格的内容，而不是千篇一律的 AI 味。
 
 ---
+
+
+
+### ai-ggbond-long-image-generator
+
+使用 GPT-Image-2（云雾API）生成专业的长图信息图。支持多种社交媒体预设和超长图（最高7200px）。
+
+**功能**：小红书竖图 (1080×1440) · 公众号封面 (900×383) · 超长图 (1080×3200 至 1080×7200) · 自定义尺寸 · 多段拼接
+
+**亮点**：
+- GPT-Image-2 驱动 — 生成真实视觉内容，非占位图
+- 超长图智能分段（自动分割 + 重叠拼接）
+- 多渲染后端：Playwright、PIL 轻量版、GPT-Image-2
+- 深色科技主题，霓虹蓝/橙点缀（可配置）
+- 3步快速开始：配置API Key → 测试连接 → 生成图片
+- 19种尺寸预设，覆盖各平台
+
+**使用方法**：
+```bash
+# 配置 API Key
+bash ~/.hermes/skills/ai-ggbond-long-image-generator/scripts/setup_yunwu.sh YOUR_API_KEY
+
+# 生成小红书竖图
+python3 ~/.hermes/skills/ai-ggbond-long-image-generator/scripts/generate_long_image.py \
+    --prompt "AI工具使用指南" --preset xiaohongshu --output /tmp/test.png
+
+# 生成超长图（4倍高度）
+python3 ~/.hermes/skills/ai-ggbond-long-image-generator/scripts/generate_long_image.py \
+    --prompt "完整教程" --preset super_long_medium --output /tmp/long.png
+```
+
 
 ## 系统架构
 
@@ -528,6 +560,7 @@ hermes skills list | grep publish-to-x
 
 | 日期 | 里程碑 |
 |:---|:---|
+| 2026-06-25 | 🎨 `ai-ggbond-long-image-generator` 发布 — GPT-Image-2 驱动的长图信息图生成，19种预设（最高7200px超长图） |
 | 2026-06-17 | 🎯 `ai-ggbond-poster-portrait` + `ai-ggbond-worldcup-kv-poster` + `ai-ggbond-skill-matrix` 同步上线——肖像海报、世界杯 KV、181 技能路由表 |
 | 2026-06-08 | 🎬 `ai-ggbond-youtube-script` 上线 — YouTube 字幕/封面下载，三级容灾（InnerTube + yt-dlp + 三方摘要） |
 | 2026-06-04 | 🧠 `ai-ggbond-brain-setup` v1.2 — DashScope/Qwen3-Embedding 支持，9 个踩坑记录，代理配置，recipe patching |

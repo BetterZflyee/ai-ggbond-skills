@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  /* 基础重置 */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  /* CSS变量 */
+  :root {
+    /* 深色科技主题 */
+    --bg-primary: #0F1419;
+    --bg-card: #1A2332;
+    --text-primary: #FFFFFF;
+    --text-secondary: #8B95A5;
+    --accent-blue: #00D4FF;
+    --accent-orange: #FF6B35;
+    --accent-green: #00E676;
+    
+    /* 浅色清新主题（注释备用） */
+    /* --bg-primary: #F8F9FA;
+    --bg-card: #FFFFFF;
+    --text-primary: #1A1A2E;
+    --text-secondary: #6C757D;
+    --accent-blue: #0066FF;
+    --accent-orange: #FF4757; */
+    
+    /* 间距 */
+    --spacing-xs: 8px;
+    --spacing-sm: 12px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-2xl: 48px;
+    
+    /* 字体 */
+    --font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  }
+  
+  /* 画布容器 */
+  .canvas {
+    width: 100%;
+    min-height: 100vh;
+    background: var(--bg-primary);
+    font-family: var(--font-family);
+    color: var(--text-primary);
+    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+  }
+  
+  /* 主内容区 */
+  .container {
+    width: 100%;
+    max-width: 100%;
+    padding: var(--spacing-xl);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* ====== 头部区域 ====== */
+  .header {
+    margin-bottom: var(--spacing-xl);
+  }
+  
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  .logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-orange));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+  }
+  
+  .brand-name {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  
+  .title {
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: var(--spacing-md);
+    background: linear-gradient(135deg, var(--text-primary), var(--accent-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .subtitle {
+    font-size: 20px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    line-height: 1.5;
+  }
+  
+  /* ====== 分隔线 ====== */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+    margin: var(--spacing-xl) 0;
+    opacity: 0.3;
+  }
+  
+  /* ====== 内容区块 ====== */
+  .section {
+    margin-bottom: var(--spacing-xl);
+  }
+  
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  .section-number {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  
+  .section-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  
+  /* ====== 卡片组件 ====== */
+  .card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 212, 255, 0.1);
+  }
+  
+  .card-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .card-description {
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+  
+  /* ====== 标签徽章 ====== */
+  .badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .badge-blue {
+    background: rgba(0, 212, 255, 0.15);
+    color: var(--accent-blue);
+  }
+  
+  .badge-orange {
+    background: rgba(255, 107, 53, 0.15);
+    color: var(--accent-orange);
+  }
+  
+  .badge-green {
+    background: rgba(0, 230, 118, 0.15);
+    color: var(--accent-green);
+  }
+  
+  /* ====== 数据指标 ====== */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  .metric-card {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: var(--spacing-lg);
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  .metric-value {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--accent-blue);
+    margin-bottom: var(--spacing-xs);
+  }
+  
+  .metric-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  
+  /* ====== 列表组件 ====== */
+  .list {
+    list-style: none;
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  .list-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  .list-item:last-child {
+    border-bottom: none;
+  }
+  
+  .list-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  
+  .list-content {
+    flex: 1;
+  }
+  
+  .list-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+  }
+  
+  .list-description {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  
+  /* ====== 引用框 ====== */
+  .quote {
+    background: var(--bg-card);
+    border-left: 4px solid var(--accent-blue);
+    border-radius: 0 12px 12px 0;
+    padding: var(--spacing-lg);
+    margin: var(--spacing-lg) 0;
+  }
+  
+  .quote-text {
+    font-size: 20px;
+    font-style: italic;
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .quote-author {
+    font-size: 14px;
+    color: var(--accent-blue);
+    font-weight: 600;
+  }
+  
+  /* ====== 底部区域 ====== */
+  .footer {
+    margin-top: auto;
+    padding-top: var(--spacing-xl);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .footer-left {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  
+  .footer-right {
+    display: flex;
+    gap: var(--spacing-sm);
+  }
+  
+  .footer-link {
+    font-size: 12px;
+    color: var(--accent-blue);
+    text-decoration: none;
+  }
+  
+  /* ====== 工具类 ====== */
+  .text-center { text-align: center; }
+  .text-right { text-align: right; }
+  .mt-sm { margin-top: var(--spacing-sm); }
+  .mt-md { margin-top: var(--spacing-md); }
+  .mt-lg { margin-top: var(--spacing-lg); }
+  .mb-sm { margin-bottom: var(--spacing-sm); }
+  .mb-md { margin-bottom: var(--spacing-md); }
+  .mb-lg { margin-bottom: var(--spacing-lg); }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="container">
+    
+    <!-- ====== 头部 ====== -->
+    <header class="header">
+      <div class="header-top">
+        <div class="logo">AI</div>
+        <span class="brand-name">AI朱朱侠</span>
+      </div>
+      <h1 class="title">标题放在这里</h1>
+      <p class="subtitle">副标题或描述文字放在这里</p>
+    </header>
+    
+    <div class="divider"></div>
+    
+    <!-- ====== 数据指标 ====== -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-value">100+</div>
+        <div class="metric-label">指标名称</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">95%</div>
+        <div class="metric-label">指标名称</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">Top 3</div>
+        <div class="metric-label">指标名称</div>
+      </div>
+    </div>
+    
+    <!-- ====== 内容区块1 ====== -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number">1</div>
+        <h2 class="section-title">章节标题</h2>
+      </div>
+      
+      <div class="card">
+        <span class="badge badge-blue">推荐</span>
+        <h3 class="card-title mt-sm">卡片标题</h3>
+        <p class="card-description">卡片描述内容放在这里，可以写多行文字来说明具体内容。</p>
+      </div>
+      
+      <div class="card">
+        <h3 class="card-title">卡片标题</h3>
+        <p class="card-description">卡片描述内容放在这里。</p>
+      </div>
+    </section>
+    
+    <!-- ====== 内容区块2 ====== -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number">2</div>
+        <h2 class="section-title">章节标题</h2>
+      </div>
+      
+      <ul class="list">
+        <li class="list-item">
+          <span class="list-icon">✓</span>
+          <div class="list-content">
+            <div class="list-title">列表项标题</div>
+            <div class="list-description">列表项描述内容</div>
+          </div>
+        </li>
+        <li class="list-item">
+          <span class="list-icon">✓</span>
+          <div class="list-content">
+            <div class="list-title">列表项标题</div>
+            <div class="list-description">列表项描述内容</div>
+          </div>
+        </li>
+      </ul>
+    </section>
+    
+    <!-- ====== 引用框 ====== -->
+    <div class="quote">
+      <p class="quote-text">"这里放金句或引用内容"</p>
+      <span class="quote-author">—— 出处</span>
+    </div>
+    
+    <!-- ====== 底部 ====== -->
+    <footer class="footer">
+      <div class="footer-left">
+        © 2024 AI朱朱侠 · 专注让AI成为自动化搞钱和IP运营系统
+      </div>
+      <div class="footer-right">
+        <a class="footer-link" href="#">公众号</a>
+        <a class="footer-link" href="#">小红书</a>
+      </div>
+    </footer>
+    
+  </div>
+</div>
+</body>
+</html>
