@@ -1,0 +1,65 @@
+{
+  "skill_name": "ai-ggbond-video-analysis",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "帮我分析一下这个视频 /Users/zhufei/Downloads/meeting.mp4，把关键观点和画面都提取出来",
+      "expected_output": "触发 skill，提取帧 + 转写 + 生成 Markdown 报告",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "这个视频里讲了什么？给我总结一下核心内容，配上关键画面截图",
+      "expected_output": "触发 skill，对视频做全链路解析",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "把这个会议录屏转成文字，并且把 PPT 的关键页截出来，整理成文档",
+      "expected_output": "触发 skill，语音转写 + 关键帧 + 报告",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "我需要一份视频笔记，包括时间线、重点截图、语音转文字，最后生成 Markdown",
+      "expected_output": "触发 skill，完整视频分析流程",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "看下这个视频 https://example.com/video.mp4 里面演示的系统功能有哪些",
+      "expected_output": "触发 skill，URL 视频分析",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "帮我听听这个视频里说了什么，不用截图，只要文字",
+      "expected_output": "触发 skill，但选择 transcript 模式（仅转写）",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "这个视频画面帮我截几张图就行",
+      "expected_output": "可能触发也可能不触发，取决于用户是否明确要分析",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "分析一下这张图片里的数据",
+      "expected_output": "不触发 skill，这是图片分析不是视频分析",
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "把这个 GIF 动图转成 MP4",
+      "expected_output": "不触发 skill，这是格式转换不是视频分析",
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "帮我下载这个 YouTube 视频",
+      "expected_output": "不触发 skill，这是下载不是分析",
+      "files": []
+    }
+  ]
+}
