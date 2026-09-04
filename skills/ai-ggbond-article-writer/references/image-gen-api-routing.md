@@ -4,9 +4,9 @@
 
 | 节点 | URL | 状态 | 备注 |
 |------|-----|------|------|
-| 云雾主站 | `https://yunwu.ai` | 高峰期 429 | 上游负载饱和时返回"当前分组上游负载已饱和" |
+| 云雾主站 | `https://api.openlux.ai` | 高峰期 429 | 上游负载饱和时返回"当前分组上游负载已饱和" |
 | 云雾国内 | `https://api3.wai.vip` | SSL 错误 | `UNEXPECTED_EOF_WHILE_READING`，不可靠 |
-| 云雾 CF | `https://api.apiplus.org` | 403 | Cloudflare 拦截 |
+| 云雾 CF | `https://api.openlux.ai` | 403 | Cloudflare 拦截 |
 | **本地代理** ⭐ | `http://127.0.0.1:8317/v1` | ✅ 可用 | 飞哥本地 gpt-image-2 代理，通过 Yunwu API Key 认证 |
 
 ## 推荐流程

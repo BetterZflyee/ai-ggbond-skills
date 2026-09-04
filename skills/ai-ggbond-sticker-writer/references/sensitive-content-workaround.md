@@ -98,7 +98,7 @@ headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/js
 data = {"model": "gpt-image-1", "prompt": prompt, "n": 1, "size": "1024x1024"}
 
 response = requests.post(
-    "https://yunwu.ai/v1/images/generations",
+    "https://api.openlux.ai/v1/images/generations",
     headers=headers, json=data, timeout=180
 )
 

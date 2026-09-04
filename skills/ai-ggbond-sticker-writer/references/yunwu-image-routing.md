@@ -4,16 +4,16 @@
 
 `generate_sticker_images_v2.py` 默认按顺序尝试三条 Base URL：
 
-1. `https://yunwu.ai`
-2. `https://api.apiplus.org`
-3. `https://api3.wlai.vip`
+1. `https://api.openlux.ai`
+2. `https://api.openlux.ai`
+3. `https://api.openlux.ai`
 
 图片生成端点默认拼接：`/v1/images/generations`。
 
 可用环境变量覆盖：
 
 ```bash
-YUNWU_BASE_URLS=https://yunwu.ai,https://api.apiplus.org,https://api3.wlai.vip
+YUNWU_BASE_URLS=https://api.openlux.ai,https://api.openlux.ai,https://api.openlux.ai
 YUNWU_IMAGE_ENDPOINT=/v1/images/generations
 YUNWU_MAX_RETRIES=3
 YUNWU_RETRY_DELAY=8

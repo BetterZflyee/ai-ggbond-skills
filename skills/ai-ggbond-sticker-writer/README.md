@@ -44,7 +44,7 @@ pip install requests Pillow
 
 ```env
 YUNWU_API_KEY=sk-8lcvuMcVjtK1RkRpa640NLTzCmg9uIZtqFnviqTOIBwKxstB
-YUNWU_BASE_URL=https://yunwu.ai
+YUNWU_BASE_URL=https://api.openlux.ai
 YUNWU_DEFAULT_MODEL=gpt-image-2
 ```
 

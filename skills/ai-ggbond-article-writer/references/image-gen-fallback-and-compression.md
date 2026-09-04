@@ -38,7 +38,7 @@ export https_proxy=http://127.0.0.1:7897 && pip3 install requests Pillow
 
 # 内容
 YUNWU_API_KEY=your-key
-YUNWU_BASE_URL=https://yunwu.ai
+YUNWU_BASE_URL=https://api.openlux.ai
 YUNWU_DEFAULT_MODEL=gpt-image-2
 ```
 
@@ -50,7 +50,7 @@ export http_proxy=http://127.0.0.1:7897
 
 API_KEY=$(cat ~/.ai-ggbond-skills/.env | grep YUNWU_API_KEY | cut -d'=' -f2)
 
-curl -s --max-time 180 -X POST "https://yunwu.ai/v1/images/generations" \
+curl -s --max-time 180 -X POST "https://api.openlux.ai/v1/images/generations" \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{

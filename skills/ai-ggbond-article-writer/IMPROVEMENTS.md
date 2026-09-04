@@ -26,7 +26,7 @@ Agent 在使用技能时没有正确加载和使用技能配置文件中的配�
 
 关键配置项：
 - YUNWU_API_KEY: 云雾API密钥
-- YUNWU_BASE_URL: API端点（默认 https://yunwu.ai）
+- YUNWU_BASE_URL: API端点（默认 https://api.openlux.ai）
 - YUNWU_DEFAULT_MODEL: 默认模型（默认 gpt-image-2）
 ```
 

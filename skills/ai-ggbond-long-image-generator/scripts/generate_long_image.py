@@ -37,7 +37,7 @@ def load_config():
     image_gen = config.get('image_gen', {})
     return {
         'api_key': image_gen.get('api_key', ''),
-        'base_url': image_gen.get('base_url', 'https://yunwu.ai/v1'),
+        'base_url': image_gen.get('base_url', 'https://api.openlux.ai/v1'),
         'model': image_gen.get('model', 'gpt-image-2')
     }
 

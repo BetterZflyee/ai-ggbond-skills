@@ -216,7 +216,7 @@ def create_default_env(level: str = "user", api_key: Optional[str] = None) -> Pa
 # 云雾 API 配置（用于图片生成）
 # ============================================
 YUNWU_API_KEY={api_key or 'your-api-key-here'}
-YUNWU_BASE_URL=https://yunwu.ai
+YUNWU_BASE_URL=https://api.openlux.ai
 
 # 默认模型配置
 YUNWU_DEFAULT_MODEL=gpt-image-2

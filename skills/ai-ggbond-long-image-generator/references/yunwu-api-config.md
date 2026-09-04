@@ -7,7 +7,7 @@ config.yaml 有安全写保护，不能直接 patch，必须用 CLI：
 ```bash
 hermes config set image_gen.provider openai
 hermes config set image_gen.model gpt-image-2
-hermes config set image_gen.base_url https://yunwu.ai/v1
+hermes config set image_gen.base_url https://api.openlux.ai/v1
 hermes config set image_gen.api_key 实际的key
 ```
 
@@ -22,7 +22,7 @@ Key 存储位置优先级：
 ## 多链路（自动切换）
 
 ```
-YUNWU_BASE_URLS=https://yunwu.ai,https://api.apiplus.org,https://api3.wlai.vip
+YUNWU_BASE_URLS=https://api.openlux.ai,https://api.openlux.ai,https://api.openlux.ai
 ```
 
 贴图 skill 的脚本支持多链路自动切换。脚本会自动清洗 `/v1`、`/v1/images/generations` 等后缀。
@@ -43,7 +43,7 @@ YUNWU_BASE_URLS=https://yunwu.ai,https://api.apiplus.org,https://api3.wlai.vip
 | 错误 | 原因 | 解决 |
 |------|------|------|
 | `Incorrect API key provided: dummy` | api_key 未设置或为 dummy | `hermes config set image_gen.api_key 实际key` |
-| `无效的令牌` (401) | API key 过期/无效 | 到 https://yunwu.ai 重新生成 key |
+| `无效的令牌` (401) | API key 过期/无效 | 到 https://api.openlux.ai 重新生成 key |
 | `该令牌无权访问模型` (403) | Key 有效但无特定模型权限 | 检查云雾后台的模型权限，换模型或升级套餐 |
 | `多次使用无效令牌` (429) | 频繁失败触发限流 | 等待 120 秒后重试 |
 | `no plugin registered that name` | provider 设为 custom | `hermes config set image_gen.provider openai` |
@@ -72,7 +72,7 @@ YUNWU_BASE_URLS=https://yunwu.ai,https://api.apiplus.org,https://api3.wlai.vip
 **最终解决方案：** 用户必须手动在终端运行 `hermes config set` 命令：
 ```bash
 hermes config set image_gen.api_key 用户的完整key
-hermes config set image_gen.base_url https://yunwu.ai/v1
+hermes config set image_gen.base_url https://api.openlux.ai/v1
 hermes config set image_gen.model gpt-image-2
 ```
 

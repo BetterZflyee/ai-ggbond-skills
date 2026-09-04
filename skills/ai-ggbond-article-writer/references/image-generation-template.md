@@ -205,5 +205,5 @@ if result and result.url:
 
 关键配置项:
 - `YUNWU_API_KEY`: 云雾API密钥
-- `YUNWU_BASE_URL`: API端点(默认 https://yunwu.ai)
+- `YUNWU_BASE_URL`: API端点(默认 https://api.openlux.ai)
 - `YUNWU_DEFAULT_MODEL`: 默认模型(默认 gpt-image-2，使用 /v1/images/generations 端点)

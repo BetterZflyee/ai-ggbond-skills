@@ -66,7 +66,7 @@ python3 /tmp/generate_long_image.py --prompt "内容" --width 1080 --height 5400
 ## ❓ 常见问题
 
 ### Q: API Key 无效怎么办？
-A: 到 https://yunwu.ai 重新生成 API Key
+A: 到 https://api.openlux.ai 重新生成 API Key
 
 ### Q: 图片生成失败？
 A: 检查 API 余额是否充足，模型是否有权限
@@ -78,5 +78,5 @@ A: 调整 `overlap` 参数（默认 100px）
 
 ## 🔗 相关资源
 
-- 云雾 API: https://yunwu.ai
+- 云雾 API: https://api.openlux.ai
 - AI朱朱侠长图生成 Skill: ~/.hermes/profiles/gongcheng/skills/creative/ai-ggbond-long-image-generator

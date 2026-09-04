@@ -145,7 +145,7 @@ from config_loader import load_all_env, apply_env_to_os
 apply_env_to_os()
 
 api_key = os.environ.get('YUNWU_API_KEY')
-url = 'https://yunwu.ai/v1/images/generations'
+url = 'https://api.openlux.ai/v1/images/generations'
 headers = {'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'}
 
 def gen(prompt, filename, output_dir, size='1792x1024'):

@@ -29,7 +29,7 @@ import os, json, base64, requests
 api_key = "从 ~/.ai-ggbond-skills/.env 读取"
 
 resp = requests.post(
-    "https://yunwu.ai/v1/images/generations",
+    "https://api.openlux.ai/v1/images/generations",
     headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
     json={"model": "gpt-image-2", "prompt": prompt, "size": "1792x1024", "quality": "standard"},
     timeout=180

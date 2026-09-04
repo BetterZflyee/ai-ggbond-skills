@@ -14,7 +14,7 @@
 source ~/.ai-ggbond-skills/.env
 python3 -c "
 import requests, os
-r = requests.post('https://yunwu.ai/v1/images/generations',
+r = requests.post('https://api.openlux.ai/v1/images/generations',
     headers={'Authorization': f'Bearer {os.environ[\"YUNWU_API_KEY\"]}', 'Content-Type': 'application/json'},
     json={'model': 'gpt-image-2', 'prompt': 'test', 'n': 1, 'size': '1024x1024'},
     timeout=30)
@@ -34,8 +34,8 @@ print(f'{r.status_code}: {r.text[:100]}')
 
 ## 备用端点优先级
 
-1. `https://yunwu.ai` — 主站
-2. `https://api.apiplus.org` — CF 站
+1. `https://api.openlux.ai` — 主站
+2. `https://api.openlux.ai` — CF 站
 3. `https://api3.wai.vip` — 国内服务器（DNS 可能不稳定）
 
 ## 降级方案

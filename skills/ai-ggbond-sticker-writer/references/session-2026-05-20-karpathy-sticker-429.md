@@ -21,9 +21,9 @@ python3 /Users/admin/.hermes/skills/creative/ai-ggbond-sticker-writer/scripts/ge
 ```
 
 Result: all three routes returned HTTP 429 upstream saturation:
-- `https://yunwu.ai`
-- `https://api.apiplus.org`
-- `https://api3.wlai.vip`
+- `https://api.openlux.ai`
+- `https://api.openlux.ai`
+- `https://api.openlux.ai`
 
 Representative error:
 

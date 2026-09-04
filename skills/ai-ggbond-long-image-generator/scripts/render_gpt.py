@@ -28,7 +28,7 @@ import requests
 from PIL import Image
 
 # 云雾 API 配置
-YUNWU_API_URL = "https://yunwu.ai/v1/images/generations"
+YUNWU_API_URL = "https://api.openlux.ai/v1/images/generations"
 
 def get_api_key():
     """从配置文件读取 API Key"""
@@ -40,7 +40,7 @@ def get_api_key():
             # 尝试从 fallback_providers 获取
             fallback_providers = config.get('fallback_providers', [])
             for provider in fallback_providers:
-                if provider.get('base_url', '').startswith('https://yunwu.ai'):
+                if provider.get('base_url', '').startswith('https://api.openlux.ai'):
                     return provider.get('api_key', '')
             # 尝试从 providers.openai 获取
             return config.get('providers', {}).get('openai', {}).get('api_key', '')

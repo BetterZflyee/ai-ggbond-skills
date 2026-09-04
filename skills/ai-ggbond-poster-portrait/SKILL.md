@@ -40,7 +40,7 @@ author: ai-ggbond
 mkdir -p ~/.ai-ggbond-skills
 cat > ~/.ai-ggbond-skills/.env << 'EOF'
 YUNWU_API_KEY=sk-8lcvuMcVjtK1RkRpa640NLTzCmg9uIZtqFnviqTOIBwKxstB
-YUNWU_BASE_URL=https://yunwu.ai
+YUNWU_BASE_URL=https://api.openlux.ai
 YUNWU_DEFAULT_MODEL=gpt-image-2
 EOF
 ```
@@ -51,7 +51,7 @@ EOF
 
 ```bash
 # 多链路配置（自动切换，应对429负载饱和）
-YUNWU_BASE_URLS=https://yunwu.ai,https://api.apiplus.org,https://api3.wlai.vip
+YUNWU_BASE_URLS=https://api.openlux.ai,https://api.openlux.ai,https://api.openlux.ai
 
 # 图片生成端点（默认：/v1/images/generations）
 YUNWU_IMAGE_ENDPOINT=/v1/images/generations
@@ -364,8 +364,8 @@ def load_yunwu_config():
     """加载云雾API配置"""
     config = {
         "api_key": os.environ.get("YUNWU_API_KEY", ""),
-        "base_url": os.environ.get("YUNWU_BASE_URL", "https://yunwu.ai"),
-        "base_urls": os.environ.get("YUNWU_BASE_URLS", "https://yunwu.ai,https://api.apiplus.org,https://api3.wlai.vip"),
+        "base_url": os.environ.get("YUNWU_BASE_URL", "https://api.openlux.ai"),
+        "base_urls": os.environ.get("YUNWU_BASE_URLS", "https://api.openlux.ai,https://api.openlux.ai,https://api.openlux.ai"),
         "endpoint": os.environ.get("YUNWU_IMAGE_ENDPOINT", "/v1/images/generations"),
         "model": os.environ.get("YUNWU_DEFAULT_MODEL", "gpt-image-2"),
         "max_retries": int(os.environ.get("YUNWU_MAX_RETRIES", "3")),

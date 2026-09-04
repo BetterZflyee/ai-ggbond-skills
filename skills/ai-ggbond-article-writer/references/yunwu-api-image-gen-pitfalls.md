@@ -21,8 +21,8 @@
 
 | 节点 | 状态 |
 |------|------|
-| https://yunwu.ai | 间歇可用 |
-| https://api.apiplus.org | 间歇可用（同一分组） |
+| https://api.openlux.ai | 间歇可用 |
+| https://api.openlux.ai | 间歇可用（同一分组） |
 | https://api3.wai.vip | DNS 解析失败 |
 
 ### 降级策略

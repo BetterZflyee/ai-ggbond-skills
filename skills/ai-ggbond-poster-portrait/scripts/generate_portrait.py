@@ -20,7 +20,7 @@ def load_config() -> Dict[str, Any]:
         "api_key": os.environ.get("YUNWU_API_KEY", ""),
         "base_urls": os.environ.get(
             "YUNWU_BASE_URLS",
-            "https://yunwu.ai,https://api.apiplus.org,https://api3.wlai.vip"
+            "https://api.openlux.ai,https://api.openlux.ai,https://api.openlux.ai"
         ),
         "endpoint": os.environ.get("YUNWU_IMAGE_ENDPOINT", "/v1/images/generations"),
         "model": os.environ.get("YUNWU_DEFAULT_MODEL", "gpt-image-2"),

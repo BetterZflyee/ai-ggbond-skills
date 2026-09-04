@@ -46,9 +46,9 @@ except ImportError:
 _env = load_all_env()
 DEFAULT_MODEL = _env.get("YUNWU_DEFAULT_MODEL", "gpt-image-2")
 DEFAULT_BASE_URLS = [
-    "https://yunwu.ai",
-    "https://api.apiplus.org",
-    "https://api3.wlai.vip",
+    "https://api.openlux.ai",
+    "https://api.openlux.ai",
+    "https://api.openlux.ai",
 ]
 DEFAULT_IMAGE_ENDPOINT = "/v1/images/generations"
 DEFAULT_MAX_RETRIES = int(_env.get("YUNWU_MAX_RETRIES", "3") or 3)

@@ -4,9 +4,9 @@
 本skill使用云雾API（Yunwu AI）生成图像，支持多链路自动切换。
 
 ## API端点
-- 主站：`https://yunwu.ai/v1/images/generations`
-- 备用1：`https://api.apiplus.org/v1/images/generations`
-- 备用2：`https://api3.wlai.vip/v1/images/generations`
+- 主站：`https://api.openlux.ai/v1/images/generations`
+- 备用1：`https://api.openlux.ai/v1/images/generations`
+- 备用2：`https://api.openlux.ai/v1/images/generations`
 
 ## 配置文件位置
 ```bash
@@ -18,7 +18,7 @@
 ## 配置内容
 ```bash
 YUNWU_API_KEY=sk-8lc...
-YUNWU_BASE_URLS=https://yunwu.ai,https://api.apiplus.org,https://api3.wlai.vip
+YUNWU_BASE_URLS=https://api.openlux.ai,https://api.openlux.ai,https://api.openlux.ai
 YUNWU_IMAGE_ENDPOINT=/v1/images/generations
 YUNWU_DEFAULT_MODEL=gpt-image-2
 YUNWU_MAX_RETRIES=3

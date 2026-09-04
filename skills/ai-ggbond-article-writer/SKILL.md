@@ -2306,7 +2306,7 @@ python scripts/config_loader.py
 mkdir -p ~/.ai-ggbond-skills
 cat > ~/.ai-ggbond-skills/.env << 'EOF'
 YUNWU_API_KEY=your-api-key-here
-YUNWU_BASE_URL=https://yunwu.ai
+YUNWU_BASE_URL=https://api.openlux.ai
 YUNWU_DEFAULT_MODEL=gpt-image-2
 EOF
 
@@ -2314,7 +2314,7 @@ EOF
 mkdir -p .ai-ggbond-skills
 cat > .ai-ggbond-skills/.env << 'EOF'
 YUNWU_API_KEY=your-api-key-here
-YUNWU_BASE_URL=https://yunwu.ai
+YUNWU_BASE_URL=https://api.openlux.ai
 YUNWU_DEFAULT_MODEL=gpt-image-2
 EOF
 ```
@@ -2410,7 +2410,7 @@ export http_proxy=http://127.0.0.1:7897
 API_KEY=$(cat ~/.ai-ggbond-skills/.env | grep YUNWU_API_KEY | cut -d'=' -f2)
 
 # 3. 调用 API，先保存 JSON 响应，再用 Python 解码 base64
-curl -s --max-time 180 -X POST "https://yunwu.ai/v1/images/generations" \
+curl -s --max-time 180 -X POST "https://api.openlux.ai/v1/images/generations" \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -2519,9 +2519,9 @@ V4版本内置智能文章分析器，自动提取：
 
 V4版本脚本会自动尝试以下API节点（按优先级）：
 
-1. `https://yunwu.ai` - 主站
+1. `https://api.openlux.ai` - 主站
 2. `https://api3.wai.vip` - 国内服务器
-3. `https://api.apiplus.org` - CF站
+3. `https://api.openlux.ai` - CF站
 
 **模型与接口端点映射**：
 

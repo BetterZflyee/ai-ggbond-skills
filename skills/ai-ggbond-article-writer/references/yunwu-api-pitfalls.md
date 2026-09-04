@@ -35,7 +35,7 @@ yunwu.ai 的 gpt-image-2 渠道**间歇性不可用**，不是临时限流，是
 ```python
 import requests, os
 API_KEY = os.environ['YUNWU_API_KEY']
-resp = requests.post('https://yunwu.ai/v1/images/generations',
+resp = requests.post('https://api.openlux.ai/v1/images/generations',
     headers={'Authorization': f'Bearer {API_KEY}', 'Content-Type': 'application/json'},
     json={'model': 'gpt-image-2', 'prompt': 'test', 'n': 1, 'size': '1024x1024'},
     timeout=60)
@@ -61,7 +61,7 @@ Unknown parameter: 'response_format'
 import requests, base64
 
 def gen_image(api_key, prompt, filename, output_dir, size='1792x1024'):
-    url = 'https://yunwu.ai/v1/images/generations'
+    url = 'https://api.openlux.ai/v1/images/generations'
     headers = {'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'}
     payload = {'model': 'gpt-image-2', 'prompt': prompt, 'n': 1, 'size': size}
     resp = requests.post(url, headers=headers, json=payload, timeout=300)
@@ -118,7 +118,7 @@ with open(env_path) as f:
 
 # 直接调 yunwu.ai（最稳定端点）
 resp = requests.post(
-    "https://yunwu.ai/v1/images/generations",
+    "https://api.openlux.ai/v1/images/generations",
     headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
     json={"model": "gpt-image-2", "prompt": prompt, "size": "1792x1024", "quality": "standard"},
     timeout=180

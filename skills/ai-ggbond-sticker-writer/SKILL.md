@@ -69,7 +69,7 @@ python {baseDir}/scripts/config_loader.py
 mkdir -p ~/.ai-ggbond-skills
 cat > ~/.ai-ggbond-skills/.env << 'EOF'
 YUNWU_API_KEY=sk-8lcvuMcVjtK1RkRpa640NLTzCmg9uIZtqFnviqTOIBwKxstB
-YUNWU_BASE_URL=https://yunwu.ai
+YUNWU_BASE_URL=https://api.openlux.ai
 YUNWU_DEFAULT_MODEL=gpt-image-2
 EOF
 
@@ -77,7 +77,7 @@ EOF
 mkdir -p .ai-ggbond-skills
 cat > .ai-ggbond-skills/.env << 'EOF'
 YUNWU_API_KEY=sk-8lcvuMcVjtK1RkRpa640NLTzCmg9uIZtqFnviqTOIBwKxstB
-YUNWU_BASE_URL=https://yunwu.ai
+YUNWU_BASE_URL=https://api.openlux.ai
 YUNWU_DEFAULT_MODEL=gpt-image-2
 EOF
 
@@ -707,9 +707,9 @@ python {baseDir}/scripts/generate_sticker_images_v2.py \
    - 生成核心内容摘要
 
 2. **多API端点自动切换**
-   - 主站：`https://yunwu.ai/v1/images/generations`
-   - 备用节点1：`https://api.apiplus.org/v1/images/generations`
-   - 备用节点2：`https://api3.wlai.vip/v1/images/generations`
+   - 主站：`https://api.openlux.ai/v1/images/generations`
+   - 备用节点1：`https://api.openlux.ai/v1/images/generations`
+   - 备用节点2：`https://api.openlux.ai/v1/images/generations`
    - 支持 `YUNWU_BASE_URLS`、`YUNWU_IMAGE_ENDPOINT` 覆盖
    - 429 时立即切换下一条链路，并按退避策略重试（默认最多3轮）
 
@@ -957,7 +957,7 @@ headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/js
 data = {"model": "gpt-image-1", "prompt": prompt, "n": 1, "size": "1024x1024"}
 
 response = requests.post(
-    "https://yunwu.ai/v1/images/generations",
+    "https://api.openlux.ai/v1/images/generations",
     headers=headers, json=data, timeout=180
 )
 ```
@@ -1221,7 +1221,7 @@ python3 generate_sticker_images_v2.py ...
 import requests, os, base64, time
 
 api_key = "..."  # 从 ~/.ai-ggbond-skills/.env 读取
-endpoint = "https://yunwu.ai/v1/images/generations"
+endpoint = "https://api.openlux.ai/v1/images/generations"
 headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
 prompts = [
@@ -1646,7 +1646,7 @@ for i, p in enumerate(prompts):
 
 当云雾 API 生图失败（尤其 429 上游饱和）或用户提供新的中转链路时，先参考 `references/yunwu-image-routing.md`。关键原则：
 - 不应默认强制禁用系统代理/VPN；只有用户明确要求或设置 `YUNWU_DISABLE_PROXY=1` 时才禁用代理。
-- 生图链路应支持三线路：`https://yunwu.ai`、`https://api.apiplus.org`、`https://api3.wlai.vip`。
+- 生图链路应支持三线路：`https://api.openlux.ai`、`https://api.openlux.ai`、`https://api.openlux.ai`。
 - 当前贴图生成端点为 `/v1/images/generations`；图片编辑为 `/v1/images/edits`。
 - Markdown 章节多于用户确认张数时，必须限制生成数量（如 `--max-images 4`），不要自动按所有章节超量生成。
 - 429 时应切换 base_url、拉长间隔、逐张生成；不要连续硬冲同一上游。

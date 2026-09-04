@@ -5,7 +5,7 @@
 | 问题 | 排查与修复 |
 |---|---|
 | 缺少 API Key | 检查 `.env` 是否设置 `YUNWU_API_KEY` |
-| 请求地址异常 | 检查 `YUNWU_BASE_URL` 是否为 `https://yunwu.ai` |
+| 请求地址异常 | 检查 `YUNWU_BASE_URL` 是否为 `https://api.openlux.ai` |
 | 模型不符合预期 | 检查 `YUNWU_DEFAULT_MODEL` 是否为 `gpt-image-2` |
 | 生成 429 或超时 | 稍后重试；脚本已支持多端点自动切换；若持续429，改用直接Python API调用+简化提示词 |
 | HTTP 500 "sensitive words detected" | 政治人物姓名触发过滤器。解决方案：用职位代替姓名（"国家主席"、"美国总统"），或改用英文提示词 |
@@ -37,7 +37,7 @@ headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/js
 data = {"model": "gpt-image-1", "prompt": prompt, "n": 1, "size": "1024x1024"}
 
 response = requests.post(
-    "https://yunwu.ai/v1/images/generations",
+    "https://api.openlux.ai/v1/images/generations",
     headers=headers, json=data, timeout=180
 )
 

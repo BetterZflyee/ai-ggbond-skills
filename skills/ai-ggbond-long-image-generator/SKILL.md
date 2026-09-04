@@ -302,7 +302,7 @@ Agent 无法自动设置 API Key（安全机制会截断长密钥）。当发现
 2. **直接告诉用户**在终端运行：
    ```bash
    hermes config set image_gen.api_key 完整的key
-   hermes config set image_gen.base_url https://yunwu.ai/v1
+   hermes config set image_gen.base_url https://api.openlux.ai/v1
    hermes config set image_gen.model gpt-image-2
    ```
 3. 用户设置完成后，再继续生成任务
@@ -314,7 +314,7 @@ config.yaml 有安全写保护，必须用 CLI：
 ```bash
 hermes config set image_gen.provider openai
 hermes config set image_gen.model gpt-image-2
-hermes config set image_gen.base_url https://yunwu.ai/v1
+hermes config set image_gen.base_url https://api.openlux.ai/v1
 hermes config set image_gen.api_key 你的实际key
 ```
 
@@ -322,7 +322,7 @@ hermes config set image_gen.api_key 你的实际key
 
 1. `image_generate` 工具读取 `config.yaml` 的 `image_gen.api_key`，不是环境变量
 2. 贴图 skill 的脚本读取 `~/.ai-ggbond-skills/.env` 的 `YUNWU_API_KEY`，位置不同
-3. API Key 可能过期（返回 401 "无效的令牌"），需要到 https://yunwu.ai 重新生成
+3. API Key 可能过期（返回 401 "无效的令牌"），需要到 https://api.openlux.ai 重新生成
 4. `provider` 必须设为 `openai`，不能是 `custom`
 
 ## 渲染脚本说明
@@ -400,7 +400,7 @@ render_lightweight.py 只是用来测试尺寸和渲染流水线的，它生成�
 | 状态码 | 含义 | 处理 |
 |--------|------|------|
 | 200 | 成功 | 保存图片 |
-| 401 | 无效令牌（过期/错误） | 要求用户到 https://yunwu.ai 重新生成 key |
+| 401 | 无效令牌（过期/错误） | 要求用户到 https://api.openlux.ai 重新生成 key |
 | 403 | 有效 key 但无模型权限 | 检查云雾后台模型权限，换模型或升级套餐 |
 | 429 | 限流（频繁失败触发） | 等待 120 秒后重试 |
 

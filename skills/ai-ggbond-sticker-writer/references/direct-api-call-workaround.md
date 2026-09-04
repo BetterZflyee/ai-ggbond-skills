@@ -27,9 +27,9 @@ prompt = """复古波普网格风格，16:9，简体中文...
 """
 
 endpoints = [
-    "https://yunwu.ai/v1/images/generations",
-    "https://api.apiplus.org/v1/images/generations",
-    "https://api3.wlai.vip/v1/images/generations",
+    "https://api.openlux.ai/v1/images/generations",
+    "https://api.openlux.ai/v1/images/generations",
+    "https://api.openlux.ai/v1/images/generations",
 ]
 
 for endpoint in endpoints:

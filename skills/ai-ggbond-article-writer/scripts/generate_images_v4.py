@@ -389,9 +389,9 @@ class YunwuImageGenerator:
     """云雾API图像生成器 - 公众号专业版 V4"""
     
     API_BASE_URLS = [
-        "https://yunwu.ai",
+        "https://api.openlux.ai",
         "https://api3.wai.vip",
-        "https://api.apiplus.org"
+        "https://api.openlux.ai"
     ]
     
     def __init__(self, api_key: Optional[str] = None):

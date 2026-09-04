@@ -59,14 +59,14 @@ class YunwuImageGenerator:
         self.api_key = api_key or os.environ.get("YUNWU_API_KEY")
         if not self.api_key:
             raise ValueError("请设置 YUNWU_API_KEY 环境变量")
-        base_url = (os.environ.get("YUNWU_BASE_URL", "https://yunwu.ai") or "https://yunwu.ai").strip().rstrip("/")
+        base_url = (os.environ.get("YUNWU_BASE_URL", "https://api.openlux.ai") or "https://api.openlux.ai").strip().rstrip("/")
         if base_url.endswith("/v1"):
             primary_endpoint = f"{base_url}/images/generations"
         else:
             primary_endpoint = f"{base_url}/v1/images/generations"
         self.api_endpoints = [
             primary_endpoint,
-            "https://api.apiplus.org/v1/images/generations"
+            "https://api.openlux.ai/v1/images/generations"
         ]
     
     def generate(
