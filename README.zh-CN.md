@@ -285,6 +285,22 @@ cd /tmp/ai-ggbond-skills && git pull
 cp -r skills/ai-ggbond-* ~/.hermes/skills/
 ```
 
+#### 单个技能：一条命令安装
+
+不是每个技能都要装整套。`ai-ggbond-policy-decoder` 支持独立安装（自动备份旧版本 + 装完自检）：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/BetterZflyee/ai-ggbond-skills/main/skills/ai-ggbond-policy-decoder/install.sh | bash
+```
+
+装到自定义目录（Claude Code / Codex / 任意 agent）：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/BetterZflyee/ai-ggbond-skills/main/skills/ai-ggbond-policy-decoder/install.sh | bash -s -- --dir ~/.claude/skills
+```
+
+> 只依赖 `python3` 标准库——**不需要 pip install，不需要任何 API Key，不联网抓数据**。
+
 #### Claude Code
 
 ```bash

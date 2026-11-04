@@ -2,6 +2,19 @@
 
 格式参考 Keep a Changelog，版本号遵循语义化。
 
+## [0.3.0] - 2026-11-02
+
+### 新增 · 分发能力
+- `install.sh`：一条命令安装本技能。从 GitHub 拉 tarball → 自动备份旧版本（`<skill>.bak.<时间戳>`）→ 安装 → 跑两个 selftest 自检。
+- 支持 `--dir` 指定目标目录（Hermes / Claude Code / Codex / OpenClaw / 任意 SKILL.md 兼容 agent）。
+- 零依赖：只用 `python3` 标准库，不需要 `pip install`，不需要任何 API Key。
+- 失败时提示国内代理设置（`export https_proxy=...`）。
+
+### 已知问题（0.4 待解）
+- 安装脚本不校验下载包的完整性（无 checksum），只依赖 HTTPS。
+- 未提供 `uninstall`。
+- 无版本锁定安装（总是装 main 分支最新）。
+
 ## [0.2.2] - 2026-11-02
 
 ### 修正
