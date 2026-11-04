@@ -44,6 +44,7 @@
 | `ai-ggbond-remove-ai-marks` | 🧹 工具 | 清除 AI 生成图片的可见水印（Gemini火花）和不可见标记（SynthID/C2PA） |
 | `ai-ggbond-youtube-script` | 🎬 媒体 | YouTube 字幕/封面下载：InnerTube API + yt-dlp + 三方摘要三级容灾 |
 | `ai-ggbond-long-image-generator` | 🎨 创意 | 使用 GPT-Image-2（云雾API）生成长图信息图。支持小红书、公众号、超长图预设（最高7200px）
+| `ai-ggbond-policy-decoder` | 🔍 研究 | 把任一城市/领域的政策，翻译成一个具体的人 3/5/10 年的现金流、资产、流动性与选择权。双模式：单政策深挖卡片（研究）+ 按元/小时排序的窗口清单（执行）
 
 > 所有技能均支持 **"千人千面"用户适配**（v1.0 里程碑）——自动读取 Hermes Memory 中的用户画像，输出贴合你个人风格的内容，而不是千篇一律的 AI 味。
 
@@ -560,6 +561,7 @@ hermes skills list | grep publish-to-x
 
 | 日期 | 里程碑 |
 |:---|:---|
+| 2026-11-02 | 🔍 `ai-ggbond-policy-decoder` v0.2.2 发布 — 双模式（政策卡片 + 按元/小时排序的窗口清单）、不可逆闸门、证伪条件强制、预测台账与打脸率 |
 | 2026-06-25 | 🎨 `ai-ggbond-long-image-generator` 发布 — GPT-Image-2 驱动的长图信息图生成，19种预设（最高7200px超长图） |
 | 2026-06-17 | 🎯 `ai-ggbond-poster-portrait` + `ai-ggbond-worldcup-kv-poster` + `ai-ggbond-skill-matrix` 同步上线——肖像海报、世界杯 KV、181 技能路由表 |
 | 2026-06-08 | 🎬 `ai-ggbond-youtube-script` 上线 — YouTube 字幕/封面下载，三级容灾（InnerTube + yt-dlp + 三方摘要） |

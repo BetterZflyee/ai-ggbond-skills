@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "city": "<城市>",
+    "period": "<YYYY Qn>",
+    "as_of": "<YYYY-MM-DD，核验基准日>"
+  },
+  "items": [
+    {
+      "id": "<唯一id>",
+      "name": "<政策/补贴名称>",
+      "dept": "<主管部门>",
+      "district": "<区级政策才填，市级的项留空>",
+      "tier": "L1",
+      "value_type": "cash | tax | avoid_loss | entitlement",
+      "value_typical": 0,
+      "value_note": "<金额怎么来的：分档、条件、计算式>",
+      "minutes": 0,
+      "deadline": "<YYYY-MM-DD 或 null 表示无截止日>",
+      "eligibility": "<谁有资格，写到能自查的程度>",
+      "entry": "<入口：公众号/App/网站，要具体到能点进去>",
+      "miss_cost": "<错过会怎样，写代价不写「遗憾」>",
+      "note": "<坑、前提、容易搞错的地方>",
+      "reverse": false,
+      "quota_limited": false,
+      "done": false,
+      "verified_at": "<YYYY-MM-DD，你去核过的日期>",
+      "source_url": "<官方原文链接>"
+    }
+  ]
+}

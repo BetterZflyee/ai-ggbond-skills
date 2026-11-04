@@ -44,6 +44,7 @@ Bring your own model — OpenAI, DeepSeek, OpenRouter (200+ models), Nous Portal
 | `ai-ggbond-remove-ai-marks` | 🧹 Utility | Remove visible (Gemini sparkle) & invisible (SynthID/C2PA) AI watermarks from images |
 | `ai-ggbond-youtube-script` | 🎬 Media | Download YouTube transcripts, subtitles & cover images. InnerTube + yt-dlp fallback + web search triple-fallback |
 | `ai-ggbond-long-image-generator` | 🎨 Creative | Generate long infographic images using GPT-Image-2 (Yunwu API). Supports Xiaohongshu, WeChat, super-long presets up to 7200px |
+| `ai-ggbond-policy-decoder` | 🔍 Research | Turn any city/domain policy into one specific person's 3/5/10-year trajectory. Two modes: deep policy card (research) + deadline board sorted by ¥/hour (execution) |
 
 > All skills support **persona-adaptive output** (v1.0 milestone) — they automatically read your profile from Hermes Memory and tailor content to your unique voice, instead of producing generic AI-sounding text.
 
@@ -499,6 +500,44 @@ python3 ~/.hermes/skills/ai-ggbond-long-image-generator/scripts/generate_long_im
     --prompt "Complete Tutorial" --preset super_long_medium --output /tmp/long.png
 ```
 
+---
+
+### ai-ggbond-policy-decoder
+
+Turn any public policy — housing, subsidies, hukou, schooling, healthcare, pensions, city plans — into **one specific person's** 3/5/10-year cash flow, asset structure, liquidity and option set. Built on three disciplines: never output a conclusion for an abstract "ordinary person", every forward-looking claim must carry a falsifier, and no conclusion without an irreversibility check.
+
+**Two modes**:
+- **Mode A · Policy Card** — one policy, one persona, three time horizons. 3 years = arithmetic (give a range), 5 years = structure (give a direction), 10 years = branches (give a scenario tree, never a point forecast).
+- **Mode B · Deadline Board** — a set of policies and one deadline, ranked by **¥/hour** not by amount. Because the real constraint for ordinary people is attention, not money.
+
+**Highlights**:
+- **Two output grammars, never mixed** — Layer A (stock) says *do / don't / wait*; Layer B (growth) only says *probability + odds + falsifier*
+- **Irreversibility gate** — `policy_card.py` refuses to render a card with an empty irreversibility list or fewer than 2 falsifiers
+- **Anti-narrative file** — Goodhart's law, "already priced in", and the counterintuitive rule that *policy support ≠ investment return* (support = subsidy = overcapacity = price war = profit destruction)
+- **Four value types kept apart** — cash / tax / avoid-loss / entitlement. Mixing them produces absurd rankings (e.g. health insurance valued as a ¥20,000 gain showing ¥240,000/hour)
+- **Data staleness tiers** — 30 days triggers a warning, 90 days demotes an item out of ranking
+- **Version discipline built in** — independent git repo, semantic tags, `version.sh ship / list / rollback`, and a prediction ledger whose hit-rate can never be rolled back
+
+**Why it exists**: most policy commentary fails in two places — it treats a plan as a promise, and it gives the same answer to everyone. One housing policy is an opportunity for a first-time buyer, an exit window for a leveraged owner, and bad news for a seller.
+
+**Usage**:
+```bash
+# Mode A — validate and render a policy card (refuses incomplete input)
+python3 scripts/policy_card.py card.json
+python3 scripts/policy_card.py --selftest
+
+# Mode B — render a deadline board
+python3 scripts/deadline_board.py boards/shenzhen-2026Q4.json
+python3 scripts/deadline_board.py boards/shenzhen-2026Q4.json --review
+
+# Version control
+./scripts/version.sh ship "what changed"
+./scripts/version.sh rollback v0.2.2
+```
+
+> `ledger/` (prediction ledger with hit-rate tracking) is intentionally kept local — it contains personal scenario work, not templates.
+
+---
 
 ## Ecosystem Integration
 
@@ -560,6 +599,7 @@ hermes skills list | grep publish-to-x
 
 | Date | Milestone |
 |:---|:---|
+| 2026-11-02 | 🔍 `ai-ggbond-policy-decoder` v0.2.2 released — two modes (policy card + deadline board ranked by ¥/hour), irreversibility gate, falsifier enforcement, prediction ledger with hit-rate tracking |
 | 2026-06-25 | 🎨 `ai-ggbond-long-image-generator` released — GPT-Image-2 powered long infographic generation with 19 presets (up to 7200px super-long) |
 | 2026-06-17 | 🎯 `ai-ggbond-poster-portrait` + `ai-ggbond-worldcup-kv-poster` + `ai-ggbond-skill-matrix` synced — portrait posters, World Cup KV, 181-skill routing table |
 | 2026-06-08 | 🎬 `ai-ggbond-youtube-script` released — YouTube transcript/subtitle/cover download with triple-fallback (InnerTube + yt-dlp + web search) |

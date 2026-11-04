@@ -1,0 +1,36 @@
+{
+  "id": "20261102-beijing-housing-001",
+  "date": "2026-11-02",
+  "city": "北京市",
+  "district": "朝阳区",
+  "policy_title": "示例：某某政策名称",
+  "policy_level": "市级",
+  "stage": "已生效",
+  "effective_from": "2026-10-01",
+  "effective_to": "2027-09-30",
+  "is_trial": true,
+  "source_url": "https://example.gov.cn/xxx",
+  "persona_summary": "32岁/已婚一孩/外地户口社保5年/双职工/一套房贷DSR45%/互联网行业/迁移能力中",
+  "claims": [
+    {
+      "horizon": "3y",
+      "statement": "三年累计净现金流影响 +8000~+15000 元",
+      "falsifier": "第二档收入门槛上调",
+      "status": "pending"
+    },
+    {
+      "horizon": "5y",
+      "statement": "房产占家庭净资产比由 78% 升至 85%，流动性下降",
+      "falsifier": "限售期由 3 年缩短至 1 年",
+      "status": "pending"
+    },
+    {
+      "horizon": "10y",
+      "statement": "基准情景：城市人口低速净流入，政策延续",
+      "falsifier": "小学入学人数连续两年下降 或 城投利差走阔>150bp",
+      "status": "pending"
+    }
+  ],
+  "review_at": "2027-11-02",
+  "review_note": ""
+}
