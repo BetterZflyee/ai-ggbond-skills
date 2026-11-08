@@ -11,7 +11,7 @@ export HTTPS_PROXY=http://127.0.0.1:7897
 
 curl -s --max-time 20 -x $HTTPS_PROXY \
   -H "Cookie: auth_token=${AUTH_TOKEN}; ct0=${CT0}" \
-  -H "Authorization: Bearer REPLACED-BY-SECRETGUARD%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA" \
+  -H "Authorization: Bearer $X_BEARER_TOKEN" \
   -H "x-csrf-token: ${CT0}" \
   -H "Content-Type: application/json" \
   -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36" \
