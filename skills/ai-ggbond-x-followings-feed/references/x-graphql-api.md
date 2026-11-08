@@ -18,7 +18,7 @@ POST https://x.com/i/api/graphql/{queryId}/HomeTimeline
 | Header | Value | Source |
 |--------|-------|--------|
 | Cookie | `auth_token=...; ct0=...` | Browser cookies |
-| Authorization | `Bearer REPLACED-BY-SECRETGUARD%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA` | Public, embedded in X web client |
+| Authorization | `Bearer $X_BEARER_TOKEN` | Public, embedded in X web client |
 | x-csrf-token | `{ct0_value}` | Same as ct0 cookie |
 | Content-Type | `application/json` | - |
 | x-twitter-active-user | `yes` | - |
