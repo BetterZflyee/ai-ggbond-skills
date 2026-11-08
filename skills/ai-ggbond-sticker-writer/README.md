@@ -43,7 +43,7 @@ pip install requests Pillow
 3. 配置云雾环境变量：
 
 ```env
-YUNWU_API_KEY=sk-8lcvuMcVjtK1RkRpa640NLTzCmg9uIZtqFnviqTOIBwKxstB
+YUNWU_API_KEY=sk-REPLACED-BY-SECRETGUARD
 YUNWU_BASE_URL=https://api.openlux.ai
 YUNWU_DEFAULT_MODEL=gpt-image-2
 ```

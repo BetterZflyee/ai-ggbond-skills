@@ -48,7 +48,7 @@ QUERY_ID = "iOEZpOdfekFsxSlPQCQtPg"
 URL = f"https://x.com/i/api/graphql/{QUERY_ID}/HomeLatestTimeline"
 
 # Public bearer token (embedded in X's web client)
-BEARER_TOKEN = "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
+BEARER_TOKEN = "AAAA-REPLACED-BY-SECRETGUARD"
 
 headers = {
     "Cookie": f"auth_token={AUTH_TOKEN}; ct0={CT0}",
