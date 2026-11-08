@@ -28,9 +28,14 @@ import requests
 # Auth tokens from env
 AUTH_TOKEN = os.environ.get("AUTH_TOKEN", "")
 CT0 = os.environ.get("CT0", "")
+# X 客户端公开 bearer，从环境变量注入，不再硬编码
+BEARER_TOKEN = os.environ.get("X_BEARER_TOKEN", "")
 
 if not AUTH_TOKEN or not CT0:
     print('{"error": "Missing AUTH_TOKEN or CT0 environment variables"}', file=sys.stderr)
+    sys.exit(1)
+if not BEARER_TOKEN:
+    print('{"error": "Missing X_BEARER_TOKEN environment variable"}', file=sys.stderr)
     sys.exit(1)
 
 # Tweet count from args
@@ -41,8 +46,7 @@ COUNT = int(sys.argv[1]) if len(sys.argv) > 1 else 20
 QUERY_ID = "HJFjzBgCs16TqxewQOeLNg"
 URL = f"https://x.com/i/api/graphql/{QUERY_ID}/HomeTimeline"
 
-# Public bearer token (embedded in X's web client)
-BEARER_TOKEN = "AAAA-REPLACED-BY-SECRETGUARD"
+# Public bearer token：从环境变量 X_BEARER_TOKEN 注入
 
 headers = {
     "Cookie": f"auth_token={AUTH_TOKEN}; ct0={CT0}",
