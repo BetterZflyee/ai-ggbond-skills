@@ -68,7 +68,7 @@ python {baseDir}/scripts/config_loader.py
 # 用户级配置（推荐，所有项目共享）
 mkdir -p ~/.ai-ggbond-skills
 cat > ~/.ai-ggbond-skills/.env << 'EOF'
-YUNWU_API_KEY=sk-REPLACED-BY-SECRETGUARD
+YUNWU_API_KEY=your-yunwu-api-key
 YUNWU_BASE_URL=https://api.openlux.ai
 YUNWU_DEFAULT_MODEL=gpt-image-2
 EOF
@@ -76,7 +76,7 @@ EOF
 # 项目级配置（适合团队协作）
 mkdir -p .ai-ggbond-skills
 cat > .ai-ggbond-skills/.env << 'EOF'
-YUNWU_API_KEY=sk-REPLACED-BY-SECRETGUARD
+YUNWU_API_KEY=your-yunwu-api-key
 YUNWU_BASE_URL=https://api.openlux.ai
 YUNWU_DEFAULT_MODEL=gpt-image-2
 EOF
