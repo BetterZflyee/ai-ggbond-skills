@@ -12,7 +12,9 @@ Session-derived notes for producing a useful digest from a user's Following feed
 - Use inline Python (via `execute_code`) to filter and rank tweets:
   - Load JSON from `/tmp/x_following_latest.json`
   - Remove pure RTs and tweets < 20 chars
-  - Score by `engagement (like + 2×retweet + reply)` + `signal keyword boost (×5 weight)`
+  - Score by **heat first**: `likes + 2*reposts + 0.5*replies`, then weight by the account's own baseline (a small account's outlier beats a big account's routine post). Signal-keyword boost is a tiebreaker, not the ranking principle.
+- **No cross-day dedupe**: a topic that is still hot today gets selected again even if it appeared earlier in the week (`continuity=false` in cron). Missing the hot story is worse than repeating a theme.
+- **Do not fall back to the "anti-filter-bubble" standard** (prefer unfamiliar / contrarian / cross-domain, drop repeated themes) — the user explicitly rejected it: it surfaces cold signals, not the day's actual trending content.
   - Signal keywords include: model names (GPT, Claude, Gemini, Llama, Qwen...), benchmark terms, version numbers, pricing, product launch terms, open-source indicators, agent/RAG/fine-tuning terms
 - Output top 40-60 high-signal tweets for digest generation.
 - **Prefer execute_code** over a separate script — it keeps the scoring logic visible and editable in-session. When `execute_code` is blocked (cron approval restrictions), use `terminal` + `python3 << 'PYEOF' ... PYEOF` heredoc instead — same logic, no approval needed. When heredoc is also blocked, use `write_file` to `/tmp/score_tweets.py` then `terminal` to execute it.
@@ -20,7 +22,8 @@ Session-derived notes for producing a useful digest from a user's Following feed
 
 ## Selection heuristics
 - **De-emphasize pure retweets** (`RT @...`) unless the retweet itself is the strongest signal.
-- Rank by a simple engagement score: `likeCount + 2*retweetCount + replyCount`.
+- Rank by heat: `likeCount + 2*retweetCount + 0.5*replyCount`, adjusted by the author's own recent median (outlier detection).
+- Two sources are mandatory: For You (`/tmp/x_timeline.json`) feeds the 🌋 site-wide trending board; Following (`/tmp/x_following_latest.json`) fills AI/tech depth. Never present outside-news as X content.
 - Prefer items with concrete nouns, versions, benchmarks, pricing, names, or URLs over vague commentary.
 - Bucket items into class-level categories:
   - Major events

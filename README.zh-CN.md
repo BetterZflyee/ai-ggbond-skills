@@ -37,7 +37,7 @@
 | `ai-ggbond-worldcup-kv-poster` | 🎨 创作 | 世界杯国家概念 KV 海报——把国家当品牌，高级商业体育海报质感 |
 | `ai-ggbond-skill-matrix` | 🧭 元技能 | 181 个 Skill 元路由表，7 大场景×22 分类，触发词映射+链式工作流编排 |
 | `ai-ggbond-github-trending` | 🔍 研究 | GitHub Trending 抓取+AI 解读，AI/Agent/MCP 趋势洞察 |
-| `ai-ggbond-x-followings-feed` | 📡 信号 | X/Twitter 关注流抓取 + AI 结构化日报 + 策展评分 |
+| `ai-ggbond-x-followings-feed` | 📡 信号 | X 双源信息流（For You + 关注流）· 热度优先策展 · AI 结构化日报 |
 | `ai-ggbond-publish-to-x` | 📢 社媒 | X/Twitter 全功能发布：短帖、引用、长文、Thread |
 | `ai-ggbond-run-xiaohongshu` | 📕 社媒 | 小红书全链路运营：定位→选题→生产→发布→评论→复盘 |
 | `ai-ggbond-brain-setup` | 🧠 知识 | GBrain 记忆层集成：让 AI 拥有长期记忆和知识检索 |
@@ -472,9 +472,9 @@ GitHub Trending 趋势发现与解读。
 
 ### ai-ggbond-x-followings-feed
 
-X/Twitter 关注流 AI 日报。
+X/Twitter 双源信息流 AI 日报。
 
-**能力**：获取关注列表推文（非推荐算法流）· 单次 200+ 条 · 1 / 3 / 7 天时间窗 · AI 自动分类（重大事件 / 产品发布 / 技术洞察 / 资源汇总 / 舆情信号）· 内置 `curate_and_score.py` 策展评分引擎
+**能力**：For You 推荐流 + 关注流双源抓取（关注流单次 200+ 条）· 热度优先排序（`likes + 2×reposts + 0.5×replies`，小号按账号基线加权）· 不做跨天去重 · AI 自动分类（🌋 全站热榜 / 重大事件 / 产品发布 / 技术洞察 / 资源汇总 / 舆情信号）· 内置 `curate_and_score.py` 策展评分引擎
 
 ### ai-ggbond-publish-to-x
 
@@ -577,6 +577,7 @@ hermes skills list | grep publish-to-x
 
 | 日期 | 里程碑 |
 |:---|:---|
+| 2026-11-14 | 🔥 `ai-ggbond-x-followings-feed` v1.8 — 选题标准改为**热度优先**（互动量 + 账号基线加权）、For You + 关注流**双源抓取**、新增「🌋 全站热榜」栏目、明确不做跨天去重 |
 | 2026-11-14 | 🔄 **全量同步 16 个技能** — article-writer v2.4、image-gen v1.1（手绘视觉笔记/认知冲击版式）、post-to-wechat v2.1（推送硬门禁/封面原地替换）、sticker-writer v2.5.1、youtube-script v1.1.1（登录态 Cookie 恢复）、x-followings-feed v1.7.4（+`X_BEARER_TOKEN` 环境变量）、long-image-generator v1.1（信息图质量门禁）；新增 37 篇实战 references，全仓库凭据改为环境变量注入 |
 | 2026-11-02 | 🔍 `ai-ggbond-policy-decoder` v0.2.2 发布 — 双模式（政策卡片 + 按元/小时排序的窗口清单）、不可逆闸门、证伪条件强制、预测台账与打脸率 |
 | 2026-06-25 | 🎨 `ai-ggbond-long-image-generator` 发布 — GPT-Image-2 驱动的长图信息图生成，19种预设（最高7200px超长图） |

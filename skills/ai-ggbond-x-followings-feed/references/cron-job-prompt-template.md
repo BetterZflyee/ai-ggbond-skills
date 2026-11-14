@@ -24,17 +24,25 @@
 
 ## 执行流程
 
-### ① 抓取关注流
+### ① 双源抓取（缺一不可）
 ```bash
 export HTTPS_PROXY=http://127.0.0.1:7897
-python3 ~/.hermes/skills/ai-ggbond-x-followings-feed/scripts/fetch_x_following_paginated.py 5 > /tmp/x_following_latest.json
+
+# 源 A：For You 推荐流 — 回答"今天 X 上什么在火"
+python3 ~/.hermes/skills/ai-ggbond-x-followings-feed/scripts/fetch_x_timeline.py 100 > /tmp/x_timeline.json 2>/dev/null
+
+# 源 B：关注流 — 补 AI/科技深度
+python3 ~/.hermes/skills/ai-ggbond-x-followings-feed/scripts/fetch_x_following_paginated.py 5 > /tmp/x_following_latest.json 2>/dev/null
 ```
 
-### ② 策展精选
+只抓关注流 = 样本偏差：那几十个账号里永远不会出现全站爆款，用户会直接回"这些不是市面上比较火的内容"。For You 单次只回 30–40 条，多跑几次按 `id` 合并；过滤 X 官方广告位与超过 48 小时的旧贴。
+
+### ② 策展精选（热度优先）
 在 Python/execute_code 中解析 JSON，执行：
-- 过滤纯 RT（除非引用者有实质评论）
-- 信号关键词打分：版本号、benchmark、价格、产品名、GitHub/论文链接、争议事件
-- 按综合得分降序排序，取 Top 50
+- 过滤纯 RT（除非引用者有实质评论）、纯广告、无信息玩梗、超过 48 小时的旧贴
+- 热度 = `likes + 2*reposts + 0.5*replies`，小号爆款按账号基线加权
+- **不做跨天去重**：前几天讲过的母题，今天还在火就照写；cron 的 `continuity` 设 `false`
+- 同一事件多条合并，取热度最高或信息最全的做主推
 
 ### ③ 生成结构化日报
 以玄策身份输出。格式如下（仅输出有内容的板块）：
@@ -42,17 +50,20 @@ python3 ~/.hermes/skills/ai-ggbond-x-followings-feed/scripts/fetch_x_following_p
 **⚠️ 格式铁律：绝对不要使用 Markdown 表格（`| xxx |`）。Hermes 检测到表格会把整条消息降级为纯文本，所有格式失效。** 标题 `#`、分隔线 `---`、加粗 `**`、列表 `-` 正常使用。
 
 ```
-# 📰 择势·玄策 X 关注流日报 — {日期}
+# 📰 择势·玄策 X 信息流日报 — {日期}
 
-根据我们对关注流 {N} 条推文的信号评分与筛选，以下是今日高价值情报。
+抓取说明：推荐流 {N} 条 / 关注流 {M} 条，覆盖北京时间 {起}—{止}。
 
 ---
 
+## 🌋 全站热榜（今天 X 上真正在传的）
+只来自 For You 推荐流。允许社会、娱乐、情绪类，不要硬扣 AI。每条：标题（强度 S/A/B）｜@作者（北京时间）｜❤️/🔁/💬｜发生了什么（2–3 行）｜为什么火（一句）｜链接
+
 ## 🔥 重大信号
-行业转折点/争议/大厂动作。每条：【信号强度】→【解读】→【行动建议】
+行业转折点/争议/大厂动作。每条：(@作者, MM-DD HH:MM) →【信号强度】→【解读】→【行动建议】
 
 ## 🚀 产品动态
-新模型/API更新/工具版本。每条包含版本号与发布时间。
+新模型/API更新/工具版本。每条含(@作者, MM-DD HH:MM)与版本号。
 
 ## 💡 技术突破
 技术方案/优化/代码片段。
@@ -98,7 +109,10 @@ python3 ~/.hermes/skills/ai-ggbond-x-followings-feed/scripts/fetch_x_following_p
 
 ## 验证清单
 
+- [ ] 两个源都抓了（For You + 关注流），抓取说明里有两条流的条数
+- [ ] 全站热榜只来自 For You，且有「为什么火」
 - [ ] 所有链接使用 Markdown 语法（确保可点击）
+- [ ] 每条带 `(@作者, MM-DD HH:MM)` 时间戳
 - [ ] **无 Markdown 表格**（不用 `| xxx |`，用列表替代）
 - [ ] 每条信号含强度 + 建议 + 风险
 - [ ] 投研视角与飞哥 Memory 中的主线对齐

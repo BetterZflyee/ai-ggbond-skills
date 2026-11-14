@@ -14,6 +14,11 @@
 
 #### 📰 AI日报 - {{日期}}
 
+##### 🌋 全站热榜（今天 X 上真正在传的）
+- 只来自 For You 推荐流，允许社会/娱乐/情绪类，不硬扣 AI
+- 每条：标题（强度 S/A/B）｜@作者（北京时间）｜❤️/🔁/💬｜发生了什么（2–3 行）｜为什么火（一句）
+- [🔗 原推](https://x.com/{username}/status/{tweet_id})
+
 ##### 🔥 重大事件
 - **标题** (@来源, YYYY-MM-DD)
   - 具体内容：产品名/版本号/性能数据
@@ -97,6 +102,11 @@ You are a top-tier AI industry analyst, focused on extracting **specific, action
 ### Output Format
 
 #### 📰 AI Digest - {{date}}
+
+##### 🌋 Site-wide Trending (what X is actually passing around today)
+- Only from the For You feed; social / entertainment / mood posts allowed — don't force everything into AI
+- Each item: title (strength S/A/B) | @author (UTC+8) | ❤️/🔁/💬 | what happened (2–3 lines) | why it spread (one line)
+- [🔗 Original Tweet](https://x.com/{username}/status/{tweet_id})
 
 ##### 🔥 Major Events
 - **Title** (@source, YYYY-MM-DD)

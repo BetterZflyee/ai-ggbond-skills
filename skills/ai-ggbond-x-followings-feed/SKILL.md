@@ -1,6 +1,6 @@
 ---
 name: ai-ggbond-x-followings-feed
-version: 1.7.4
+version: 1.8.0
 author: "AI GGBond"
 license: MIT
 description: |
@@ -72,34 +72,23 @@ curl -I --max-time 5 -x http://127.0.0.1:7897 https://x.com
 # 应返回 HTTP 200 或 302
 ```
 
-### 3. 获取关注列表推文 / Fetch Tweets
+### 3. 双源抓取 / Fetch Both Feeds（缺一不可）
 
-**⚠️ 重要：使用 Python 脚本获取关注流（推荐）**
-
-bird CLI 不支持代理，且获取的是 "For You" 推荐流。**推荐使用 Python 脚本直接获取关注流**：
+**只抓关注流 = 样本偏差**：关注流只有你关注的那几十个账号，永远不会出现全站爆款；只抓推荐流又缺少 AI/科技深度与一手细节。两源都抓，一个失败就用另一个继续出报。
 
 ```bash
-# 设置代理（中国大陆必需）
 export HTTPS_PROXY=http://127.0.0.1:7897
 
-# 获取关注流（推荐：分页获取更多数据）
-python3 ~/.hermes/skills/ai-ggbond-x-followings-feed/scripts/fetch_x_following_paginated.py 5
-# 参数：页数（默认3页，约120条推文；5页约200条）
+# 源 A｜For You 推荐流 — 回答「今天 X 上什么在火」（🌋 全站热榜唯一来源）
+python3 ~/.hermes/skills/ai-ggbond-x-followings-feed/scripts/fetch_x_timeline.py 100 > /tmp/x_timeline.json 2>/dev/null
 
-# 快速获取（单页约40条）
-python3 ~/.hermes/skills/ai-ggbond-x-followings-feed/scripts/fetch_x_timeline.py 40
+# 源 B｜Following 关注流 — 补齐 AI/科技深度（分页：5 页约 200-300 条）
+python3 ~/.hermes/skills/ai-ggbond-x-followings-feed/scripts/fetch_x_following_paginated.py 5 > /tmp/x_following_latest.json 2>/dev/null
 ```
 
-**用户偏好**：飞哥希望获取尽可能多的关注流数据，不要只获取20条。建议默认使用分页脚本获取 3-5 页（120-200条推文）。
+**用户偏好**：飞哥要的是「市面上真正在火的内容」，不是关注列表的精选。关注流默认抓 3-5 页；For You 单次只回 30-40 条，覆盖一天要跑 2-3 次并按 `id` 去重合并。
 
-**也可以用 bird CLI（不推荐，有局限）**：
-```bash
-# bird CLI 获取 "For You" 推荐流（不是关注流！）
-bird home --json -n 20
-
-# bird CLI 获取关注流（但不支持代理，中国大陆无法使用）
-bird home --following --json -n 20
-```
+**bird CLI 不推荐**：不支持代理，且 `bird home --json` 拿的是 For You 而不是关注流。
 
 ### 4. 策展精选 / Score & Curate
 
@@ -119,6 +108,27 @@ python3 /Users/admin/.hermes/skills/ai-ggbond-x-followings-feed/scripts/curate_a
 
 基于过滤结果 + [analyst_prompt_template.md](references/analyst_prompt_template.md) 生成结构化日报。日报末尾自动追加「🎯 个人视角」— 从 Memory 读取用户状态生成。
 
+## 选题标准：热度优先 + 双源抓取（用户已定稿，不要再改回去）
+
+- 排序的第一标准是「火」：likes / reposts / replies 的绝对值（热度公式 `likes + 2*reposts + 0.5*replies`），以及相对该账号日常基线的异常放大；被多个账号交叉引用、引发争论也算信号。小号爆款按账号基线加权（除以该账号近期互动中位数），不要用全站统一阈值。
+- **不做跨天去重**：前几天讲过的母题，只要今天还在火、还有新进展，照选。重复不是问题，错过热点才是问题；对应到 cron，`continuity` 设为 `false`。
+- **不要回退到「认知破壁／反信息茧房」那套**（优先陌生、反共识、跨界，删重复母题）。用户明确否过：这套标准选出来的都是冷门信号，不是当天热榜。
+
+### 必须两个源都抓，只抓关注流是样本偏差
+
+用户说「推送的内容都不是市面上比较火的内容」时，先看抓的是哪条流，不要先改 prompt。
+
+- **源 A｜For You 推荐流**（`scripts/fetch_x_timeline.py 100`）：算法推荐，会出现大量非关注账号的内容——社会热点、生活、玩梗、情绪贴。**这正是「今天 X 上在火」的证据**，不要因为不够专业就删掉。日报里的「🌋 全站热榜」板块只能来自这条流。
+- **源 B｜Following 关注流**（`scripts/fetch_x_following_paginated.py 5`）：约 70 个账号、300+ 条，内容以 AI/科技为主，用来补齐深度和细节。
+- 关注流哪怕抓 355 条，也永远不会出现全站爆款：样本只有那几十个人。想让用户看到「市面上在火」的内容，For You 是不可替代的源。
+- 一个源失败就用另一个继续出报，不要用站外新闻冒充 X 内容。
+
+### For You 流的三个坑
+
+- 单次请求只回 30–40 条，想覆盖一天需要多跑几次按 `id` 去重合并。
+- 会混入 X 官方广告位（如 @XBusiness）和超过 48 小时的旧贴，按 `createdAt` 过滤 48 小时、按作者/内容过滤推广。
+- 会混入纯图/纯视频、正文只有一句话的贴。这类可以进「全站热榜」并如实标注「视频/图文，正文一句话」，不要替它编背景。
+
 ## 推文分类 / Tweet Categorization
 
 Scored tweets are assigned to digest categories using keyword matching. See [references/categorization-keywords.md](references/categorization-keywords.md) for the full keyword→category mapping and fallback logic.
@@ -129,6 +139,7 @@ Scored tweets are assigned to digest categories using keyword matching. See [ref
 
 Digest includes (only shows categories with content):
 
+- **🌋 全站热榜 / Site-wide Trending** - 只来自 For You 推荐流：今天 X 上真正在传的事，允许社会/娱乐/情绪类，不硬扣 AI。标注热度与「为什么火」
 - **🔥 重大事件 / Major Events** - 具体细节和影响分析 / Specific details & impact analysis
 - **🚀 产品发布 / Product Releases** - 新模型、API更新、工具版本 / New models, API updates, tools
 - **💡 技术洞察 / Tech Insights** - 技术方案、优化技巧、代码片段 / Technical solutions, optimizations

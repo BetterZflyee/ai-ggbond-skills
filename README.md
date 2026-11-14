@@ -37,7 +37,7 @@ Bring your own model — OpenAI, DeepSeek, OpenRouter (200+ models), Nous Portal
 | `ai-ggbond-worldcup-kv-poster` | 🎨 Creative | World Cup country concept KV posters — treat countries as visual brands with high commercial sports aesthetics |
 | `ai-ggbond-skill-matrix` | 🧭 Meta | 181-skill routing table across 7 scenarios — trigger words, skill chains, full-pipeline orchestration |
 | `ai-ggbond-github-trending` | 🔍 Research | GitHub Trending discovery + AI-powered analysis for AI/Agent/MCP trends |
-| `ai-ggbond-x-followings-feed` | 📡 Signal | X/Twitter followings scraper + AI-structured daily digest with curation scoring |
+| `ai-ggbond-x-followings-feed` | 📡 Signal | X dual-source feed (For You + Following) · heat-first curation · AI-structured digest |
 | `ai-ggbond-publish-to-x` | 📢 Social | Full-featured X/Twitter publishing: posts, quotes, long-form, Threads |
 | `ai-ggbond-run-xiaohongshu` | 📕 Social | End-to-end Xiaohongshu ops: positioning → ideation → creation → publishing → engagement → iteration |
 | `ai-ggbond-brain-setup` | 🧠 Knowledge | GBrain memory layer with DashScope/Qwen3-Embedding support — 9 documented pitfalls, proxy config, recipe patching |
@@ -441,9 +441,9 @@ GitHub Trending discovery and AI-powered analysis.
 
 ### ai-ggbond-x-followings-feed
 
-X/Twitter AI daily digest from your followings.
+X/Twitter AI digest over a dual-source feed.
 
-**Capabilities**: Fetches tweets from accounts you follow (not algorithmic feed) · 200+ per batch · 1 / 3 / 7 day windows · AI auto-classification (breaking news / product launches / technical insights / resources / sentiment signals) · Built-in `curate_and_score.py` curation engine
+**Capabilities**: Fetches both the For You feed and your Following feed (200+ posts per batch) · Heat-first ranking (`likes + 2×reposts + 0.5×replies`, small accounts boosted by their own baseline) · No cross-day dedupe · AI auto-classification (🌋 site-wide trending / breaking news / product launches / technical insights / resources / sentiment signals) · Built-in `curate_and_score.py` curation engine
 
 ### ai-ggbond-publish-to-x
 
@@ -615,6 +615,7 @@ hermes skills list | grep publish-to-x
 
 | Date | Milestone |
 |:---|:---|
+| 2026-11-14 | 🔥 `ai-ggbond-x-followings-feed` v1.8 — **heat-first** selection (engagement + account baseline), **dual-source** fetch (For You + Following), new 🌋 site-wide trending section, no cross-day dedupe |
 | 2026-11-14 | 🔄 **Full sync of all 16 skills** — article-writer v2.4, image-gen v1.1 (hand-drawn notes / cognitive-impact layouts), post-to-wechat v2.1 (pre-flight token gate / in-place cover swap), sticker-writer v2.5.1, youtube-script v1.1.1 (logged-in cookie recovery), x-followings-feed v1.7.4 (+`X_BEARER_TOKEN` env), long-image-generator v1.1 (infographic quality gates); 37 new battle-tested references, all credentials moved to env vars |
 | 2026-11-02 | 🔍 `ai-ggbond-policy-decoder` v0.2.2 released — two modes (policy card + deadline board ranked by ¥/hour), irreversibility gate, falsifier enforcement, prediction ledger with hit-rate tracking |
 | 2026-06-25 | 🎨 `ai-ggbond-long-image-generator` released — GPT-Image-2 powered long infographic generation with 19 presets (up to 7200px super-long) |
