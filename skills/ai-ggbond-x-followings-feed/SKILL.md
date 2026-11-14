@@ -4,9 +4,9 @@ version: 1.8.0
 author: "AI GGBond"
 license: MIT
 description: |
-  Auto-fetch latest tweets from your X/Twitter followings and generate structured AI digest. Supports custom time ranges: 1 day, 3 days, 7 days, or custom.
+  Dual-source X/Twitter digest: fetch BOTH the For You feed and your followings, rank by heat (likes + 2×reposts + 0.5×replies, small accounts weighted by their own baseline), then generate a structured AI digest with a site-wide trending section. No cross-day dedupe.
 
-  自动抓取X/Twitter关注列表的最新推文，并使用AI分析师提示词生成结构化日报。支持自定义时间段：1天、3天、7天或自定义天数。
+  双源 X/Twitter 信息流日报：同时抓 For You 推荐流与关注流，按热度排序（likes + 2×reposts + 0.5×replies，小号按账号基线加权），生成含「全站热榜」的结构化 AI 日报；不做跨天去重。
 
   **Trigger Words:**
   - "summarize my followings", "X digest", "Twitter summary", "tweets from last 3 days", "weekly summary"
@@ -182,7 +182,7 @@ When calling the AI, specify output language in the prompt:
 
 3. **Following 流数据结构不同**：用户信息在 `.core` 不是 `.legacy`，解析时需兼容两种结构。
 
-4. **数据量偏好**：用户希望获取更多数据（120-200条），不要只获取 20-40 条。使用分页脚本 `fetch_x_following_paginated.py`。
+4. **数据量偏好**：关注流按 3-5 页抓（120-300 条），不要只取 20-40 条；For You 单次只回 30-40 条，覆盖一天要跑 2-3 次按 `id` 合并。
 
 5. **飞书 Markdown 渲染**：飞书 post 模式支持标题 `#`、加粗 `**`、分隔线 `---`、列表 `-`、Markdown 链接 `[文字](url)`。但 **Hermes 检测到 `| 表格 |` 会把整条消息降级为纯文本**（`feishu.py` `_MARKDOWN_TABLE_RE`），导致所有格式失效。日报中不要用表格，用列表替代。链接使用 Markdown 语法 `[🔗 原推](url)`，确保渲染为可点击超链接。**裸URL+emoji前缀（如`🔗 https://...`）在飞书中不可靠**——emoji紧挨URL时飞书可能无法识别为超链接，必须用Markdown链接语法包裹。详见 `references/feishu-rendering.md`。
 
