@@ -38,6 +38,7 @@ YUNWU_IMAGE_TIMEOUT=300
 ## 错误处理
 - **429 负载饱和**：自动切换下一条链路，按指数退避等待
 - **401 无效令牌**：检查API密钥是否正确
+- **401 dummy key**：内置 `image_generate` 工具不读 `image_gen.api_key` 配置 → 改用 `execute_code` + `yaml.safe_load` 读 config.yaml 直调API（见 SKILL.md 方式三）
 - **500 敏感词**：调整提示词，用职位代替人名
 - **超时**：检查网络，增加timeout
 

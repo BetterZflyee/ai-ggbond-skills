@@ -72,7 +72,7 @@ python3 ~/.hermes/skills/ai-ggbond-x-followings-feed/scripts/fetch_x_following_p
 争议话题/预测/警告。标注共识度与分歧点。
 
 ## 🎯 投研视角
-从 Hermes Memory 读取飞哥当前主线（求职/制造业方案/Nick维护），
+从 Hermes Memory 读取飞哥当前主线（顺丰AI FDE / 企业级AI落地 / 数字化转型），
 对每条高信号做定制化解读：
   【对飞哥意味着什么】
   【建议动作】

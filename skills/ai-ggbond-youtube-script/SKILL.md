@@ -1,7 +1,7 @@
 ---
 name: ai-ggbond-youtube-script
 description: Downloads YouTube video transcripts/subtitles and cover images by URL or video ID. Supports multiple languages, translation, chapters, and speaker identification. Caches raw data for fast re-formatting. Use when user asks to "get YouTube transcript", "download subtitles", "get captions", "YouTube字幕", "YouTube封面", "视频封面", "video thumbnail", "video cover image", or provides a YouTube URL and wants the transcript/subtitle text or cover image extracted.
-version: 1.1.0
+version: 1.1.1
 metadata:
   openclaw:
     homepage: https://github.com/BetterZflyee/ai-ggbond-skills#ai-ggbond-youtube-script
@@ -220,6 +220,33 @@ Video: "How to Build a Self-Improving Company with AI" (Y Combinator, Tom Blomfi
 - Blog search found: CompleteRPABootcamp detailed chapter-by-chapter breakdown
 - Combined: full coverage of all 12 chapters with direct quotes and critical counterpoints from comments
 
+## Logged-in Browser Cookie Workflow (YouTube "not a bot" recovery)
+
+When the direct InnerTube path and ordinary `yt-dlp` fallback return **"Sign in to confirm you’re not a bot"**, retry `yt-dlp` using the user’s existing, logged-in browser cookies. This is the preferred recovery path for transcript extraction.
+
+1. Ask the user to sign in to `youtube.com` in Chrome (no password should be shared with the agent).
+2. Run `yt-dlp` with `--cookies-from-browser chrome`; **Chrome remote-debugging / CDP authorization is not required for this command**. It is only needed if the agent must inspect the user’s browser page interactively.
+3. List subtitle tracks first, then download manual and auto captions. Always pass the configured proxy if the network requires it.
+
+```bash
+# Verify the logged-in session can expose subtitle tracks
+export HTTP_PROXY=http://127.0.0.1:7897 HTTPS_PROXY=http://127.0.0.1:7897
+export http_proxy=http://127.0.0.1:7897 https_proxy=http://127.0.0.1:7897
+
+yt-dlp --cookies-from-browser chrome --proxy http://127.0.0.1:7897 \
+  --list-subs 'https://youtu.be/VIDEO_ID'
+
+# Fetch both supplied and auto-generated subtitles, preferring Chinese then English
+yt-dlp --cookies-from-browser chrome --proxy http://127.0.0.1:7897 \
+  --skip-download --write-subs --write-auto-subs --sub-langs 'zh.*,en.*' \
+  --convert-subs srt 'https://youtu.be/VIDEO_ID'
+```
+
+**Cookie-access pitfalls:**
+- Close Chrome fully only if `yt-dlp` reports that it cannot read/decrypt the browser cookie database; otherwise leave the user’s normal session alone.
+- Do not claim a transcript was retrieved merely because metadata, chapters, or a video page was accessible. Confirm an actual subtitle file or non-empty transcript output exists.
+- If authenticated subtitle listing still shows no manual and no automatic captions, tell the user that this video has no accessible captions and offer an audio-file transcription route or the documented third-party-summary fallback.
+
 ## Proxy Configuration (Hermes VM / Network-Restricted Environments)
 
 When running in Hermes VM or behind a firewall, YouTube API calls fail silently or return "Unable to connect." Fix:
@@ -247,6 +274,22 @@ yt-dlp --write-sub --write-auto-sub --sub-lang en,zh --proxy http://127.0.0.1:78
 ```
 
 **Pitfall**: If yt-dlp shows "no subtitles" and "no automatic captions," the video genuinely has no text transcript. Fall back to the transcript fallback pattern (web_search for third-party summaries).
+
+## Authenticated Chrome Recovery (when YouTube blocks unauthenticated extraction)
+
+When InnerTube and `yt-dlp` both return a bot-check error, do not conclude immediately that the video has no captions. With explicit user authorization, use their already logged-in Chrome:
+
+1. Ask them to sign in to YouTube, enable remote debugging at `chrome://inspect/#remote-debugging`, and accept the first CDP authorization prompt.
+2. Use `browser-harness` to establish the first connection:
+   ```bash
+   browser-harness -c 'ensure_real_tab(); print(page_info())'
+   ```
+3. Open the target video in that authenticated browser, then inspect `window.ytInitialPlayerResponse.captions.playerCaptionsTracklistRenderer.captionTracks`. Record language, manual/ASR type, and whether the user is actually logged in.
+4. Retry `yt-dlp --cookies-from-browser chrome` to list/download subtitles.
+5. If tracks exist but timedtext payload is HTTP 200 with a zero-byte body, say **"caption payload is unavailable in the current session/region or may not yet be published"**. Track metadata is not proof of downloadable captions. Ask the user to enable CC and play 10–20 seconds before one final retry.
+6. If still empty, pivot to audio transcription or the documented third-party-summary fallback, explicitly labeling it non-verbatim.
+
+See `references/logged-in-chrome-subtitle-diagnostic.md` for a tested CDP inspection command and evidence checklist.
 
 ## Fallback: When Neither Script Nor yt-dlp Works
 

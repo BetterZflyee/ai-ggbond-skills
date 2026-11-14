@@ -349,7 +349,23 @@ tavily-search（快速搜索）→ web-access（深度抓取）→ deep-research
 | `hindsight-local` | 记住偏好、经验存储 | 持久化用户经验 |
 | `webhook-subscriptions` | Webhook、事件驱动、自动触发 | Webhook订阅管理 |
 
-### 7.4 通用工具
+### 7.4 机会评估与声称验证
+
+| Skill | 触发词 | 产出 |
+|-------|--------|------|
+| `viral-claim-evaluation` | 这个靠不靠谱、这人说的是真的吗、帮我看看这个、能不能学 | 6信号可信度评估+方法论拆解+行动建议 |
+| `trap-detector` | 杀猪盘、朋友推荐、群里说、内幕消息 | 8信号风险评级🟢🟡🟠🔴 |
+| `demand-signal-research` | 找需求、找痛点、找机会、micro saas、小而美 | 多平台真实需求挖掘 |
+
+**声称评估链路**：
+```
+用户转发X/小红书/抖音帖子
+→ viral-claim-evaluation（6信号扫描）
+  ├── 可信 → demand-signal-research（深挖方法论可行性）
+  └── 不可信 → 提取可借鉴的点 + 警告
+```
+
+### 7.5 通用工具
 
 | Skill | 触发词 | 产出 |
 |-------|--------|------|

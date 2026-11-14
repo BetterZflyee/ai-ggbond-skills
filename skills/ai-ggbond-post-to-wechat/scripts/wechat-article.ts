@@ -558,7 +558,7 @@ export async function postArticle(options: ArticleOptions): Promise<void> {
     const url = await evaluate<string>(session, 'window.location.href');
     if (!url.includes('/cgi-bin/')) {
       console.log('[wechat] Not logged in. Please scan QR code...');
-      const loggedIn = await waitForLogin(session);
+      const loggedIn = await waitForLogin(session, 600_000);
       if (!loggedIn) throw new Error('Login timeout');
     }
     console.log('[wechat] Logged in.');

@@ -93,7 +93,8 @@ python /Users/admin/.hermes/skills/creative/ai-ggbond-github-trending/scripts/fe
    - 深挖 1-3 个项目 README、issues、roadmap。
    - 找项目作者的 X/GitHub/LinkedIn，用于人脉链接。
    - 生成 1-3 个公众号选题。
-   - 如项目适配飞哥场景，提出“1小时复刻/试用/二创”的最小动作。
+   - 如项目适配飞哥场景，提出"1小时复刻/试用/二创"的最小动作。
+   - **主动询问是否要安装**：当用户问"有什么好玩的"或看完整个 Trending 报告后，对 P0/P1 级项目主动问"要帮你装上吗？"。用户看到好项目后往往想立刻试用，不要等用户自己提。安装流程参考 `clawhub-skills-install-to-hermes` 技能（ClawHub 技能 vs GitHub 完整项目要区分清楚）。
 
 ## Output Format
 
@@ -197,19 +198,66 @@ See `references/feishu-formatting.md` for complete Feishu formatting rules.
 
 详细设计与后续实现记录见 `references/cross-agent-user-profile-adaptation.md`。
 
+## Skill Discovery: Ranking by Fit, Not Stars
+
+当用户问 GitHub 上“有什么好 Skill”，尤其带有具体工作场景（如给领导汇报、项目周报、方案材料），不要把 Trending 或 Star 当作推荐结论。Star 是传播信号，不是场景适配或文本可靠性的证明。
+
+### 必做筛选
+
+1. **先识别交付对象与风险**：汇报对象是领导/客户/公众，还是日常社媒；是否必须保留数字、时间、责任人、风险、待决策事项。
+2. **分清两类能力**：
+   - `结构技能`：把进度、风险、待决事项、下一步组织成决策友好的材料；
+   - `去 AI 味技能`：删模板腔、宣传腔和空话。两者不可互相替代。
+3. **优先验证仓库原始 README / SKILL.md**：确认具体场景、事实保护、语体边界、测试/评测和目标 Agent 兼容性；搜索摘要只用于发现候选。
+4. **按适配度排序，Star 只作括号信息**：给出 P0/P1/P2 和适用边界，不要混排一个“高 Star 榜单”。
+5. **汇报材料的红线**：避免推荐会默认口语化、情绪注入、设问互动、扩写内容或以“绕过检测”为卖点的工具。优先“保信息、保责任、保节点、保风险”的技能。
+
+### 领导汇报场景的推荐框架
+
+- **P0 去腔主编辑**：有 `status` / 商务 / 职场语体，并能锁定数字、日期、责任人、阻塞与下一步。
+- **P0/P1 结构工具**：能将信息组织为“当前进度 → 待决事项 → 阻塞/影响 → 下一步”，并按领导偏好调整颗粒度。
+- **P1 轻量补丁**：只用于交付前扫除“不是 A 而是 B”“持续推进”“赋能/抓手/闭环”等模板壳，不能替代事实校对。
+- **P2 参考而非安装**：泛英文 humanizer、纯禁词表、单 Prompt 项目和声称规避检测的项目。
+
+最终回答至少说明：推荐它解决什么、它不会解决什么、适合哪种材料，以及一条可复用的调用提示。对领导汇报，调用提示应包含：`先给结论；保留数字、节点、责任人和风险；区分已完成/进行中/阻塞/待决策；不新增事实、不弱化问题、不写口号。`
+
+## Multi-Day Historical Aggregation
+
+当用户要求“最近两周 / 过去 N 天 / 一段自定义日期范围的 Top 50”时，不能把当前 Weekly 与 Monthly 页面简单拼接。应读取每日历史快照、跨日去重，并按上榜天数等明确指标聚合。
+
+完整的数据源选择、排序、并列处理、API 补全和口径说明见 `references/multi-day-trending-aggregation.md`。
+
+核心要求：
+
+- 明确日期范围与完整自然日口径；
+- 明确榜单是“持续上榜天数榜”还是“Star 增长榜”；
+- 第三方归档若只覆盖部分语言，必须披露覆盖范围；
+- 并列项目不能仅凭仓库名字母序制造虚假的精确排名；
+- GitHub API 返回缺失时写“暂缺”，不要写成 0；
+- 当前总 Star 不得表述为窗口新增 Star。
+
 ## Fallback Strategy
 
 GitHub Trending 没有官方 API，页面结构可能变。若脚本失败：
 
-1. 用 `web_extract(["https://github.com/trending?... "])` 获取页面内容。
+1. 用 `web_extract(["https://github.com/trending?..."])` 获取页面内容（约 20 个项目）。
 2. 如页面被压缩或解析失败，使用 browser 打开页面检查 DOM。
-3. 必要时用 GitHub Search API 搜索近期高 star 仓库，但要明确这不是 Trending 等价数据。
-4. 输出时标注数据来源和限制，不要假装精确。
+3. **替代数据源**（按优先级）：
+   - **trendshift.io**：第三方聚合，有历史趋势和更长榜单。`web_extract(["https://trendshift.io/github-trending-repositories?since=weekly"])`
+   - **ossinsight.io/trending/ai**：AI 专项排名，含 star 增长数据。适合 AI/Agent 方向筛选。
+   - **GitHub Search API**：`gh search repos --created=">YYYY-MM-DD" --sort=stars --order=desc --limit=50 --json fullName,stargazersCount,description,primaryLanguage` 可获取指定时间段内的高增长仓库（非 Trending 等价，但覆盖面更广）。
+4. 输出时标注数据来源和限制，不要假装精确。明确告知用户"GitHub Trending 页面最多展示约 25 个项目"。
 
 ## Pitfalls
 
 1. **脚本超时是常态**：fetch_github_trending.py 在 Hermes VM 上经常 60s 超时（网络慢或 GitHub 限流）。遇到超时不要反复重试，直接 fallback 到 `web_extract(["https://github.com/trending?since=weekly"])`，通常 10-20 秒就能拿到数据。
 2. **web_extract 返回的是摘要**：页面超过 5000 字符会被 LLM 截断，可能丢失尾部项目。如需完整 25+ 项目，用 browser 打开页面抓取。
+3. **GitHub Trending 页面上限约 25 个项目**：即使脚本设置 `--limit 100`，也只能获取页面实际展示的约 19-25 个项目。这是 GitHub 官方页面的硬限制，不是脚本 bug。用户要求"前50名"时，需明确告知此限制并提供替代方案。
+4. **替代数据源补充**：当需要更长榜单时，可用以下来源补充：
+   - **trendshift.io**：第三方 GitHub Trending 聚合，有历史趋势数据
+   - **ossinsight.io/trending/ai**：AI 专项排名，含增长数据
+   - **GitHub Search API**：`gh search repos --created=">日期" --sort=stars` 可获取更长时间范围的高增长仓库
+5. **curl 直接抓取 GitHub Trending 页面失败率高**：GitHub 有反爬机制，curl 返回空内容。优先用脚本或 web_extract。
 
 ## Common Pitfalls
 

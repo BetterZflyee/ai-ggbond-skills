@@ -23,6 +23,39 @@ metadata:
 | **API 模式**（推荐） | 快 | AppID + AppSecret + IP 白名单 | 日常推送 |
 | **Browser 模式**（备用） | 慢 | Chrome + 已登录会话 | IP 未白名单或无 API 凭证 |
 
+## 凭证加载的真实顺序（2026-10-17 踩坑，必读）
+
+`wechat-api.ts` 的 `loadCredentials()` 只读三个来源，**不读 `~/.hermes/.env`**：
+
+1. `process.env`
+2. `<cwd>/.ai-ggbond-skills/.env`
+3. `~/.ai-ggbond-skills/.env`
+
+所以当凭证只写在 `~/.hermes/.env` 时，可能在之前能跑（Bun 自动注入或历史残留），也可能直接报 `40125 invalid appsecret`。诊断特征：同一套密钥用 Python 直读 `.env` 能拿到 token，但脚本报 40125。
+
+**可靠做法：在推送脚本里显式 export，再调 bun**：
+
+```bash
+export WECHAT_APP_ID="$(grep -m1 '^WECHAT_APP_ID=' ~/.hermes/.env | cut -d= -f2- | tr -d '\"'\r')"
+export WECHAT_APP_SECRET="$(grep -m1 '^WECHAT_APP_SECRET=' ~/.hermes/.env | cut -d= -f2- | tr -d '\"'\r')"
+echo "[push] id_len=${#WECHAT_APP_ID} secret_len=${#WECHAT_APP_SECRET}"
+npx -y bun wechat-api.ts ...
+```
+
+日志里看到 `Credentials source: process.env` 就说明这步生效了；如果仍是别的来源，先怀疑 EXTEND.md 里的 account 覆盖。
+
+**40125 完整判别**：先看出口 IP（Tailscale exit node 生效时应为 `43.156.151.87`），IP 正确还报 40125 才是密钥错，让用户去后台重置 AppSecret，不要反复重试旧值。
+
+**推送后必须读回验证**：`POST /cgi-bin/draft/get` 传 `media_id`，核对 title/author/digest/<img> 数量。返回 `success:true` 只代表草稿创建成功，不代表图片和正文都进去了。
+
+## 环境实况（neirong profile，2026-10-17 实测）
+
+- **凭证位置**：`WECHAT_APP_ID/SECRET` 只在 `~/.hermes/.env`（本 profile 的 `.env` 没有）。AppSecret 长度 32 位正常，所以报错不是 40125。
+- **当前出口 IP 不在白名单**：`163.125.189.38`，API 直接返回 `40164`。别把这误诊为凭证错误。
+- **Tailscale 已停止，VPS tinyproxy（100.117.255.36:8888）不可达**：文档里的代理方案在本机当前不可用；`tailscale` CLI 不在 PATH（App 在 `/Applications/Tailscale.app`，二进制在 `Contents/MacOS/Tailscale`）。
+- **Browser 模式需要扫码**：`wechat-article.ts` 能启动 Chrome（profile `baoyu-skills/chrome-profile`），但未登录时打印 `Not logged in. Please scan QR code...`，120s 后 `Login timeout`。
+- **结论**：遇到 40164，先把当前出口 IP 报给飞哥加白名单（设置与开发 → 基本配置 → IP 白名单），这是最短路径；只有有人能当场扫码时才走 Browser 模式。
+
 ## 核心机制：图片处理流程
 
 **⚠️ newspic（贴图）类型注意**：API 模式推送贴图时可能触发 45166 错误（内容校验失败），涉及敏感话题时概率更高。此时降级到 Browser 模式（`wechat-browser.ts`）。详见 `references/wechat-api-pitfalls.md` 问题 8。
@@ -69,6 +102,8 @@ Markdown 文件 (含 ![alt](path) 图片引用)
 6. ✅ `curl -s ifconfig.me` 返回的是白名单 IP
 7. ✅ 飞哥公众号发布前必须做正文洁净度预检：不得出现 `建议阅读`、`点击右上角`、`全文核心信息图`、`配图：`、`图片说明`、`figcaption` 等可见模板/图注痕迹；详见 `references/wechat-clean-publish-preflight.md`
 8. ✅ 飞哥公众号 HTML 正文不要重复主标题/副标题；标题、摘要只放微信草稿箱栏位。封面图只通过 `--cover` 设置，不插入正文。引用框只放名言原文/出处，不要把正文解释一起包进引用框。
+9. ✅ 公众号头条封面必须检查真实像素比例；用户要求 2.35:1 时优先使用 `1645×700` 的精确画布，并确认标题/核心视觉没有经过 16:9 机械裁切后被截断。
+10. ✅ 正式推送后若只需修封面，优先调用 `draft/get → material/add_material → draft/update → draft/get` 原地替换并回读验证 `thumb_media_id`，不要重新创建重复草稿。详见 `references/wechat-draft-cover-replacement.md`。
 
 ### ⚠️ 文章查找位置提醒
 
@@ -116,7 +151,7 @@ export WECHAT_APP_ID=wx... && export WECHAT_APP_SECRET=... && npx -y bun wechat-
 **🔴 写入凭证时禁止截断/掩码（2026-06-15 实战）**：
 用户提供的 AppSecret 必须**原样完整写入** `.env` 文件，绝对不能用 `...` 省略中间字符。
 错误示例：`WECHAT_APP_SECRET=98de5d...1510` → 导致 `40125: invalid appsecret`
-正确示例：`WECHAT_APP_SECRET=98de5d7f5e91b9f0a4364e347c9b1510`（完整32位）
+正确示例：`WECHAT_APP_SECRET=<32位AppSecret>`（完整32位）
 
 写入后必须用 `cat ~/.hermes/.env` 验证值的完整性，确认与用户提供的完全一致后再推送。
 
@@ -153,7 +188,7 @@ echo 'WECHAT_APP_SECRET=fe77e7...e4d5' >> ~/.hermes/.env
 **正确做法**：
 ```bash
 # ✅ 写入完整值
-echo 'WECHAT_APP_SECRET=fe77e72c84d3b523e17dfc60e6fde4d5' >> ~/.hermes/.env
+echo 'WECHAT_APP_SECRET=<32位AppSecret>' >> ~/.hermes/.env
 ```
 
 **验证写入是否完整**：
@@ -164,10 +199,12 @@ grep WECHAT_APP_SECRET ~/.hermes/.env | cut -d'=' -f2 | wc -c
 ```
 
 **40125 错误排查流程**：
-1. 检查 .env 中 AppSecret 是否完整（32位）
-2. 如果截断了，重新写入完整值
-3. 如果完整但仍报错，让用户去公众号后台重置 AppSecret
-4. 不要反复重试同一个错误的凭证——每次重试都会生成新的 rid，但错误相同
+1. 检查 `.env` 中 AppSecret 是否完整（32位）；这一步只验证格式，不代表凭证有效
+2. 在排版、压图和上传之前，先调用微信官方 token 接口做最小验证，确认 AppID 与 AppSecret 确实配对
+3. 同时确认 token 请求的实际出口 IP 是公众号白名单 IP；必要时分别用直连和指定 VPS 代理验证
+4. 如果正确出口下仍返回 40125，停止重试，判定为 AppSecret 已失效、抄错或不属于当前 AppID，让用户在对应公众号后台重置
+5. 不要把"长度32位、十六进制、尾号一致"表述为"凭证正确"；只能表述为"格式正确"
+6. 不要反复重试同一个错误凭证——每次只会生成新的 rid，不会改变结果
 
 ## ⚠️ IP 白名单问题
 
@@ -294,6 +331,17 @@ npx -y bun wechat-api.ts ...
 ```bash
 curl -s --max-time 10 -x http://100.117.255.36:8888 https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=xxx&secret=xxx
 ```
+
+### ⚠️ 正式推送前的硬门禁：先验 token，再做重活
+
+长文多图推送的正确顺序必须是：
+
+1. 检查凭证存在且格式完整
+2. 用最终实际网络路径请求官方 `access_token`
+3. 只有 token 成功后，才执行 HTML 精排、图片批量压缩和正式上传
+4. token 失败时立即停止，先修复凭证或白名单；不要让用户等待一轮排版和上传后才暴露认证失败
+
+API 模式失败后如考虑 Browser 模式，先检查专用 Chrome profile 是否已登录。未登录时，必须先确认用户此刻在 Mac 旁并能扫码，再启动有时限的自动化；不要直接后台等待二维码直到超时。
 
 ### ⚠️ 长耗时推送：不要杀进程（2026-05-25 实战教训）
 
@@ -547,6 +595,37 @@ for f in image_files:
 **图片压缩完整工作流**：文章目录含 `images/` 子目录时的压缩→引用→推送流程见 `references/image-compression-workflow.md`。
 
 **前置条件**：Tailscale exit node 已确认，出口 IP 为白名单 IP（当前 43.156.151.87）。
+
+## 排版并推送的一体化执行纪律
+
+当用户说“排版推送到公众号”“做好直接发草稿箱”时，默认是一个端到端任务，不要把“生成 HTML”“启动后台上传”误报为完成。
+
+必须按以下状态口径执行：
+
+1. **排版完成**：生成发布版 HTML，正文不重复主标题，封面只通过 `--cover` 设置；本地图片路径全部存在。
+2. **发布前验证完成**：运行 HTML 合规校验、正文洁净度预检、图片数量/体积检查，再执行 `--dry-run`。
+3. **正在推送**：正式命令以 `background=true, notify_on_complete=true` 启动后，只能明确说“正在推送”，不能说“已推送到草稿箱”。
+4. **推送完成**：必须等后台进程退出码为 0，且输出包含 `success: true` 和真实 `media_id`，才可向用户确认“已进入公众号草稿箱”。
+5. **推送失败**：返回真实错误码和所处阶段；若是可恢复问题，修复后从验证步骤重跑，不编造草稿状态。
+
+用户重复发送相同推送指令，通常意味着他在等待实际结果。此时优先检查现有后台进程/产物并继续完成，不要再次只讲流程或重复确认需求。
+
+### 专业精排版的图片规则
+
+对于已经生成的专业公众号 HTML：
+
+- 排版前先区分“正文图片”和“封面”：正文信息图保持完整比例；封面应单独设计或从合适素材裁切为约 2.35:1，且只通过 `--cover` 上传。
+- 飞哥的深度观点/企业AI文章默认采用白底黑字、高留白的石墨极简方向：正文不重复主副标题，图片圆角、无阴影、无边框、无图注；引用只放名言原文/出处，使用淡蓝左边框。
+- 不要机械套主题库默认签名区。没有用户明确要求时，正文末尾不添加作者简介，可保留简洁的点赞、在看、转发引导。
+- HTML生成后必须同时做三类验证：公众号HTML合规校验、正文洁净度预检、所有 `<img src>` 路径与体积检查。随后再 dry-run。
+- 发布脚本依赖缺失时，在其 `scripts/package.json` 所在目录运行 `npx -y bun install`，再重跑 dry-run；不要绕过图片处理模块。
+
+其余图片规则：
+
+- 封面独立上传，不进入正文。
+- 正文图片默认不渲染 Markdown alt 为可见图注；只有用户明确要求图注时才显示。
+- 飞哥的公众号风格优先使用白底、高留白、图片圆角、无阴影、无装饰边框；不要因为主题组件默认带边框/阴影就机械照搬。
+- 多图长文推送前先转为 JPEG 并压缩至 `<500KB`，正文图建议宽 1200px，封面建议宽 1400–1600px；随后检查 HTML 的每个 `<img src>` 均指向实际存在的压缩文件。
 
 ## 与 ai-ggbond-article-writer 配合使用
 

@@ -5,13 +5,15 @@ X Followings Feed — Tweet Scoring & Filtering Script
 Filters raw tweet JSON from fetch_x_following_paginated.py:
 1. Removes pure RTs and very short tweets
 2. Scores by engagement (like + 2*retweet + reply) + signal keyword boost
-3. Outputs top-N tweets with category hints for digest generation
+3. Applies recency boost: today 2x, yesterday 1.5x, 2 days ago 1.2x, older 1x
+4. Outputs top-N tweets with category hints and timestamps for digest generation
 
 Usage:
     python3 curate_and_score.py /tmp/x_following_latest.json [--top 50]
 """
 
 import json, re, sys
+from datetime import datetime, timezone, timedelta
 from collections import Counter
 
 SIGNAL_KW = [
@@ -39,6 +41,9 @@ CATEGORY_PATTERNS = {
     '📊SIGNAL':   r'(warning|concern|controvers|risk)',
 }
 
+# Date format used by X API: "Sun Jun 28 23:45:25 +0000 2026"
+X_DATE_FMT = '%a %b %d %H:%M:%S %z %Y'
+
 
 def signal_score(text: str) -> int:
     s = 0
@@ -54,6 +59,40 @@ def engagement_score(tweet: dict) -> int:
     return (tweet.get('likeCount', 0) or 0) + \
            2 * (tweet.get('retweetCount', 0) or 0) + \
            (tweet.get('replyCount', 0) or 0)
+
+
+def recency_boost(created_at: str) -> float:
+    """Time-decay multiplier: today 2.0x, yesterday 1.5x, 2 days ago 1.2x, older 1.0x"""
+    if not created_at:
+        return 1.0
+    try:
+        dt = datetime.strptime(created_at, X_DATE_FMT)
+        # Convert to UTC+8
+        dt_cn = dt + timedelta(hours=8)
+        now_cn = datetime.now(timezone(timedelta(hours=8)))
+        days_diff = (now_cn.date() - dt_cn.date()).days
+        if days_diff <= 0:
+            return 2.0   # today
+        elif days_diff == 1:
+            return 1.5   # yesterday
+        elif days_diff == 2:
+            return 1.2   # 2 days ago
+        else:
+            return 1.0
+    except:
+        return 1.0
+
+
+def parse_timestamp(created_at: str) -> str:
+    """Convert X API timestamp to readable 'MM-DD HH:MM' format (UTC+8)"""
+    if not created_at:
+        return '?'
+    try:
+        dt = datetime.strptime(created_at, X_DATE_FMT)
+        dt_cn = dt + timedelta(hours=8)
+        return dt_cn.strftime('%m-%d %H:%M')
+    except:
+        return '?'
 
 
 def categorize(text: str) -> str:
@@ -83,9 +122,14 @@ def main(filepath: str, top_n: int = 50):
             continue
         eng = engagement_score(t)
         sig = signal_score(text)
+        rb = recency_boost(t.get('createdAt', ''))
         author = (t.get('author', {}) or {}).get('username', 'unknown')
         name = (t.get('author', {}) or {}).get('name', '')
         url = t.get('url', '')
+        ts_display = parse_timestamp(t.get('createdAt', ''))
+        # Total = (engagement + signal*5) * recency_boost
+        base = eng + sig * 5
+        total = int(base * rb)
         scored.append({
             'author': author,
             'name': name,
@@ -93,9 +137,11 @@ def main(filepath: str, top_n: int = 50):
             'url': url,
             'eng_score': eng,
             'sig_score': sig,
-            'total': eng + sig * 5,
+            'recency_boost': rb,
+            'total': total,
             'category': categorize(text),
             'createdAt': t.get('createdAt', ''),
+            'ts_display': ts_display,
             'likeCount': t.get('likeCount', 0) or 0,
             'retweetCount': t.get('retweetCount', 0) or 0,
         })
@@ -106,7 +152,8 @@ def main(filepath: str, top_n: int = 50):
     print(f"Filtered from {len(data)} → {len(scored)} tweets (removed RTs/short)\n")
 
     for i, t in enumerate(top):
-        print(f"[{t['category']}] @{t['author']} (E{t['eng_score']} S{t['sig_score']} T{t['total']})")
+        rb_label = f" ×{t['recency_boost']}" if t['recency_boost'] > 1.0 else ""
+        print(f"[{t['category']}] @{t['author']} ({t['ts_display']}) (E{t['eng_score']} S{t['sig_score']} R{rb_label} T{t['total']})")
         print(f"  {t['text'][:200]}")
         print(f"  🔗 {t['url']}")
         if i < len(top) - 1:

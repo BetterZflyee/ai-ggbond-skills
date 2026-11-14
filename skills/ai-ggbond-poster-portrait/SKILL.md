@@ -527,6 +527,42 @@ The image should look like a casual CCD camera snapshot taken at home, warm and 
 python3 generate_portrait.py
 ```
 
+### 方式三：execute_code 直调（当 image_generate 工具失效时）
+
+当内置 `image_generate` 工具报 `Incorrect API key provided: dummy` 时，用 `execute_code` 直接调云雾API：
+
+```python
+import os, base64, requests, yaml
+
+# 从 Hermes config 读 key（避免字符串转义坑）
+config_path = os.path.expanduser("~/.hermes/profiles/gongcheng/config.yaml")
+with open(config_path) as f:
+    config = yaml.safe_load(f)
+
+api_key = config["image_gen"]["api_key"]
+base_url = config["image_gen"]["base_url"]  # https://api.openlux.ai/v1
+
+headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+data = {"model": "gpt-image-2", "prompt": "<your prompt>", "n": 1, "size": "1024x1536", "quality": "high"}
+
+response = requests.post(f"{base_url}/images/generations", headers=headers, json=data, timeout=180)
+if response.status_code == 200:
+    result = response.json()
+    img_data = result["data"][0]
+    if "b64_json" in img_data:
+        with open("output.png", "wb") as f:
+            f.write(base64.b64decode(img_data["b64_json"]))
+    elif "url" in img_data:
+        img = requests.get(img_data["url"], timeout=30)
+        with open("output.png", "wb") as f:
+            f.write(img.content)
+```
+
+**关键点**：
+- 用 `yaml.safe_load` 读 config.yaml，不要在 execute_code 里硬编码长 API key（会触发字符串转义错误）
+- 云雾API返回 `b64_json` 而非 `url`，需 base64 解码
+- 尺寸 `1024x1536` = 3:4 竖版，`1024x1024` = 1:1 方形
+
 ## 画幅比例与尺寸对照表
 
 | 比例 | 尺寸 | 适用场景 |
@@ -568,6 +604,7 @@ python3 generate_portrait.py
 
 - **Codex CLI/Desktop 不是图片生成工具**：用户说"用 Codex 生成图片"时，需要澄清 Codex 是代码工具，无法调用 GPT Image 2。详见 `references/openai-codex-ecosystem.md`。
 - **ChatGPT Plus ≠ OpenAI API**：Plus 订阅是网页消费级产品，不提供 API 额度。两者账户独立，需要在 platform.openai.com 单独注册和充值。
+- **`image_generate`工具不读Hermes config**：`hermes config set image_gen.api_key` 后，内置 `image_generate` 工具仍报 `dummy` key。**解法**：用 `execute_code` + `requests` 直接调API，从 config.yaml 用 `yaml.safe_load` 读 key（避免字符串转义坑）。详见下方「方式三」。
 - **云雾 API 余额不足**：报错 `insuffi` 开头时，需充值。当前价格约 $0.004/张。
 - **429 负载饱和**：多链路自动切换 + 指数退避等待
 - **500 敏感词**：调整提示词，用职位代替人名，或改用英文

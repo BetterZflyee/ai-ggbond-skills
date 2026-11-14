@@ -19,8 +19,12 @@
 
 - 默认后端：FAL（需要 `FAL_KEY`）
 - OpenAI 后端：需要 `OPENAI_API_KEY`（真实 key，不能是 `dummy`）+ `OPENAI_BASE_URL`
-- 配置位置：`~/.hermes/config.yaml` 的 `image_gen.provider: openai`
-- **已知限制**：`OPENAI_API_KEY=dummy` 时返回 401。此时跳过内置工具，直接用 curl 调本地代理。
+- 配置位置：当前 profile 的 `config.yaml`，例如 `~/.hermes/profiles/neirong/config.yaml`
+- **配置变更通常需要重启 gateway 或新会话**。用户说“我改了配置”后，应先重试一次内置工具；如果仍显示 `dummy`，说明运行中的工具仍在使用旧配置，不能据此判断模型或新配置无效。
+- **正确诊断顺序**：内置工具重试一次 → 检查当前 profile 的 `image_gen` 配置是否完整 → 用极简 prompt 探测本地 OpenAI 兼容代理 `/v1/images/generations` → 成功后保持 `model: gpt-image-2` 直连代理生成。
+- 端点从内置工具切到本地代理，只是路由回退，**不属于换模型**；不得切换到 gpt-image-1、DALL-E 3 等其他模型。
+- 本地代理常返回 `b64_json`；保存前必须 Base64 解码。
+- 批量任务建议用可续跑脚本：已有且大于 100KB 的成品跳过，每张同时保存元数据 JSON，后台运行并开启完成通知。
 
 ## 本地代理 curl 生图模板（⭐实测可用）
 

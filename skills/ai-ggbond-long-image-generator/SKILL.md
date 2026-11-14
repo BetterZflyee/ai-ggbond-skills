@@ -7,7 +7,21 @@ author: AI朱朱侠
 triggers: ["长图生成", "信息图", "小红书图", "公众号图", "竖版图", "横版图"]
 ---
 
-# AI朱朱侠长图生成
+# AI朱朱侠长图生成技能
+
+## 内容型信息图质量门禁（飞哥场景，强制）
+
+生成“高密度信息图”时，先完成信息架构，再写生图提示词；不能把“科技感、元素多、画面酷”误当成信息密度。
+
+1. **先画论证链**：从文章提取“前提 → 冲突/机制 → 控制条件 → 结果”，多事件必须串成因果链，不能并列堆故事。
+2. **模块必须有信息职责**：每栏至少包含模块标题、2—5个短标签和一句阶段结论；模块之间用方向明确的箭头连接。
+3. **三秒理解测试**：没读文章的人，应能在3秒内说出“这张图在解释什么、为什么、最后得到什么结论”。做不到就重构，不以美观为由放行。
+4. **独立阅读测试**：图片脱离正文后，仍能复述章节核心论证；只有标题、人物、舞台、裂缝、机器人等装饰元素的不算信息图。
+5. **文字与表达双质检**：OCR无错字只是第一关；第二关必须检查因果、层级、箭头方向、模块对应关系、字号和移动端可读性。
+6. **署名规则**：默认不添加作者名、日期、年份或“飞哥”落款，除非用户明确要求。可保留小型“AI朱朱侠”品牌水印，但不得抢占信息区。
+7. **先单张测试再批量**：首张通过内容、文字、可读性三重质检后，才生成剩余图片，避免批量消耗后整体返工。
+
+详细检查表见 `references/high-density-infographic-quality-gates.md`。
 
 ## 核心能力
 使用 GPT-Image-2 (云雾API) 生成有实际内容的高质量信息图长图，支持多种社交平台尺寸预设。
@@ -24,6 +38,40 @@ PIL 生成的图片只有占位符色块和文字，没有实际视觉内容。�
 4. PIL 仅用于拼接，不用于内容生成
 
 **重要：必须使用 AI 图片生成（GPT-Image-2），不能用 PIL 画占位图。PIL 脚本仅用于快速原型测试。**
+
+### 🔐 API Key 安全机制（重要）
+Agent 工具（terminal/write_file/execute_code）会自动截断/隐藏长密钥（56char→13char或`***`）。这是系统级安全保护。
+
+**正确做法**：
+- ❌ 不要在脚本中硬编码 API Key
+- ❌ 不要通过 execute_code 传递完整 Key
+- ✅ 让用户手动运行 `hermes config set image_gen.api_key <KEY>`
+- ✅ 脚本中从 `~/.hermes/config.yaml` 读取（yaml 库读取不截断）
+- ✅ 或从环境变量 `YUNWU_API_KEY` 读取
+
+### 🚨 Yunwu API 错误码
+| 状态码 | 含义 | 解决方案 |
+|--------|------|----------|
+| 401 | 无效令牌 | API Key 过期或无效，需重新生成 |
+| 403 | 无权限访问模型 | 该 Key 没有目标模型权限，换模型或换 Key |
+| 429 | 频率限制 | 等待 120 秒后重试 |
+| 200 | 成功 | 检查返回的 b64_json 或 url |
+
+### 🎯 模型权限
+不同 API Key 有不同模型权限：
+- `dall-e-3` - 部分 Key 无权限（返回 403）
+- `gpt-image-1` - 上一代模型
+- `gpt-image-2` - 默认推荐，大多数 Key 支持
+- `flux-1.1-pro` - 高质量快速生成
+
+**建议**：先用 `gpt-image-2` 测试，失败时尝试其他模型。
+
+## 参考文档
+
+- `references/yunwu-api-config.md` - 云雾 API 配置详解、错误排查、多链路配置
+- `references/troubleshooting.md` - 常见问题与解决方案、调试技巧
+- `references/size-guide.md` - 各平台尺寸选择指南
+- `references/README_YUNWU.md` - 快速开始指南
 
 ## 快速开始（3步）
 
@@ -81,9 +129,11 @@ python3 ~/.hermes/skills/ai-ggbond-long-image-generator/scripts/generate_long_im
 - **特点**：极限长度，需要分段渲染保证稳定性
 
 ### 3. 公众号封面横图
-- **尺寸**：900 × 383 px（2.35:1）
+- **尺寸**：900 × 383 px（约 2.35:1）；需要严格比例时优先使用 **1645 × 700 px（精确 2.35:1）**
 - **适用**：微信公众号封面、头条封面
 - **特点**：横向宽幅，标题突出
+- **强制工作流**：封面必须在最终 2.35:1 画布上原生构图或确定性重排，**禁止先生成 16:9 再机械居中裁切**。标题、人物/图标和底部支点等核心元素必须完整落在最终安全区内；生成后读取真实像素尺寸并计算 `width / height`，再做视觉质检。
+- **安全区**：标题与核心视觉距离上下边缘至少为画布高度的 8%；不要把标题放在 16:9 原稿顶部、再期待横幅裁切后仍可读。
 
 ### 4. 公众号正文配图
 - **尺寸**：1080 × 720 px（3:2）
@@ -292,6 +342,8 @@ def render_html_to_image(html_path, output_path, width, height):
 
 ## API 配置说明
 
+> 云雾凭据排查与验证：当配置中存在多个 Key、掩码 Key 或文本/图片权限不同，必须先阅读 `references/yunwu-key-discovery-and-verification.md`。不要取配置文件中的第一个 `api_key`；正式批量生图前必须用 `/v1/images/generations` 做低成本单图探针。
+
 **详细配置见 `references/yunwu-api-config.md`**
 
 ### ⚠️ API Key 设置必须由用户手动完成
@@ -395,7 +447,19 @@ render_lightweight.py 只是用来测试尺寸和渲染流水线的，它生成�
 
 如果 API Key 过期（401 错误），立即告知用户，不要用 PIL 空壳替代。
 
-### ⚠️ API 错误码速查
+## 调用前强制验证（不要凭“没读到”就判定无 Key）
+
+生成图片前执行以下诊断顺序：
+
+1. 用 `hermes -p <当前profile> config env-path` 找到 Profile `.env`
+2. 读取时只输出变量是否存在和长度，不输出完整值或可恢复前后缀
+3. 加载 Profile `.env`，请求 `$OPENAI_BASE_URL/models`（未配置 Base URL 时使用 `https://api.openlux.ai/v1/models`）
+4. 只有在 **HTTP 200 且模型列表包含 `gpt-image-2`** 后，才进入生图
+5. 若 `OPENAI_API_KEY` 验证有效，而 `YUNWU_API_KEY` 缺失，补同 Profile 内的兼容变量后再次验证
+
+> 常见误诊：当前进程环境显示 `YUNWU_API_KEY` 未导出、`config.yaml` 的 `image_gen.api_key` 为空，于是报告“没有 Key”。这不成立；必须继续检查当前 Profile `.env` 的 `OPENAI_API_KEY` / `OPENAI_BASE_URL`。
+
+## API 错误码速查
 
 | 状态码 | 含义 | 处理 |
 |--------|------|------|
@@ -404,17 +468,48 @@ render_lightweight.py 只是用来测试尺寸和渲染流水线的，它生成�
 | 403 | 有效 key 但无模型权限 | 检查云雾后台模型权限，换模型或升级套餐 |
 | 429 | 限流（频繁失败触发） | 等待 120 秒后重试 |
 
-### ⚠️ execute_code 中 API Key 截断
+**凭证验证铁律**：
+- `sk-xxx...xxxx` 这类带省略号的值是展示掩码，不是真实可调用 Key。
+- `/v1/models` 返回 200 不能证明图片生成权限；批量前必须用目标模型请求 `/v1/images/generations` 做一张低成本测试图。
+- 配置存在多个 Key 时不得默认取第一个；逐个匿名验证目标生成端点，日志只记录指纹或序号，禁止输出完整 Key。
 
-长 API Key（56字符）在 `execute_code` 中可能只收到 13 字符。**不要硬编码 key**，从 config.yaml 读取：
+## ⚠️ render_gpt.py 已知 Bug（已修复）
 
-```python
-import yaml
-with open('/Users/admin/.hermes/profiles/gongcheng/config.yaml') as f:
-    api_key = yaml.safe_load(f)['image_gen']['api_key']
+### Bug 1：API Key 读取路径错误
+`get_api_key()` 原本只从 `fallback_providers` 和 `providers.openai` 读取 key，但实际 key 在 `image_gen.api_key` 字段。
+
+**修复**：在 `get_api_key()` 中优先检查 `config.get('image_gen', {}).get('api_key')`。
+
+**症状**：401 错误 "无效的令牌"，即使 config.yaml 中 key 是正确的。
+
+### Bug 2：模型名称硬编码
+脚本中 `"model": "gpt-image-1"` 是硬编码的，忽略了用户 config.yaml 中的 `image_gen.model` 设置。
+
+**修复**：将硬编码的 `gpt-image-1` 改为 `gpt-image-2`（或从 config 读取）。
+
+**症状**：403 错误 "该令牌无权访问模型 gpt-image-1"。
+
+### 排查顺序
+如果生成失败，先检查这两个 bug 是否已修复：
+```bash
+grep -n "gpt-image-1" scripts/render_gpt.py  # 应该没有结果
+grep -n "image_gen" scripts/render_gpt.py     # 应该有 api_key 读取逻辑
 ```
 
-详见 `references/yunwu-api-config.md`。
+### ⚠️ 云雾链路与 API Key 真实性检查
+
+用户明确要求使用本技能或 GPT-Image-2 时，优先按本技能的**云雾 API 链路**执行，不要因为通用 `image_generate` 工具处于默认 OpenAI/dummy 配置就误判为云雾不可用。
+
+生成前必须做无泄露预检：
+
+1. 优先读取当前 profile 的 `image_gen` 配置或 `YUNWU_API_KEY`；
+2. Key 长度不足 20、等于 `dummy`、或包含 `...` 时，视为占位/掩码，禁止发起请求；
+3. 配置备份和工具输出中显示的 `sk-xxx...xxxx` 通常只是脱敏文本，不能直接当真实 Key 使用；
+4. 如果技能自带 `.env` 中存在完整 Key，可在不打印 Key 的前提下验证长度和调用状态；
+5. 先生成一张测试图，确认状态码、模型权限和余额，再批量生成；
+6. 401/403/余额错误应立即停止批量任务，报告真实错误，不换模型、不做 PIL 占位图。
+
+云雾配置排查与安全测试流程见 `references/yunwu-key-resolution-and-batch-preflight.md`。
 
 ## 超长图渲染（稳定性保障）
 
@@ -526,12 +621,39 @@ python scripts/render_long.py --html report.html --output report.png --preset su
 
 ## 执行步骤（GPT-Image-2 优先）
 
-### 0. 检查 API 配置
+### 0. 批量任务先做单张预检（强制）
+
+当用户要求为一篇文章生成多张章节图时，禁止在未验证配置的情况下直接并行生成整批图片。必须遵循：
+
+```text
+检查当前 Profile 配置 → 生成1张低文字密度样图 → 检查中文与风格 → 再按2—3张分批生成 → 每批质检
+```
+
+多 Profile 环境必须读取当前 Profile 的 `config.yaml`，不要默认读取 `~/.hermes/config.yaml`。详细预检、`dummy` 密钥诊断和中文乱码止损规则见 `references/batch-image-generation-preflight.md`。
+
+### 1. 检查 API 配置
 ```bash
 # 验证 image_gen 配置存在且 key 有效
 cat ~/.hermes/config.yaml | grep -A 5 "image_gen:"
 ```
 如果 key 为空或返回 401，要求用户提供新 key。
+
+### 0.1 云雾凭据发现与生成级验证（重要）
+
+当当前 `image_gen` 配置为 `dummy`、Key 被 `...` 掩码，或历史配置里存在多个候选 Key 时，**禁止默认取第一个完整 Key**。同一配置文件可能同时包含失效的主模型 Key和有效的图片专用 Key。
+
+必须：
+
+1. 收集并去重全部未掩码候选 Key；忽略 `dummy`、含 `...`、长度不足以及 `.env.example` 示例值。
+2. 日志只输出 Key 的哈希指纹和来源路径，禁止输出完整 Key。
+3. 不以 `/v1/models` 返回 200 作为最终判断；必须调用 `/v1/images/generations` 做一次低成本 `gpt-image-2` 实际生成探针。
+4. 正式批量生成前先做一张章节图，并完成中文白名单质检。
+
+详细排查与验证方法见 `references/yunwu-key-discovery-and-generation-probe.md`。
+
+### 0.2 中文信息图的隐藏英文检查
+
+除了标题和标签，还要检查图标内部。模型可能在表格、软件、设备图标中自动加入 `X` 等字母。提示词应写明“图标内部不放任何字母、数字、文字或软件标志”，并在生成后按文字白名单检查；出现任何未指定字母，单张重做。
 
 ### 1. 接收用户输入
 ```yaml
@@ -541,10 +663,12 @@ cat ~/.hermes/config.yaml | grep -A 5 "image_gen:"
 模板: "{A/B/C/D/auto}"
 ```
 
-### 2. 内容分析与结构化
+### Step 2：内容分析与结构化
 - 提取标题、副标题
 - 识别数据点、列表项
 - 确定逻辑结构（并列/递进/对比）
+- **章节信息图优先构建递进因果链**，不能只画氛围或做简单左右对比
+- 高密度章节图的设计、提示词和双重质检详见 `references/high-density-section-infographic.md`
 
 ### 2. 使用 GPT-Image-2 生成
 
@@ -556,15 +680,35 @@ python scripts/render_gpt.py --prompt "内容描述" --preset xiaohongshu --outp
 python scripts/render_gpt.py --prompt "内容描述" --preset super_long_medium --output long.png
 ```
 
-### 3. 输出结果
+### Step 3：双重质量门禁（不可跳过）
+
+生成成功不等于信息表达成功，必须同时检查：
+
+1. **文字门禁**：逐字核对标题与标签；检查乱码、错字、漏项，以及图标内部偷偷出现的英文、软件标志和伪文字。
+2. **语义门禁**：让没读文章的人看图，必须能在 3 秒内说清“条件/输入 → 变化/机制 → 结果 → 结论”。如果只能感受到科技氛围，却说不清因果关系，立即重构版式，不得因为美观而放行。
+
+批量任务必须先生成 1 张代表图，通过双重门禁后再批量。详细规则见 `references/semantic-infographic-quality-gate.md`。
+
+### Step 4：输出结果
 ```
-✅ 长图已生成
+✅ 长图已生成并通过文字+语义质检
 📁 文件位置：{path}
 📐 尺寸：{width} × {height} px
 🎨 风格：{style}
 ```
 
+## 与文章配图任务的边界
+
+当用户要求“给现有文章配图”时，先判断图片承担的是**证据功能**还是**氛围功能**：
+
+- 价格、政策、产品能力、Benchmark、官方声明、产品界面等事实节点，优先使用官方原始页面截图或官方图表，并做紧裁与可读性检查。
+- GPT-Image-2 更适合封面、抽象概念、流程解释和没有原始视觉材料的观点图，不应替代可获得的官方证据图。
+- 不要因为本技能可生图，就强制所有文章走生图；配图的目标是帮助论证和阅读，而不是展示模型能力。
+- 官方图已经足够时，可直接进入公众号排版；只有需要自制解释图时，才执行本技能的 API 检查与生成流程。
+
 ## 注意事项
+
+> 微信公众号封面如涉及 2.35:1，请先读 `references/wechat-cover-235-safe-layout.md`，按最终画布原生构图并完成尺寸 + 视觉双重质检。
 
 1. **文字渲染**：HTML渲染保证文字锐利，避免图片模糊
 2. **字体选择**：优先系统字体，中文用苹方/微软雅黑

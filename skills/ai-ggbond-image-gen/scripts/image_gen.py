@@ -48,6 +48,9 @@ STYLE_ALIASES = {
     "tech": "tech-neon",
     "editorial-notes": "editorial-notes",
     "editorial": "editorial-notes",
+    "business-report": "business-report",
+    "business": "business-report",
+    "商务": "business-report",
 }
 
 # 比例 -> 尺寸（OpenLux 支持范围）
@@ -175,6 +178,7 @@ def style_bundle(style_key: str) -> str:
         "vector-illustration": "矢量插图风格：扁平化矢量插画；白底、统一黑色轮廓线、简洁几何形状、图标化元素；蓝/红/绿三色点缀；概念清晰、教育感",
         "tech-neon": "科技风：深色背景(#0A1628) + 霓虹蓝(#00D4FF)/霓虹紫(#A855F7)点缀、细线网格、发光边框、半透明层、科技元件图标；高密度、适合AI工具与技术主题",
         "editorial-notes": "技术杂志/编辑手帐风：像资深开发者亲手整理的技术笔记；暖灰白纸张底、石墨黑文字、克制的工程蓝与便签橙、网格纸/铅笔圈线/荧光笔、编辑器小窗、手写箭头、便利贴；专业克制、有留白、去AI生硬模板感",
+        "business-report": "商务咨询报告风：像麦肯锡/贝恩交付给客户的正式报告页；暖白底(#F7F8FA)、深藏青主文字(#0F2B46)、品牌蓝(#2F6FED)与极少量橙(#E07A3F)点缀、严格左对齐网格、细灰分隔线、数据条与图表、大留白、无衬线黑体、字号层级分明(标题为正文2-3倍)、印刷级排版、无霓虹无发光",
     }
     return bundles.get(style_key, bundles["editorial-notes"])
 
@@ -324,10 +328,10 @@ def main():
         else:
             style_key = (args.style or "editorial-notes").lower()
             style_key = STYLE_ALIASES.get(style_key, style_key)
-            if style_key not in style_bundle:
+            if style_key not in set(STYLE_ALIASES.values()):
                 sys.exit(f"未知风格 {args.style}，可选: {', '.join(STYLE_ALIASES)}")
             ratio_display = args.ratio or (size if re.fullmatch(r"\d+x\d+", size or "") else "16:9")
-            final_prompt = build_style_prompt(args.title, args.prompt, style_key, ratio_display)
+            final_prompt = build_style_prompt(args.title or "中文信息图", args.prompt, style_key, ratio_display)
         result = gen.generate(final_prompt, size, args.quality, args.model, timeout=args.timeout)
 
     saved = gen._save(result, args.output)

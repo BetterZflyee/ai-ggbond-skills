@@ -1,127 +1,162 @@
-# 云雾 API 图片生成配置指南
+# 云雾 API 配置详解
 
-## 配置方法（必须用 hermes config set）
+## 配置位置（Profile-aware）
 
-config.yaml 有安全写保护，不能直接 patch，必须用 CLI：
+Hermes 使用 Profile 时，凭证可能位于当前 Profile，而不是全局路径。**严禁把 `gongcheng` 或任何固定 Profile 写死为唯一来源。**
+
+先定位当前 Profile 的配置：
 
 ```bash
-hermes config set image_gen.provider openai
-hermes config set image_gen.model gpt-image-2
-hermes config set image_gen.base_url https://api.openlux.ai/v1
-hermes config set image_gen.api_key 实际的key
+hermes -p <当前profile> config path
+hermes -p <当前profile> config env-path
 ```
 
-## API Key 来源
+### 1. 当前 Profile `.env`（优先检查）
 
-Key 存储位置优先级：
-1. `~/.hermes/config.yaml` → `image_gen.api_key`（image_generate 工具读取这个）
-2. `~/.ai-ggbond-skills/.env` → `YUNWU_API_KEY`（贴图/海报 skill 的脚本读取这个）
+常见的云雾 OpenAI 兼容配置：
 
-⚠️ 两个位置的 key 可能不同！image_generate 工具只读 config.yaml 的 image_gen.api_key。
-
-## 多链路（自动切换）
-
-```
-YUNWU_BASE_URLS=https://api.openlux.ai,https://api.openlux.ai,https://api.openlux.ai
-```
-
-贴图 skill 的脚本支持多链路自动切换。脚本会自动清洗 `/v1`、`/v1/images/generations` 等后缀。
-
-## 模型选择
-
-| 模型 | 特点 |
-|------|------|
-| gpt-image-2 | 默认推荐，中文支持最佳 |
-| gpt-image-1 | 上一代，稳定 |
-| gemini-3.1-flash-image-preview | 高质量 |
-| gemini-2.5-flash-image | 快速 |
-| dall-e-3 | OpenAI 原生 |
-| flux-1.1-pro | 高质量快速 |
-
-## 常见错误
-
-| 错误 | 原因 | 解决 |
-|------|------|------|
-| `Incorrect API key provided: dummy` | api_key 未设置或为 dummy | `hermes config set image_gen.api_key 实际key` |
-| `无效的令牌` (401) | API key 过期/无效 | 到 https://api.openlux.ai 重新生成 key |
-| `该令牌无权访问模型` (403) | Key 有效但无特定模型权限 | 检查云雾后台的模型权限，换模型或升级套餐 |
-| `多次使用无效令牌` (429) | 频繁失败触发限流 | 等待 120 秒后重试 |
-| `no plugin registered that name` | provider 设为 custom | `hermes config set image_gen.provider openai` |
-| Key 长度只有 13 字符 | execute_code 中长字符串被截断 | 改用 terminal + 文件写入方式传递 key |
-
-## 尺寸限制（GPT-Image-2）
-
-- 1024x1024（正方形）
-- 1024x1536（竖图，适合小红书）
-- 1536x1024（横图）
-- auto（自动选择）
-
-超长图需要分段生成 + 拼接。
-
-## API Key 截断问题（重要）
-
-**现象：** 在 `execute_code` 中直接写长 API Key 字符串时，56 字符的 key 可能只收到 13 字符。
-
-**原因：** execute_code 工具对超长字符串有截断处理。
-
-**更广泛的问题：** 截断不仅发生在 execute_code，还发生在：
-- `terminal` 命令中的变量赋值（`KEY='sk-xxx'` 也会被截断）
-- `write_file` 工具（自动替换为 `***`）
-- `hermes config set image_gen.api_key <key>` 命令（长 key 可能无法通过此方式设置）
-
-**最终解决方案：** 用户必须手动在终端运行 `hermes config set` 命令：
 ```bash
-hermes config set image_gen.api_key 用户的完整key
-hermes config set image_gen.base_url https://api.openlux.ai/v1
-hermes config set image_gen.model gpt-image-2
+OPENAI_API_KEY="sk-xxx...xxx"
+OPENAI_BASE_URL="https://api.openlux.ai/v1"
 ```
 
-**读取时的正确方式：** 从 config.yaml 读取（这个路径不截断）：
+AI朱朱侠旧版脚本可能只读取：
+
+```bash
+YUNWU_API_KEY="sk-xxx...xxx"
+YUNWU_BASE_URL="https://api.openlux.ai"
+```
+
+如果当前 Profile 已有有效的 `OPENAI_API_KEY`，但脚本只识别 `YUNWU_API_KEY`，可在**同一 Profile `.env`**增加同值兼容变量。不要复制到其他 Profile。
+
+### 2. 当前 Profile `config.yaml`
+
+```yaml
+image_gen:
+  provider: openai
+  model: gpt-image-2
+  base_url: https://api.openlux.ai/v1
+  api_key: sk-xxx...xxx
+```
+
+### 3. 全局或旧版位置（仅作回退）
+
+- `~/.hermes/.env`
+- `~/.hermes/config.yaml`
+- `~/.ai-ggbond-skills/.env`
+- Skill 本地 `.env`
+
+**排查铁律：不要只检查当前进程环境或 `config.yaml`。** 当前 Gateway 进程未导出变量，并不代表 Profile `.env` 没有 Key。
+
+## API Key 获取
+
+1. 访问 https://api.openlux.ai
+2. 注册/登录账号
+3. 进入 API Keys 页面
+4. 生成新的 API Key
+5. 复制完整 Key（通常 50+ 字符）
+
+## 配置方法
+
+### 方法 1：hermes config set（可能截断）
+```bash
+hermes config set image_gen.api_key "sk-xxx...xxx"
+hermes config set image_gen.base_url "https://api.openlux.ai/v1"
+hermes config set image_gen.model "gpt-image-2"
+```
+
+⚠️ **注意**：`hermes config set` 可能会截断长 Key。如果设置后仍报错，请用方法 2。
+
+### 方法 2：手动编辑配置文件（推荐）
+```bash
+# 打开配置文件
+nano ~/.hermes/profiles/gongcheng/config.yaml
+
+# 找到 image_gen 部分，修改 api_key
+image_gen:
+  base_url: https://api.openlux.ai/v1
+  api_key: sk-完整的API-Key
+  model: gpt-image-2
+
+# 保存退出
+```
+
+### 方法 3：Python 脚本读取
 ```python
 import yaml
-with open('/Users/admin/.hermes/profiles/gongcheng/config.yaml') as f:
+
+config_path = '~/.hermes/profiles/gongcheng/config.yaml'
+with open(config_path) as f:
     config = yaml.safe_load(f)
-api_key = config['image_gen']['api_key']
+
+api_key = config.get('image_gen', {}).get('api_key', '')
+# yaml 库读取不会截断
 ```
 
-⚠️ 不要试图通过 agent 工具传递完整 API Key，系统安全机制会自动隐藏/截断敏感信息。这是设计行为，不是 bug。
+## 错误排查
 
-## 直接调用 API（绕过 image_generate 工具）
+### 401 - 无效令牌
+**原因**：API Key 过期、无效、或被截断
+**解决**：
+1. 检查 Key 长度（应为 50+ 字符）
+2. 到云雾 API 后台重新生成 Key
+3. 手动编辑 config.yaml 填入完整 Key
 
-当 `image_generate` 工具报 dummy key 时，在 execute_code 中直接调用云雾 API：
+### 403 - 无权限访问模型
+**原因**：该 Key 没有目标模型的使用权限
+**解决**：
+1. 尝试其他模型（gpt-image-2、gpt-image-1、flux-1.1-pro）
+2. 联系云雾 API 客服开通模型权限
+3. 使用其他有权限的 API Key
 
-```python
-import yaml, requests, base64
-from PIL import Image
-from io import BytesIO
+### 429 - 频率限制
+**原因**：短时间内请求过多
+**解决**：
+1. 等待 120 秒后重试
+2. 减少并发请求
+3. 使用分段渲染时增加间隔
 
-# 读取配置
-with open('/Users/admin/.hermes/profiles/gongcheng/config.yaml') as f:
-    config = yaml.safe_load(f)
-ig = config['image_gen']
+### SSL 错误
+**原因**：网络代理或证书问题
+**解决**：
+1. 设置代理：`export https_proxy=http://127.0.0.1:7897`
+2. 或使用备用链路：
+   - https://api.openlux.ai/v1
+   - https://api.openlux.ai/v1
 
-# 调用 API
-response = requests.post(
-    f'{ig["base_url"]}/images/generations',
-    headers={'Authorization': f'Bearer {ig["api_key"]}', 'Content-Type': 'application/json'},
-    json={'model': 'gpt-image-2', 'prompt': 'your prompt', 'n': 1, 'size': '1024x1536', 'quality': 'high'},
-    timeout=120
-)
+## 多链路配置
 
-# 处理响应
-if response.status_code == 200:
-    data = response.json()['data'][0]
-    if 'b64_json' in data:
-        img = Image.open(BytesIO(base64.b64decode(data['b64_json'])))
-    elif 'url' in data:
-        img = Image.open(BytesIO(requests.get(data['url']).content))
-    img.save('output.png')
-else:
-    error = response.json().get('error', {})
-    print(f'Error {response.status_code}: {error.get("message", "")}')
+云雾 API 支持多链路自动切换：
+
+```bash
+# 环境变量方式
+export YUNWU_BASE_URLS="https://api.openlux.ai,https://api.openlux.ai,https://api.openlux.ai"
 ```
 
-## 参考
+脚本会按顺序尝试，直到成功。
 
-贴图 skill 中的完整配置示例：`~/.hermes/profiles/gongcheng/skills/creative/ai-ggbond-sticker-writer/.env.example`
-海报 skill 中的集成文档：`~/.hermes/profiles/gongcheng/skills/creative/ai-ggbond-poster-portrait/references/yunwu-api-integration.md`
+## 验证配置
+
+```bash
+# 运行测试脚本
+python3 ~/.hermes/skills/ai-ggbond-long-image-generator/scripts/test_yunwu_api.py
+
+# 期望输出：
+# 📏 Key 长度: 56 字符
+# ✅ API 连接成功!
+# ✅ 测试图片已保存: /tmp/api_test_success.png
+```
+
+## 安全注意事项
+
+1. **不要提交 API Key 到 Git**
+2. **不要在脚本中硬编码 Key**
+3. **使用环境变量或配置文件**
+4. **定期轮换 API Key**
+5. **监控 API 使用量**
+
+## 相关资源
+
+- 云雾 API 官网：https://api.openlux.ai
+- API 文档：https://api.openlux.ai/docs
+- 状态页：https://status.yunwu.ai

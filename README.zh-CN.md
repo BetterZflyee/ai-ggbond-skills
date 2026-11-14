@@ -4,7 +4,7 @@
   <a href="https://github.com/BetterZflyee/ai-ggbond-skills/stargazers"><img src="https://img.shields.io/github/stars/BetterZflyee/ai-ggbond-skills?style=for-the-badge&color=facc15" alt="Stars"></a>
   <a href="https://github.com/BetterZflyee/ai-ggbond-skills/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="License"></a>
   <a href="https://zflyee.com/"><img src="https://img.shields.io/badge/built%20by-AI%20朱朱侠-8b5cf6?style=for-the-badge" alt="AI 朱朱侠"></a>
-  <a href="#changelog"><img src="https://img.shields.io/badge/version-1.5-0891b2?style=for-the-badge" alt="Version"></a>
+  <a href="#changelog"><img src="https://img.shields.io/badge/version-1.6-0891b2?style=for-the-badge" alt="Version"></a>
   <a href="README.md"><img src="https://img.shields.io/badge/English-📖-2563eb?style=for-the-badge" alt="English"></a>
 </p>
 
@@ -577,6 +577,7 @@ hermes skills list | grep publish-to-x
 
 | 日期 | 里程碑 |
 |:---|:---|
+| 2026-11-14 | 🔄 **全量同步 16 个技能** — article-writer v2.4、image-gen v1.1（手绘视觉笔记/认知冲击版式）、post-to-wechat v2.1（推送硬门禁/封面原地替换）、sticker-writer v2.5.1、youtube-script v1.1.1（登录态 Cookie 恢复）、x-followings-feed v1.7.4（+`X_BEARER_TOKEN` 环境变量）、long-image-generator v1.1（信息图质量门禁）；新增 37 篇实战 references，全仓库凭据改为环境变量注入 |
 | 2026-11-02 | 🔍 `ai-ggbond-policy-decoder` v0.2.2 发布 — 双模式（政策卡片 + 按元/小时排序的窗口清单）、不可逆闸门、证伪条件强制、预测台账与打脸率 |
 | 2026-06-25 | 🎨 `ai-ggbond-long-image-generator` 发布 — GPT-Image-2 驱动的长图信息图生成，19种预设（最高7200px超长图） |
 | 2026-06-17 | 🎯 `ai-ggbond-poster-portrait` + `ai-ggbond-worldcup-kv-poster` + `ai-ggbond-skill-matrix` 同步上线——肖像海报、世界杯 KV、181 技能路由表 |
