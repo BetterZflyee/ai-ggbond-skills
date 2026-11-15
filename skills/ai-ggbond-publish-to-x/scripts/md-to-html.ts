@@ -20,6 +20,7 @@ interface ImageInfo {
   localPath: string;
   originalPath: string;
   blockIndex: number;
+  kind: 'image' | 'video';
 }
 
 interface ParsedMarkdown {
@@ -159,6 +160,12 @@ function downloadFile(url: string, destPath: string, maxRedirects = 5): Promise<
 function getImageExtension(urlOrPath: string): string {
   const match = urlOrPath.match(/\.(jpg|jpeg|png|gif|webp)(\?|$)/i);
   return match ? match[1]!.toLowerCase() : 'png';
+}
+
+const VIDEO_EXTENSIONS = /\.(mp4|mov|m4v|webm)(?:[?#].*)?$/i;
+
+function isVideoPath(filePath: string): boolean {
+  return VIDEO_EXTENSIONS.test(filePath);
 }
 
 async function resolveImagePath(imagePath: string, baseDir: string, tempDir: string): Promise<string> {
@@ -345,8 +352,9 @@ export async function parseMarkdown(
   for (let i = 0; i < images.length; i++) {
     const img = images[i]!;
     const localPath = await resolveImagePath(img.src, baseDir, tempDir);
+    const kind = isVideoPath(img.src) || isVideoPath(localPath) ? 'video' : 'image';
 
-    if (i === 0 && !coverImagePath) {
+    if (i === 0 && !coverImagePath && kind === 'image') {
       firstImageAsCover = localPath;
     }
 
@@ -355,6 +363,7 @@ export async function parseMarkdown(
       localPath,
       originalPath: img.src,
       blockIndex: img.blockIndex,
+      kind,
     });
   }
 

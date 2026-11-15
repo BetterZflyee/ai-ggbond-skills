@@ -8,12 +8,10 @@ import {
   CHROME_CANDIDATES_BASIC,
   CdpConnection,
   copyHtmlToClipboard,
-  copyImageToClipboard,
   findExistingChromeDebugPort,
   getDefaultProfileDir,
   launchChrome,
   openPageSession,
-  pasteFromClipboard,
   sleep,
   waitForChromeDebugPort,
 } from './x-utils.js';
@@ -58,6 +56,237 @@ interface ArticleOptions {
   submit?: boolean;
   profileDir?: string;
   chromePath?: string;
+}
+
+interface InsertMediaOptions {
+  isVideo: boolean;
+  timeoutMs?: number;
+}
+
+/**
+ * Insert an image or video at the current editor caret through X's own
+ * "Insert → Media" picker.
+ *
+ * Why this flow: the picker opens a native file chooser. Setting files on that
+ * chooser triggers X's real upload pipeline (upload.x.com INIT/APPEND/FINALIZE),
+ * and the editor then inserts a media block at the caret. Clipboard-based
+ * pasting relies on NSPasteboard/AppleScript, which is unavailable in
+ * automation/headless sessions and silently fails.
+ */
+async function insertMediaViaPicker(
+  cdp: CdpConnection,
+  sessionId: string,
+  filePath: string,
+  options: InsertMediaOptions,
+): Promise<boolean> {
+  const evalPage = async <T>(expression: string): Promise<T> => {
+    const result = await cdp.send<{ result: { value: T } }>(
+      'Runtime.evaluate',
+      { expression, returnByValue: true, awaitPromise: true },
+      { sessionId },
+    );
+    return result.result.value;
+  };
+
+  const mediaCountExpr = `document.querySelectorAll('.public-DraftEditor-content img[src^="blob:"], .public-DraftEditor-content video').length`;
+  const mediaCountBefore = await evalPage<number>(mediaCountExpr);
+
+  // Close any stray dialog left from a previous iteration.
+  if (await evalPage<boolean>(`!!document.querySelector('[role="dialog"]')`)) {
+    for (const type of ['rawKeyDown', 'keyUp'] as const) {
+      await cdp.send('Input.dispatchKeyEvent', {
+        type,
+        key: 'Escape',
+        code: 'Escape',
+        windowsVirtualKeyCode: 27,
+        nativeVirtualKeyCode: 53,
+      }, { sessionId });
+    }
+    await sleep(500);
+  }
+
+  // Open Insert → Media
+  const insertOpened = await evalPage<boolean>(`(() => {
+    const btn = Array.from(document.querySelectorAll('button,[role="button"]'))
+      .find((el) => (el.innerText || '').trim() === '插入');
+    if (!btn) return false;
+    btn.click();
+    return true;
+  })()`);
+  if (!insertOpened) {
+    console.warn('[x-article] Could not find the Insert button');
+    return false;
+  }
+  await sleep(700);
+
+  const mediaClicked = await evalPage<boolean>(`(() => {
+    const item = Array.from(document.querySelectorAll('[role="menuitem"]'))
+      .find((el) => (el.innerText || '').trim() === '媒体');
+    if (!item) return false;
+    item.click();
+    return true;
+  })()`);
+  if (!mediaClicked) {
+    console.warn('[x-article] Could not find the Media menu item');
+    return false;
+  }
+  await sleep(1000);
+
+  // Wait for the picker dialog
+  const dialogDeadline = Date.now() + 8_000;
+  while (Date.now() < dialogDeadline) {
+    if (await evalPage<boolean>(`!!document.querySelector('[role="dialog"]')`)) break;
+    await sleep(300);
+  }
+
+  // Arm the file chooser interception before clicking the drop zone.
+  await cdp.send('Page.setInterceptFileChooserDialog', { enabled: true }, { sessionId });
+  const chooserPromise = new Promise<{ backendNodeId?: number } | null>((resolve) => {
+    const handler = (params: unknown) => {
+      cdp.off('Page.fileChooserOpened', handler);
+      resolve(params as { backendNodeId?: number });
+    };
+    cdp.on('Page.fileChooserOpened', handler);
+    setTimeout(() => {
+      cdp.off('Page.fileChooserOpened', handler);
+      resolve(null);
+    }, 8_000);
+  });
+
+  // Click the drop zone with a real mouse event: a synthetic .click() does not
+  // open the native file chooser in Chrome.
+  const rect = await evalPage<{ x: number; y: number } | null>(`(() => {
+    const dialog = document.querySelector('[role="dialog"]');
+    if (!dialog) return null;
+    const all = Array.from(dialog.querySelectorAll('*'));
+    const text = all.find((el) => el.children.length === 0 && (el.innerText || '').includes('选择文件'));
+    let target = text || dialog;
+    while (target && target.getBoundingClientRect().height < 100 && target.parentElement && target !== dialog) {
+      target = target.parentElement;
+    }
+    const box = target.getBoundingClientRect();
+    return { x: Math.round(box.left + box.width / 2), y: Math.round(box.top + box.height / 2) };
+  })()`);
+  if (!rect) {
+    console.warn('[x-article] Media picker drop zone not found');
+    return false;
+  }
+
+  for (const type of ['mousePressed', 'mouseReleased'] as const) {
+    await cdp.send('Input.dispatchMouseEvent', {
+      type,
+      x: rect.x,
+      y: rect.y,
+      button: 'left',
+      clickCount: 1,
+    }, { sessionId });
+  }
+
+  const chooser = await chooserPromise;
+  if (!chooser?.backendNodeId) {
+    console.warn('[x-article] File chooser did not open');
+    return false;
+  }
+
+  await cdp.send('DOM.setFileInputFiles', {
+    files: [filePath],
+    backendNodeId: chooser.backendNodeId,
+  }, { sessionId });
+
+  // Wait until the editor contains the new media block. Videos run through
+  // upload2 + async processing, so allow a longer budget.
+  const timeoutMs = options.timeoutMs ?? (options.isVideo ? 120_000 : 30_000);
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    await sleep(1000);
+    const count = await evalPage<number>(mediaCountExpr).catch(() => mediaCountBefore);
+    if (count > mediaCountBefore) {
+      await sleep(1500);
+      // The picker usually closes itself; make sure it is not blocking the next step.
+      if (await evalPage<boolean>(`!!document.querySelector('[role="dialog"]')`)) {
+        for (const type of ['rawKeyDown', 'keyUp'] as const) {
+          await cdp.send('Input.dispatchKeyEvent', {
+            type,
+            key: 'Escape',
+            code: 'Escape',
+            windowsVirtualKeyCode: 27,
+            nativeVirtualKeyCode: 53,
+          }, { sessionId });
+        }
+      }
+      return true;
+    }
+  }
+
+  console.warn(`[x-article] Media block did not appear within ${Math.round(timeoutMs / 1000)}s`);
+  return false;
+}
+
+/**
+ * Remove any leftover XIMGPH_n placeholders. Draft.js can restore deleted text
+ * after a media insertion re-render, so run this after all media is inserted
+ * and retry until the editor text is clean.
+ */
+async function cleanupPlaceholders(cdp: CdpConnection, sessionId: string): Promise<string[]> {
+  const evalPage = async <T>(expression: string): Promise<T> => {
+    const result = await cdp.send<{ result: { value: T } }>(
+      'Runtime.evaluate',
+      { expression, returnByValue: true, awaitPromise: true },
+      { sessionId },
+    );
+    return result.result.value;
+  };
+
+  const remaining = async (): Promise<string[]> => evalPage<string[]>(`(() => {
+    const editor = document.querySelector('.DraftEditor-editorContainer [data-contents="true"]')
+      || document.querySelector('.public-DraftEditor-content');
+    if (!editor) return [];
+    return Array.from(editor.innerText.matchAll(/XIMGPH_\\d+/g)).map((m) => m[0]);
+  })()`);
+
+  for (let attempt = 0; attempt < 12; attempt++) {
+    const left = await remaining();
+    if (left.length === 0) return [];
+
+    const selected = await evalPage<string | null>(`(() => {
+      const editor = document.querySelector('.DraftEditor-editorContainer [data-contents="true"]')
+        || document.querySelector('.public-DraftEditor-content');
+      if (!editor) return null;
+      const editable = editor.closest('[contenteditable="true"]') || document.querySelector('.DraftEditor-editorContainer [contenteditable="true"]');
+      if (editable instanceof HTMLElement) editable.focus();
+      const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT);
+      let node: Node | null;
+      while ((node = walker.nextNode())) {
+        const text = node.nodeValue || '';
+        const match = text.match(/XIMGPH_\\d+/);
+        if (!match) continue;
+        const start = text.indexOf(match[0]);
+        const range = document.createRange();
+        range.setStart(node, start);
+        range.setEnd(node, start + match[0].length);
+        const selection = window.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+        node.parentElement?.scrollIntoView({ block: 'center' });
+        return match[0];
+      }
+      return null;
+    })()`);
+    if (!selected) return await remaining();
+
+    for (const type of ['rawKeyDown', 'keyUp'] as const) {
+      await cdp.send('Input.dispatchKeyEvent', {
+        type,
+        key: 'Backspace',
+        code: 'Backspace',
+        windowsVirtualKeyCode: 8,
+        nativeVirtualKeyCode: 51,
+      }, { sessionId });
+    }
+    await sleep(500);
+  }
+
+  return await remaining();
 }
 
 export async function publishArticle(options: ArticleOptions): Promise<void> {
@@ -194,6 +423,19 @@ export async function publishArticle(options: ArticleOptions): Promise<void> {
           const byText = buttons.find((el) => /^(create|write)$/i.test((el.textContent || '').trim()));
           if (byText instanceof HTMLElement) {
             byText.click();
+            return true;
+          }
+          // Drafts present: the empty-state Write button is gone, and the
+          // replacement is often a styled div rather than a <button>.
+          const clickable = [...document.querySelectorAll('button,[role="button"],div,a')];
+          const localized = clickable.find((el) => {
+            const text = (el.textContent || '').trim();
+            if (!/^(撰写|写文章|新建文章|Write|Create)$/i.test(text)) return false;
+            const box = el.getBoundingClientRect();
+            return box.width > 40 && box.width < 400 && box.height > 20;
+          });
+          if (localized instanceof HTMLElement) {
+            localized.click();
             return true;
           }
           return false;
@@ -465,6 +707,11 @@ export async function publishArticle(options: ArticleOptions): Promise<void> {
                 const editor = document.querySelector('.DraftEditor-editorContainer [data-contents="true"]');
                 if (!editor) return false;
 
+                // Focus before setting the range so the subsequent Backspace
+                // key event is delivered to Draft.js.
+                const editable = document.querySelector('.DraftEditor-editorContainer [contenteditable="true"]');
+                if (editable instanceof HTMLElement) editable.focus();
+
                 const placeholder = ${JSON.stringify(img.placeholder)};
 
                 // Search through all text nodes in the editor
@@ -535,121 +782,78 @@ export async function publishArticle(options: ArticleOptions): Promise<void> {
           continue;
         }
 
-        console.log(`[x-article] Copying image: ${path.basename(img.localPath)}`);
+        const isVideo = img.kind === 'video';
+        console.log(`[x-article] Preparing ${isVideo ? 'video' : 'image'}: ${path.basename(img.localPath)}`);
 
-        // Copy image to clipboard
-        if (!copyImageToClipboard(img.localPath)) {
-          console.warn(`[x-article] Failed to copy image to clipboard`);
-          continue;
-        }
-
-        // Wait for clipboard to be fully ready
-        await sleep(1000);
-
-        // Delete placeholder using execCommand (more reliable than keyboard events for DraftJS)
+        // Delete the placeholder with a real Backspace key. execCommand('delete')
+        // removes the DOM text but Draft.js keeps it in its model and restores it
+        // on the next render, so the placeholder reappears after media insertion.
         console.log(`[x-article] Deleting placeholder...`);
-        const deleteResult = await cdp.send<{ result: { value: boolean } }>('Runtime.evaluate', {
-          expression: `(() => {
-            const sel = window.getSelection();
-            if (!sel || sel.isCollapsed) return false;
-            // Try execCommand delete first
-            if (document.execCommand('delete', false)) return true;
-            // Fallback: replace selection with empty using insertText
-            document.execCommand('insertText', false, '');
-            return true;
-          })()`,
-          returnByValue: true,
-        }, { sessionId });
-
-        await sleep(500);
-
-        // Check that placeholder is no longer in editor (exact match, not substring)
-        const afterDelete = await cdp.send<{ result: { value: boolean } }>('Runtime.evaluate', {
-          expression: `(() => {
-            const editor = document.querySelector('.DraftEditor-editorContainer [data-contents="true"]');
-            if (!editor) return true;
-            const text = editor.innerText;
-            const placeholder = ${JSON.stringify(img.placeholder)};
-            // Use regex to find exact match (not followed by digit)
-            const regex = new RegExp(placeholder + '(?!\\\\d)');
-            return !regex.test(text);
-          })()`,
-          returnByValue: true,
-        }, { sessionId });
-
-        if (!afterDelete.result.value) {
-          console.warn(`[x-article] Placeholder may not have been deleted, trying dispatchEvent...`);
-          // Try selecting and deleting with InputEvent
-          await selectPlaceholder(1);
-          await sleep(300);
-          await cdp.send('Runtime.evaluate', {
-            expression: `(() => {
-              const editor = document.querySelector('.DraftEditor-editorContainer [contenteditable="true"]');
-              if (!editor) return;
-              editor.focus();
-              // Dispatch beforeinput and input events for deletion
-              const beforeEvent = new InputEvent('beforeinput', { inputType: 'deleteContentBackward', bubbles: true, cancelable: true });
-              editor.dispatchEvent(beforeEvent);
-              const inputEvent = new InputEvent('input', { inputType: 'deleteContentBackward', bubbles: true });
-              editor.dispatchEvent(inputEvent);
-            })()`,
-          }, { sessionId });
-          await sleep(500);
-        }
-
-        // Count existing image blocks before paste
-        const imgCountBefore = await cdp.send<{ result: { value: number } }>('Runtime.evaluate', {
-          expression: `document.querySelectorAll('section[data-block="true"][contenteditable="false"] img[src^="blob:"]').length`,
-          returnByValue: true,
-        }, { sessionId });
-
-        // Focus editor to ensure cursor is in position
-        await cdp.send('Runtime.evaluate', {
-          expression: `(() => {
-            const editor = document.querySelector('.DraftEditor-editorContainer [contenteditable="true"]');
-            if (editor) editor.focus();
-          })()`,
-        }, { sessionId });
-        await sleep(300);
-
-        // Paste image using paste script (activates Chrome, sends real keystroke)
-        console.log(`[x-article] Pasting image...`);
-        if (pasteFromClipboard('Google Chrome', 5, 1000)) {
-          console.log(`[x-article] Image pasted: ${path.basename(img.localPath)}`);
-        } else {
-          console.warn(`[x-article] Failed to paste image after retries`);
-        }
-
-        // Verify image appeared in editor
-        console.log(`[x-article] Verifying image upload...`);
-        const expectedImgCount = imgCountBefore.result.value + 1;
-        let imgUploadOk = false;
-        const imgWaitStart = Date.now();
-        while (Date.now() - imgWaitStart < 15_000) {
-          const r = await cdp!.send<{ result: { value: number } }>('Runtime.evaluate', {
-            expression: `document.querySelectorAll('section[data-block="true"][contenteditable="false"] img[src^="blob:"]').length`,
-            returnByValue: true,
-          }, { sessionId });
-          if (r.result.value >= expectedImgCount) {
-            imgUploadOk = true;
-            break;
+        let placeholderGone = false;
+        for (let attempt = 1; attempt <= 3 && !placeholderGone; attempt++) {
+          const reselected = await selectPlaceholder(1);
+          if (!reselected) break;
+          for (const type of ['rawKeyDown', 'keyUp'] as const) {
+            await cdp.send('Input.dispatchKeyEvent', {
+              type,
+              key: 'Backspace',
+              code: 'Backspace',
+              windowsVirtualKeyCode: 8,
+              nativeVirtualKeyCode: 51,
+            }, { sessionId });
           }
-          await sleep(1000);
+          await sleep(450);
+          placeholderGone = await cdp.send<{ result: { value: boolean } }>('Runtime.evaluate', {
+            expression: `(() => {
+              const editor = document.querySelector('.DraftEditor-editorContainer [data-contents="true"]');
+              if (!editor) return true;
+              const text = editor.innerText;
+              const placeholder = ${JSON.stringify(img.placeholder)};
+              const index = text.indexOf(placeholder);
+              if (index === -1) return true;
+              const next = text[index + placeholder.length];
+              return !(next >= '0' && next <= '9');
+            })()`,
+            returnByValue: true,
+          }, { sessionId }).then((r) => r.result.value);
+          if (!placeholderGone) {
+            console.warn(`[x-article] Placeholder still present (attempt ${attempt}), retrying delete...`);
+          }
+        }
+        if (!placeholderGone) {
+          console.warn(`[x-article] Could not delete placeholder ${img.placeholder}; inserting anyway`);
         }
 
-        if (imgUploadOk) {
-          console.log(`[x-article] Image upload verified (${expectedImgCount} image block(s))`);
-          // Wait for DraftEditor DOM to stabilize after image insertion
-          await sleep(3000);
+        // Insert media through X's own "Insert → Media" picker. The picker
+        // opens a real file chooser, and setting files on that input triggers
+        // X's upload pipeline (blob preview -> upload.x.com -> pbs.twimg.com).
+        // Clipboard-based pasting does not work in headless/automation sessions.
+        console.log(`[x-article] Uploading ${isVideo ? 'video' : 'image'} via media picker...`);
+        const mediaInserted = await insertMediaViaPicker(cdp!, sessionId, img.localPath, {
+          isVideo,
+        });
+
+        if (mediaInserted) {
+          console.log(`[x-article] ${isVideo ? 'Video' : 'Image'} inserted: ${path.basename(img.localPath)}`);
+          // Wait for DraftEditor DOM to stabilize after media insertion
+          await sleep(2000);
         } else {
-          console.warn(`[x-article] Image upload not detected after 15s`);
+          console.warn(`[x-article] Media insertion failed for ${path.basename(img.localPath)}`);
           if (i === 0) {
-            console.error('[x-article] First image paste failed. Run check-paste-permissions.ts to diagnose.');
+            console.error('[x-article] First media insert failed. Check the Insert → Media picker flow.');
           }
         }
       }
 
       console.log('[x-article] All images processed.');
+
+      // Draft.js can restore placeholders after a media re-render; clean them up.
+      const leftoverPlaceholders = await cleanupPlaceholders(cdp, sessionId);
+      if (leftoverPlaceholders.length > 0) {
+        console.warn(`[x-article] Placeholder cleanup left: ${leftoverPlaceholders.join(', ')}`);
+      } else {
+        console.log('[x-article] Placeholder cleanup passed.');
+      }
 
       // Final verification: check placeholder residue and image count
       console.log('[x-article] Running post-composition verification...');
@@ -667,7 +871,7 @@ export async function publishArticle(options: ArticleOptions): Promise<void> {
       }
 
       const finalImgCount = await cdp.send<{ result: { value: number } }>('Runtime.evaluate', {
-        expression: `document.querySelectorAll('section[data-block="true"][contenteditable="false"] img[src^="blob:"]').length`,
+        expression: `document.querySelectorAll('.public-DraftEditor-content img[src^="blob:"], .public-DraftEditor-content video').length`,
         returnByValue: true,
       }, { sessionId });
 
@@ -739,8 +943,50 @@ export async function publishArticle(options: ArticleOptions): Promise<void> {
           return false;
         })()`,
       }, { sessionId });
-      await sleep(3000);
-      console.log('[x-article] Article published!');
+      await sleep(2500);
+
+      // A second "发布" button appears inside the publish dialog. Click it with
+      // a real mouse event; a synthetic .click() closes the dialog without
+      // submitting in some X builds.
+      const confirmRect = await cdp.send<{ result: { value: { x: number; y: number } | null } }>('Runtime.evaluate', {
+        expression: `(() => {
+          const dialog = document.querySelector('[role="dialog"]');
+          if (!dialog) return null;
+          const candidates = Array.from(dialog.querySelectorAll('button,[role="button"]'))
+            .filter((el) => (el.innerText || '').trim() === '发布');
+          const btn = candidates[candidates.length - 1];
+          if (!btn) return null;
+          const box = btn.getBoundingClientRect();
+          if (box.width === 0) return null;
+          return { x: Math.round(box.left + box.width / 2), y: Math.round(box.top + box.height / 2) };
+        })()`,
+        returnByValue: true,
+      }, { sessionId });
+
+      const rect = confirmRect.result.value;
+      if (rect) {
+        for (const type of ['mousePressed', 'mouseReleased'] as const) {
+          await cdp.send('Input.dispatchMouseEvent', {
+            type,
+            x: rect.x,
+            y: rect.y,
+            button: 'left',
+            clickCount: 1,
+          }, { sessionId });
+        }
+        await sleep(6000);
+      }
+
+      const confirmed = await cdp.send<{ result: { value: boolean } }>('Runtime.evaluate', {
+        expression: `document.body.innerText.includes('你的文章已发布') || document.body.innerText.includes('Your article was published') || /\\/status\\/\\d+/.test(location.href)`,
+        returnByValue: true,
+      }, { sessionId });
+
+      if (confirmed.result.value) {
+        console.log('[x-article] Article published!');
+      } else {
+        console.warn('[x-article] Publish not confirmed. The publish dialog may still be open — confirm it in Chrome.');
+      }
     } else {
       console.log('[x-article] Article composed (draft mode).');
       console.log('[x-article] Browser remains open for manual review.');

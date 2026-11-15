@@ -112,12 +112,31 @@ Code blocks become blockquotes (X doesn't support code)
 | `cover` | Alias for cover_image |
 | `image` | Alias for cover_image |
 
-## Image Handling
+## Image & Video Handling
 
-1. **Cover Image**: First image or `cover_image` from frontmatter
-2. **Remote Images**: Automatically downloaded to temp directory
-3. **Placeholders**: Images in content use `XIMGPH_N` format
-4. **Insertion**: Placeholders are found, selected, and replaced with actual images
+1. **Cover Image**: First image or `cover_image` from frontmatter. Must be an image — a video cannot be used as cover.
+2. **Remote Images**: Automatically downloaded to temp directory.
+3. **Placeholders**: Content media use `XIMGPH_N` placeholders. Any markdown image whose path ends in `.mp4/.mov/.m4v/.webm` is treated as a video (`kind: "video"`), everything else as an image.
+4. **Insertion**: `x-article.ts` selects the placeholder, deletes it with a real Backspace key, then uses X's **Insert → Media** picker:
+   - click `插入` → `媒体`
+   - click the drop zone with a real mouse event
+   - intercept the native file chooser (`Page.setInterceptFileChooserDialog`)
+   - inject the file with `DOM.setFileInputFiles`
+   - wait for `upload.x.com` INIT/APPEND/FINALIZE (images) or `upload2.json` + STATUS (videos)
+5. **Cleanup**: after all media, `cleanupPlaceholders` removes any `XIMGPH_N` that Draft.js restored on re-render.
+
+Do **not** use clipboard/Swift/AppleScript for article media. In automation or headless sessions NSPasteboard is unavailable and `copy-to-clipboard.ts image` fails with `Failed to write image to clipboard`.
+
+### Video notes
+
+```markdown
+![捕获视频](video/catch.mp4)
+```
+
+- Supported containers: `.mp4`, `.mov`, `.m4v`, `.webm`
+- Upload goes through `upload2.json` and asynchronous processing; allow up to 120s per video (`insertMediaViaPicker` uses that default)
+- Keep clips short (≤ 2 minutes recommended) and ≤ 1080p to avoid long processing
+- A video block cannot be the article cover; always set `cover_image` to an image
 
 ## Markdown to HTML Script
 

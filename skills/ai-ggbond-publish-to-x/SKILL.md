@@ -121,16 +121,25 @@ metadata:
    ```bash
    ${BUN_X} {baseDir}/scripts/md-to-html.ts article.md --save-html /tmp/x-article-body.html > /tmp/x-article.json
    ```
-2. 读 JSON 拿 `title`、`coverImage`、`contentImages`
-3. `browser_navigate` → `https://x.com/compose/articles`
+2. 读 JSON 拿 `title`、`coverImage`、`contentImages`（每项带 `kind: image | video`）
+3. `browser_navigate` → `https://x.com/compose/articles`，点「撰写」
 4. 上传封面、填标题
-5. 复制富文本 HTML 到剪贴板：
-   ```bash
-   ${BUN_X} {baseDir}/scripts/copy-to-clipboard.ts html --file /tmp/x-article-body.html
-   ```
-6. `browser_press key="Meta+v"` 粘贴到文章正文
-7. 逐个替换 `XIMGPH_N` 占位符 → Insert → Media → 上传图片
-8. 预览 → 确认 → 发布
+5. 正文 HTML 用粘贴事件插入（`x-article.ts` 自动完成）
+6. 正文图片/视频由脚本走 X 自己的 **插入 → 媒体** 选择器上传，不再依赖系统剪贴板：
+   - 选中 `XIMGPH_N` → Backspace 删除占位符（不能用 `execCommand('delete')`，Draft.js 会把它恢复）
+   - 点「插入」→「媒体」→ 点拖放区打开原生文件选择器
+   - 通过 CDP `Page.setInterceptFileChooserDialog` + `DOM.setFileInputFiles` 注入文件
+   - 等待 `upload.x.com` 上传完成、编辑器出现媒体块
+   - 全部插完后清理残留占位符（`cleanupPlaceholders`）
+7. 预览 → 确认 → 发布
+
+**视频写法**：正文里用图片语法指向视频文件即可自动识别：
+```markdown
+![捕获视频](video/catch.mp4)
+```
+支持 `.mp4 / .mov / .m4v / .webm`。视频走 `upload2.json` 异步处理，单条等待上限 120s；视频不能当封面，封面必须是图片。
+
+**为什么不用剪贴板**：`copy-to-clipboard.ts` 依赖 macOS NSPasteboard + Swift，在自动化/无 GUI 会话里会返回 `Failed to write image to clipboard`。媒体选择器是 X 自己的上传入口，能真正触发 `upload.x.com` 的 INIT/APPEND/FINALIZE。
 
 ---
 
