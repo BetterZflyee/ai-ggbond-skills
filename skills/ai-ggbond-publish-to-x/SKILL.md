@@ -1,7 +1,7 @@
 ---
 name: ai-ggbond-publish-to-x
 description: 发布内容到 X (Twitter)。支持短帖(文字+图片+视频)、引用转发、长文(X Articles/Markdown)、帖子串(Thread)。对接 ai-ggbond-article-writer 和 ai-ggbond-x-followings-feed。当用户说"发到X""发推""tweet""publish to X"时触发。
-version: 2.1.0
+version: 2.3.0
 metadata:
   openclaw:
     homepage: https://github.com/BetterZflyee/ai-ggbond-skills#ai-ggbond-publish-to-x
@@ -48,7 +48,8 @@ metadata:
 
 ## 执行模式选择（三选一，按优先级）
 
-1. **CDP Cookie 注入模式**（⭐推荐）：Hermes browser 和 CDP 脚本均不可靠时，这是**唯一稳定方案**。通过 Python websocket 直连 Chrome CDP，注入 X cookies 后操作编辑器。
+1. **CDP 接管已登录 Chrome**（⭐首选）：本机 Chrome 已登录 X 时，直接连它的调试端口（**不一定是 9222**，先 `curl http://127.0.0.1:<port>/json/version` 探测）操作发帖框，不必重新注入 cookies。Hermes 内置 browser 访问 x.com 实测返回 403。完整实操见 `references/x-composer-posting.md`。
+2. **CDP Cookie 注入模式**（后备）：Chrome 未登录时，通过 Python websocket 直连 Chrome CDP，注入 X cookies 后操作编辑器。
 2. **CDP 脚本模式**（后备）：通过 `x-browser.ts` 自动启动 Chrome + CDP。前提是 Chrome profile 已有 X cookies。
 3. **Hermes Browser 模式**（❌已知不可用）：X.com 被 Browserbase 屏蔽，会超时。仅当其他模式都失败时尝试。
 
@@ -87,9 +88,23 @@ metadata:
 
 ---
 
+## 短帖（图 + 文）：CDP 接管已登录 Chrome
+
+把微信贴图 / 文章摘要同步到 X，内容是「一段文字 + 1 张图」。2026-11-15 实测通过（@Zflyee）：
+
+1. 探测已登录 Chrome 的端口（`pgrep -f "Google Chrome"`，再试 `curl 127.0.0.1:<port>/json/version`）。
+2. `Target.createTarget` → `attachToTarget(flatten)` → 打开 `https://x.com/compose/post`。
+3. **填文字用合成 paste 事件**（`DataTransfer` + `ClipboardEvent('paste')`）。`execCommand('insertText')` 会被话题联想劫持，正文被反复插入 hashtag；本机 `pbcopy` 无 GUI 权限，Cmd+V 也不通。
+4. **图片压到 ≤300KB JPEG 再传**：`input[data-testid="fileInput"]` → `DOM.setFileInputFiles`。1.5MB PNG 150 秒内一个 upload 请求都没发出去，同图压成 268KB JPEG 后 2 秒走完 INIT→APPEND→FINALIZE。
+5. **上传完成别看 progressbar**：`[role="progressbar"]` 成功后仍留在 DOM、`aria-valuenow` 一直是 0。以 `upload.x.com` 的 `FINALIZE 200/201` 或 `[data-testid="attachments"] img` 为准。
+6. **别向发帖框发 Escape**：会弹「保存帖子？」，只有「保存 / 放弃」，没有取消。点保存进草稿箱，可从发帖框「草稿」重新打开（图文都在）。
+7. 发布前给用户看截图确认；点「发帖」后以出现 `/status/<id>` 或新帖出现在列表为准。
+
+细节与排障：`references/x-composer-posting.md`。
+
 ## Hermes Browser 模式（❌ 不可用于 X.com）
 
-**警告**：Hermes 内置 browser 访问 X.com 会 60s 超时（X 屏蔽 Browserbase IP）。Google 等其他站点正常，但 X 专用功能不可用此模式。
+**警告**：Hermes 内置 browser 访问 X.com 会 60s 超时（X 屏蔽 Browserbase IP）。2026-11-15 复测直接返回 **HTTP 403（请求被拒绝）**。Google 等其他站点正常，但 X 专用功能不可用此模式。
 
 以下为历史文档，仅在将来 browser 修复后参考。当前直接跳到 CDP Cookie 注入模式。
 
