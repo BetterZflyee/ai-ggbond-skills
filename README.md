@@ -38,7 +38,7 @@ Bring your own model — OpenAI, DeepSeek, OpenRouter (200+ models), Nous Portal
 | `ai-ggbond-skill-matrix` | 🧭 Meta | 181-skill routing table across 7 scenarios — trigger words, skill chains, full-pipeline orchestration |
 | `ai-ggbond-github-trending` | 🔍 Research | GitHub Trending discovery + AI-powered analysis for AI/Agent/MCP trends |
 | `ai-ggbond-x-followings-feed` | 📡 Signal | X dual-source feed (For You + Following) · heat-first curation · AI-structured digest |
-| `ai-ggbond-publish-to-x` | 📢 Social | Full-featured X/Twitter publishing: posts, quotes, long-form, Threads |
+| `ai-ggbond-publish-to-x` | 📢 Social | Full-featured X/Twitter publishing: posts, quotes, long-form with inline images & video, Threads |
 | `ai-ggbond-run-xiaohongshu` | 📕 Social | End-to-end Xiaohongshu ops: positioning → ideation → creation → publishing → engagement → iteration |
 | `ai-ggbond-brain-setup` | 🧠 Knowledge | GBrain memory layer with DashScope/Qwen3-Embedding support — 9 documented pitfalls, proxy config, recipe patching |
 | `ai-ggbond-remove-ai-marks` | 🧹 Utility | Remove visible (Gemini sparkle) & invisible (SynthID/C2PA) AI watermarks from images |
@@ -449,7 +449,7 @@ X/Twitter AI digest over a dual-source feed.
 
 Full-featured X/Twitter publishing client.
 
-**Capabilities**: Regular posts (text + images + video) · quote retweets · long-form (X Articles / Markdown) · Threads · Integrates with article-writer and followings-feed for content loops
+**Capabilities**: Regular posts (text + images + video) · quote retweets · long-form X Articles with inline images and video (X media-picker upload, placeholder cleanup) · Threads · Integrates with article-writer and followings-feed for content loops
 
 ### ai-ggbond-run-xiaohongshu
 
