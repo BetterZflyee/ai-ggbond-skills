@@ -319,12 +319,15 @@ document.execCommand('insertText', false, text);
 7. **回复按钮找不到** → 主页面上用 `[data-testid="reply"]`，弹窗里也是同一个 selector
 8. **Thread 回复串到错误位置** → 每次都 navigate 回原始推文 URL 再点回复
 
-### 图片粘贴失败
-- 检查剪贴板权限：运行 `check-paste-permissions.ts`
-- 确保 Chrome 窗口可见且在前台
-- macOS：确认辅助功能权限已开启
+### 文章正文媒体插入失败
+- 正文媒体必须走 **插入 → 媒体** 选择器；不要用剪贴板/`copy-to-clipboard.ts image`
+- `Page.setInterceptFileChooserDialog` 必须在点击拖放区**之前**启用
+- 拖放区必须用真实鼠标事件点击（`Input.dispatchMouseEvent`），`element.click()` 不会打开原生文件选择器
+- 判断成功的标准是编辑器里出现新的 `img[src^="blob:"]` 或 `video` 块，且 `upload.x.com` 出现 FINALIZE
+- 若占位符插入后复活：用真实 Backspace 删除，并在全部媒体插完后跑 `cleanupPlaceholders`
 
 ### 发布按钮灰色/不可点击
-- 检查图片是否上传完成（等待 blob: URL 出现）
+- 检查媒体是否上传完成（编辑器出现媒体块，`upload.x.com` 已 FINALIZE）
+- 视频需要等 `upload2.json` 的 STATUS 处理完成
 - 检查文字是否超限
 - X Article 模式需要在编辑器中模糊（blur）触发自动保存
