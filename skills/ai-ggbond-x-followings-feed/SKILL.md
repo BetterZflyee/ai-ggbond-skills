@@ -197,6 +197,7 @@ Scored tweets are assigned to digest categories using keyword matching. See [ref
 Digest includes (only shows categories with content):
 
 - 每条选题后标 `传播指数 XX/100（S/A/B）`；低于 80 的不出现，允许「今日无过线选题」。
+- **每个板块的每一条都必须有 `[🔗 原推](https://x.com/{username}/status/{id})` 链接**；同事件相关推文也要分别链接。没有链接的条目不得输出。
 - **🌋 全站热榜 / Site-wide Trending** - 只来自 For You 推荐流：今天 X 上真正在传的事，允许社会/娱乐/情绪类，不硬扣 AI。标注热度与「为什么火」
 - **🔥 重大事件 / Major Events** - 具体细节和影响分析 / Specific details & impact analysis
 - **🚀 产品发布 / Product Releases** - 新模型、API更新、工具版本 / New models, API updates, tools
