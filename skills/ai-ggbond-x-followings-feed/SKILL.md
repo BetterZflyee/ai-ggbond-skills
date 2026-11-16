@@ -1,12 +1,12 @@
 ---
 name: ai-ggbond-x-followings-feed
-version: 1.8.0
+version: 1.9.0
 author: "AI GGBond"
 license: MIT
 description: |
-  Dual-source X/Twitter digest: fetch BOTH the For You feed and your followings, rank by heat (likes + 2×reposts + 0.5×replies, small accounts weighted by their own baseline), then generate a structured AI digest with a site-wide trending section. No cross-day dedupe.
+  Dual-source X/Twitter digest: fetch BOTH the For You feed and your followings, rank by heat (likes + 2×reposts + 0.5×replies, small accounts weighted by their own baseline), then generate a structured AI digest with a site-wide trending section. No cross-day dedupe. Adds a spread-index gate (X + Chinese hot lists + Wikipedia + HN; baseline 80/100) so only S-tier topics are written.
 
-  双源 X/Twitter 信息流日报：同时抓 For You 推荐流与关注流，按热度排序（likes + 2×reposts + 0.5×replies，小号按账号基线加权），生成含「全站热榜」的结构化 AI 日报；不做跨天去重。
+  双源 X/Twitter 信息流日报：同时抓 For You 推荐流与关注流，按热度排序（likes + 2×reposts + 0.5×replies，小号按账号基线加权），生成含「全站热榜」的结构化 AI 日报；不做跨天去重。新增「传播指数」硬门槛（X + 中文热榜 + Wikipedia + HN；基准 80/100），只有 S 级选题进入发布池。
 
   **Trigger Words:**
   - "summarize my followings", "X digest", "Twitter summary", "tweets from last 3 days", "weekly summary"
@@ -27,6 +27,8 @@ Auto-fetch latest tweets from your followings and generate structured AI digest.
 **GitHub:** `github.com/BetterZflyee/ai-ggbond-skills/skills/ai-ggbond-x-followings-feed/`
 
 **v1.5.0 更新：** 新增「🎯 个人视角」Personal Lens 汇总分析。日报末尾从 Hermes Memory 动态读取当前用户的身份、主线和偏好，生成定制化的信号解读与行动建议。**用户无关设计**：技能本身不硬编码任何用户状态，谁用就结合谁的 Memory — 飞哥用就是顺丰AI FDE/企业级AI落地/数字化转型，别人用就是别人的主线。每期日报不再只是信息搬运，而是当前用户的私人战略情报官。
+
+**v1.9.0 更新：** 新增「传播指数 / Spread Index」硬门槛。X 热度之外，叠加上中文热榜、Wikipedia、Hacker News，合成 0–100 分；默认 **80** 才进发布池，低于 80 直接删，允许空榜。解决「X 上很热，但不值得写」和「小众自嗨」两类误判。调研与公式见 `references/spread-index.md`。
 
 ## 快速开始 / Quick Start
 
@@ -104,6 +106,23 @@ python3 /Users/admin/.hermes/skills/ai-ggbond-x-followings-feed/scripts/curate_a
 - `execute_code` > `terminal` heredoc > `write_file` 写脚本 + `terminal` 执行（pitfall #15 两步模式）
 - 关键：engagement 全为 0 时 signal 权重 ×8、link_boost ×3（pitfall #18）
 
+### 4.5 传播指数门槛 / Spread Index Gate
+
+排序只回答「这条热不热」，传播指数回答「值不值得写」。对进入候选的 12–15 条，按平台算分；**低于 80 的直接删，不写进日报**。
+
+```bash
+python3 ~/.hermes/skills/ai-ggbond-x-followings-feed/scripts/spread_index.py \
+  --input /tmp/spread_candidates.json \
+  --platform x \
+  --baseline 80 \
+  --output /tmp/spread_scored.json
+```
+
+- 日报/X 场景用 `--platform x`；微信贴图用 `--platform wechat`，不能复用 X 分数。
+- 只有 **S（≥80）** 进入发布池；A（65–79）只作备选，不写；允许空榜。
+- 每条候选至少给：`title`、`keywords`、`x_engagement`、`x_hours`；能给的再加 `wikipedia_title`、`wikipedia_lang`、`hn_query`、`aihot_hits`。
+- **传播指数过线 ≠ 可以发。** 未核实指控、私生活、地域/群体歧视、教人割韭菜的题，指数再高也不做。
+
 ### 5. 生成日报 / Generate Digest
 
 基于过滤结果 + [analyst_prompt_template.md](references/analyst_prompt_template.md) 生成结构化日报。日报末尾自动追加「🎯 个人视角」— 从 Memory 读取用户状态生成。
@@ -113,6 +132,44 @@ python3 /Users/admin/.hermes/skills/ai-ggbond-x-followings-feed/scripts/curate_a
 - 排序的第一标准是「火」：likes / reposts / replies 的绝对值（热度公式 `likes + 2*reposts + 0.5*replies`），以及相对该账号日常基线的异常放大；被多个账号交叉引用、引发争论也算信号。小号爆款按账号基线加权（除以该账号近期互动中位数），不要用全站统一阈值。
 - **不做跨天去重**：前几天讲过的母题，只要今天还在火、还有新进展，照选。重复不是问题，错过热点才是问题；对应到 cron，`continuity` 设为 `false`。
 - **不要回退到「认知破壁／反信息茧房」那套**（优先陌生、反共识、跨界，删重复母题）。用户明确否过：这套标准选出来的都是冷门信号，不是当天热榜。
+
+## 传播指数 / Spread Index（v1.1）
+
+热度排序只说明「这条在 X 上热」，不说明「全网会不会传」。传播指数把 X 热度、中文热榜、Wikipedia 关注度、Hacker News 讨论度合成 0–100；默认基准 **80**，只有 **S（≥80）** 进入发布池，A/B 只作备选，允许空榜。
+
+### 平台权重
+
+| 平台 | X 热度 | 中文热榜 | Wikipedia | HN |
+|:---|:---:|:---:|:---:|:---:|
+| 微信公众号贴图 | 50% | 25% | 15% | 10% |
+| X 贴图 / 日报 | 65% | 5% | 15% | 15% |
+
+中文热榜（抖音 + 百度，取最高）是**破圈加分项**：命中才加分，未命中按缺失处理，权重自动归一化，不按 0 分误杀常青故事。
+
+### 评分锚点（v1.1 校准）
+
+- X 互动 **2 万**、传播速度 **1000/小时** 视为接近满分
+- Wikipedia 单日 **20 万**浏览为绝对热度满分
+- Hacker News 近 7 天 **100 条**为满分
+- 80 分是「真正的大爆款」线，不是日常好题线；普通好题通常落在 55–75
+
+### 使用
+
+```bash
+python3 ~/.hermes/skills/ai-ggbond-x-followings-feed/scripts/spread_index.py \
+  --input /tmp/spread_candidates.json \
+  --platform x \
+  --baseline 80 \
+  --output /tmp/spread_scored.json
+```
+
+输出包含 `spread_index`、`tier`（S/A/B/C）、`components`（x/cn/wiki/hn）、`details` 和 `pass`。完整调研、公式、付费数据源见 [references/spread-index.md](references/spread-index.md)。
+
+**指数只衡量热度，不衡量内容质量与得体性。** 未核实指控、私生活、地域/群体歧视、教人割韭菜的题，指数再高也不做。
+
+### 付费增强
+
+NewsWhip `predicted_interactions`（预测未来 24 小时互动）和 BuzzSumo `trending_score` 是更先进的一档；微热点、清博、知微是国内舆情厂商。没有 key 时用免费复合指数，有 key 时替换高权重分项。
 
 ### 必须两个源都抓，只抓关注流是样本偏差
 
@@ -139,6 +196,7 @@ Scored tweets are assigned to digest categories using keyword matching. See [ref
 
 Digest includes (only shows categories with content):
 
+- 每条选题后标 `传播指数 XX/100（S/A/B）`；低于 80 的不出现，允许「今日无过线选题」。
 - **🌋 全站热榜 / Site-wide Trending** - 只来自 For You 推荐流：今天 X 上真正在传的事，允许社会/娱乐/情绪类，不硬扣 AI。标注热度与「为什么火」
 - **🔥 重大事件 / Major Events** - 具体细节和影响分析 / Specific details & impact analysis
 - **🚀 产品发布 / Product Releases** - 新模型、API更新、工具版本 / New models, API updates, tools

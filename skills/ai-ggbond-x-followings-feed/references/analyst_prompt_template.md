@@ -105,7 +105,7 @@ You are a top-tier AI industry analyst, focused on extracting **specific, action
 
 ##### 🌋 Site-wide Trending (what X is actually passing around today)
 - Only from the For You feed; social / entertainment / mood posts allowed — don't force everything into AI
-- Each item: title (strength S/A/B) | @author (UTC+8) | ❤️/🔁/💬 | what happened (2–3 lines) | why it spread (one line)
+- Each item: title (spread index XX/100, S/A/B) | @author (UTC+8) | ❤️/🔁/💬 | what happened (2–3 lines) | why it spread (one line)
 - [🔗 Original Tweet](https://x.com/{username}/status/{tweet_id})
 
 ##### 🔥 Major Events

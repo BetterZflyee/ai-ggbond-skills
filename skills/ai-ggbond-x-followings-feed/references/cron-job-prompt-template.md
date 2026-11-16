@@ -44,7 +44,22 @@ python3 ~/.hermes/skills/ai-ggbond-x-followings-feed/scripts/fetch_x_following_p
 - **不做跨天去重**：前几天讲过的母题，今天还在火就照写；cron 的 `continuity` 设 `false`
 - 同一事件多条合并，取热度最高或信息最全的做主推
 
-### ③ 生成结构化日报
+### ③ 传播指数门槛（低于 80 直接删）
+对进入候选的 12–15 条跑传播指数，**低于 80 的直接删，不写进日报**：
+
+```bash
+python3 ~/.hermes/skills/ai-ggbond-x-followings-feed/scripts/spread_index.py \
+  --input /tmp/spread_candidates.json \
+  --platform x \
+  --baseline 80 \
+  --output /tmp/spread_scored.json
+```
+
+- 每条候选至少给：`title`、`keywords`、`x_engagement`、`x_hours`。
+- 只有 S（≥80）进入发布池；A/B 只作备选，不写；允许「今日无过线选题」。
+- 传播指数过线 ≠ 可以发：未核实指控、私生活、地域/群体歧视、教人割韭菜的题，指数再高也不做。
+
+### ④ 生成结构化日报
 以玄策身份输出。格式如下（仅输出有内容的板块）：
 
 **⚠️ 格式铁律：绝对不要使用 Markdown 表格（`| xxx |`）。Hermes 检测到表格会把整条消息降级为纯文本，所有格式失效。** 标题 `#`、分隔线 `---`、加粗 `**`、列表 `-` 正常使用。
@@ -57,7 +72,7 @@ python3 ~/.hermes/skills/ai-ggbond-x-followings-feed/scripts/fetch_x_following_p
 ---
 
 ## 🌋 全站热榜（今天 X 上真正在传的）
-只来自 For You 推荐流。允许社会、娱乐、情绪类，不要硬扣 AI。每条：标题（强度 S/A/B）｜@作者（北京时间）｜❤️/🔁/💬｜发生了什么（2–3 行）｜为什么火（一句）｜链接
+只来自 For You 推荐流。允许社会、娱乐、情绪类，不要硬扣 AI。每条：标题（传播指数 XX/100，S/A/B）｜@作者（北京时间）｜❤️/🔁/💬｜发生了什么（2–3 行）｜为什么火（一句）｜链接
 
 ## 🔥 重大信号
 行业转折点/争议/大厂动作。每条：(@作者, MM-DD HH:MM) →【信号强度】→【解读】→【行动建议】
