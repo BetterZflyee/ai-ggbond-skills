@@ -219,7 +219,7 @@ YUNWU_API_KEY={api_key or 'your-api-key-here'}
 YUNWU_BASE_URL=https://api.openlux.ai
 
 # 默认模型配置
-YUNWU_DEFAULT_MODEL=gpt-image-2
+YUNWU_DEFAULT_MODEL=gpt-image-2.6-flare
 
 # ============================================
 # 可选配置

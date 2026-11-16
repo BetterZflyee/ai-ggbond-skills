@@ -41,7 +41,7 @@ def load_env_file():
 
 
 load_env_file()
-DEFAULT_MODEL = os.environ.get("YUNWU_DEFAULT_MODEL", "gpt-image-2")
+DEFAULT_MODEL = os.environ.get("YUNWU_DEFAULT_MODEL", "gpt-image-2.6-flare")
 
 
 @dataclass
@@ -201,7 +201,7 @@ class YunwuImageGenerator:
         image_type: str = "插图",
         style: str = "复古波普网格",
         ratio: str = "1:1",
-        model: str = "gpt-image-2"
+        model: str = DEFAULT_MODEL
     ) -> ImageResult:
         """
         生成微信贴图配图
@@ -426,7 +426,7 @@ def generate_sticker_images(
     prompts_file: str,
     output_dir: str,
     api_key: Optional[str] = None,
-    model: str = "gpt-image-2",
+    model: str = DEFAULT_MODEL,
     watermark: str = ""
 ) -> Dict[str, str]:
     """
@@ -550,7 +550,7 @@ def generate_single_image(
     style: str = "复古波普网格",
     ratio: str = "1:1",
     api_key: Optional[str] = None,
-    model: str = "gpt-image-2",
+    model: str = DEFAULT_MODEL,
     watermark: str = ""
 ) -> str:
     """
@@ -618,7 +618,7 @@ def main():
     parser.add_argument('--list-styles', action='store_true',
                        help='列出所有可用风格')
     parser.add_argument('-k', '--api-key', help='云雾API密钥')
-    parser.add_argument('-m', '--model', default=os.environ.get('YUNWU_DEFAULT_MODEL', 'gpt-image-2'), help='模型名称')
+    parser.add_argument('-m', '--model', default=os.environ.get('YUNWU_DEFAULT_MODEL', 'gpt-image-2.6-flare'), help='模型名称')
     parser.add_argument('-w', '--watermark', default='', help='水印文字')
     
     args = parser.parse_args()

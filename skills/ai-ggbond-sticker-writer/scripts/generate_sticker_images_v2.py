@@ -44,7 +44,7 @@ except ImportError:
 
 # 加载配置并设置默认值
 _env = load_all_env()
-DEFAULT_MODEL = _env.get("YUNWU_DEFAULT_MODEL", "gpt-image-2")
+DEFAULT_MODEL = _env.get("YUNWU_DEFAULT_MODEL", "gpt-image-2.6-flare")
 DEFAULT_BASE_URLS = [
     "https://api.openlux.ai",
     "https://api.openlux.ai",
@@ -842,8 +842,8 @@ def main():
     parser.add_argument('--watermark', '-w', default='',
                        help='水印文字')
     parser.add_argument('--output-dir', '-o', help='输出目录')
-    parser.add_argument('--model', default=os.environ.get('YUNWU_DEFAULT_MODEL', 'gpt-image-2'),
-                       help='模型名称（默认: YUNWU_DEFAULT_MODEL 或 gpt-image-2）')
+    parser.add_argument('--model', default=os.environ.get('YUNWU_DEFAULT_MODEL', 'gpt-image-2.6-flare'),
+                       help='模型名称（默认: YUNWU_DEFAULT_MODEL 或 gpt-image-2.6-flare）')
     parser.add_argument('--max-images', type=int, default=None,
                        help='最多生成图片数，避免章节过多时超量生成')
     parser.add_argument('--image-interval', type=int, default=DEFAULT_IMAGE_INTERVAL,

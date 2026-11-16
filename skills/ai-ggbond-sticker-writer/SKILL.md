@@ -6,6 +6,14 @@ version: 2.5.1
 
 # 微信贴图生成器
 
+## 🔴 生图模型统一（2026-11-16 飞哥定）
+
+本技能默认生图模型 = **`gpt-image-2.6-flare`**，与公众号文章《撰写》技能用的生图模型保持一致。脚本默认值、配置模板、示例命令都必须用这个模型。
+
+- 禁止默认降级到 `gpt-image-2`、`gpt-image-1` 或其他模型。
+- 换模型必须先征得飞哥同意，不能因为 429/超时/中文乱码就擅自切换。
+- 调用时显式传 `--model gpt-image-2.6-flare`，不要只依赖环境变量。
+
 将任意内容转换为适合微信朋友圈/小红书传播的贴图文案，包含完整的文案优化、标题生成和配图建议。
 
 ## Script Directory
@@ -46,6 +54,16 @@ version: 2.5.1
 - 非官方实录／会议摘编转贴图（信源分层、措辞降级、数字冲突与落盘验证）：[references/unofficial-transcript-to-sticker.md](references/unofficial-transcript-to-sticker.md)
 - X 长文转 Google 风格微信贴图经验：[references/session-2026-05-21-x-article-to-google-sticker.md](references/session-2026-05-21-x-article-to-google-sticker.md)
 - 绕过脚本直接调 API + OCR 验证图文一致性：[references/direct-api-call-workaround.md](references/direct-api-call-workaround.md)
+
+## 🔴 生成前确认门禁（2026-11-16 飞哥纠偏）
+
+贴图任务必须先过三签，缺一不生成图：
+
+1. **选题签**：题材是否得体、信源是否可信、立场是否站得住。涉及“教人赚钱 / 利用家长焦虑 / 未经核实营收”的题材，先说明风险，等用户确认。
+2. **文案签**：语气是否平视、有没有替读者下判断、有没有口号式标题。默认不写“最赚钱 / 土得掉渣 / 搞钱很简单”这类喊话。
+3. **视觉签**：风格、配色、比例、参考图先确认；先出 1 张样图，不批量。
+
+**默认视觉（飞哥 2026-11-16 定）**：商业杂志编辑风——米白纸感、黑字、单一强调色（墨绿 / 深红 / 暖棕）、大留白、杂志网格、主次分明。**禁用**：深蓝底 #0A1628 + 霓虹蓝 #00D4FF、圆角卡片堆叠、发光边框、九宫格功能清单。旧“科技风”不再作为默认。
 
 ## 交付格式（用户说「写成贴图」时的默认套餐）
 
@@ -90,7 +108,7 @@ mkdir -p ~/.ai-ggbond-skills
 cat > ~/.ai-ggbond-skills/.env << 'EOF'
 YUNWU_API_KEY=your-yunwu-api-key
 YUNWU_BASE_URL=https://api.openlux.ai
-YUNWU_DEFAULT_MODEL=gpt-image-2
+YUNWU_DEFAULT_MODEL=gpt-image-2.6-flare
 EOF
 
 # 项目级配置（适合团队协作）
@@ -98,7 +116,7 @@ mkdir -p .ai-ggbond-skills
 cat > .ai-ggbond-skills/.env << 'EOF'
 YUNWU_API_KEY=your-yunwu-api-key
 YUNWU_BASE_URL=https://api.openlux.ai
-YUNWU_DEFAULT_MODEL=gpt-image-2
+YUNWU_DEFAULT_MODEL=gpt-image-2.6-flare
 EOF
 
 # 添加到 .gitignore（项目级配置时）
@@ -772,7 +790,7 @@ python {baseDir}/scripts/generate_sticker_images_v2.py \
 - `--ratio`, `-r`: 图片比例（1:1/16:9/3:4，⭐默认：16:9）
 - `--watermark`, `-w`: 水印文字（可选）
 - `--output-dir`, `-o`: 输出目录（默认：Markdown文件所在目录/images）
-- `--model`: 模型名称（默认：读取 `YUNWU_DEFAULT_MODEL`，未配置时为 `gpt-image-2`）
+- `--model`: 模型名称（默认：读取 `YUNWU_DEFAULT_MODEL`，未配置时为 `gpt-image-2.6-flare`）
 - `--max-images`: 最多生成图片数，必须按用户确认张数限制，避免章节过多时超量生成
 - `--image-interval`: 图片之间等待秒数，默认20秒，用于降低429概率
 - `--list-styles`: 列出所有可用风格
@@ -810,7 +828,7 @@ result = generator.generate_sticker_image(
     content="内容要点...",
     style=style,
     ratio="16:9",
-    model="gpt-image-2"
+    model="gpt-image-2.6-flare"
 )
 
 # 保存图片（带水印）
@@ -1102,16 +1120,16 @@ response = requests.post(
 
 | 内容类型 | 推荐模型 | 理由 |
 |---------|---------|------|
-| **中文文字为主** | gpt-image-2 | 中文支持最佳，无乱码，字形准确，默认模型 |
+| **中文文字为主** | gpt-image-2.6-flare | 中文支持最佳，无乱码，字形准确，默认模型 |
 | **英文内容** | dall-e-3 | 英文渲染效果好，风格多样 |
-| **复杂构图** | gpt-image-2 | 多元素布局更稳定，提示词理解能力强 |
+| **复杂构图** | gpt-image-2.6-flare | 多元素布局更稳定，提示词理解能力强 |
 | **写实风格** | dall-e-3 | 照片级真实感强 |
-| **插画/漫画** | gpt-image-2 | 线条清晰，色彩鲜明 |
+| **插画/漫画** | gpt-image-2.6-flare | 线条清晰，色彩鲜明 |
 | **快速生成** | gemini-2.5-flash-image | 速度快，质量高 |
-| **高质量** | gpt-image-2 | Google最新模型，图像质量高 |
+| **高质量** | gpt-image-2.6-flare | 当前默认模型，图像质量高 |
 | **⚠️ 敏感内容/政治时事** | gpt-image-1 | 敏感词限制更宽松，成功率更高（实测） |
 
-**默认推荐**：`gpt-image-2`
+**默认推荐**：`gpt-image-2.6-flare`
 - 生成效果更稳定
 - 对复杂提示词理解能力强
 - 中文文字渲染效果好
@@ -1290,7 +1308,7 @@ for i, p in enumerate(prompts):
 **实测结果**：4张图全部成功，总耗时约 4.5 分钟。无间隔则全部 429。
 
 **支持的模型列表**：
-- `gpt-image-2` ⭐（默认，推荐）
+- `gpt-image-2.6-flare` ⭐（默认，推荐）
 - `gpt-image-1`（上一代，稳定）
 - `gpt-image-2`（高质量）
 - `gemini-2.5-flash-image`（快速）
@@ -1509,7 +1527,7 @@ for i, p in enumerate(prompts):
 - [ ] **布局结构是否符合选定风格的要求**
 - [ ] **图文并茂时视觉冲击力是否足够**
 - [ ] **人物档案/专业人物介绍是否使用一手资料优先**：官网、本人自述、官方履历优先；新闻线只作补充，不得喧宾夺主
-- [ ] **用户指定模型时是否严格执行**：如用户要求 gpt-image-2，必须显式传 `--model gpt-image-2`，不得用本地 PIL/占位图替代成品
+- [ ] **用户指定模型时是否严格执行**：如用户指定模型，必须显式传 `--model <模型名>`，不得用本地 PIL/占位图替代成品
 - [ ] **🔴 标签不放图片**：配图提示词中绝对不能出现 `#标签`。标签只放 Markdown 正文末尾
 - [ ] **🔴 图文一致性**：生成后用 vision_analyze 或 PaddleOCR 核对图片文字与 md 原文，发现不符立即重来（绕过脚本直接调 API）
 - [ ] **脚本 ContentAnalyzer 陷阱**：包含精确数据的贴图（品牌名、百分比），不要用 `generate_sticker_images_v2.py`，改用直接 API 调用
@@ -1580,6 +1598,24 @@ for i, p in enumerate(prompts):
 - 政策/宏观叙事 → 容易过时
 
 **判断标准**：读者看到标题想点进去吗？看完会转发吗？能获得什么？三个都"是"才做。
+
+### 选题不够热时：先换层级，不要换措辞
+
+用户说"这些选题都不太热"，通常不是标题问题，是素材层级问题。先把候选分成三档，每档给一个，标清取舍：
+
+- **流量型**：跨圈层事件（游戏、消费、大公司人事）。标题有冲突和数字，但不要硬扣 AI；适合冲阅读，不适合立人设。
+- **信任型**：专业硬案例（可验证的工程细节、回滚率、PR 数）。适合 AI 从业者，涨信任不涨阅读。
+- **转化型**：钱、家长、可复制的小生意。读者能代入算自己的账；最适合"AI 落地/搞钱"账号。
+
+先判断目标（不确定就问用户），再定题。不要把日报里的"今日可转选题"当排序，它只是素材池；只改标题措辞不算换选题，换角度要换到读者能代入的那一层。
+
+### 拆账帖不是财报
+
+X 上"年卡 X、年流水 Y"的帖子，多是作者按模型拆的账，不是审计营收。没有产品名/公司名时：
+
+- 标题写"他算的账/这笔账"，不写"他赚了 Y"
+- 正文写"按……算"，把付费率、年活、客单价写清楚
+- 事实核对里标"模型测算、未独立核实"
 
 **详细评估方法**：见 `references/x-news-selection-and-deai-taste.md`
 
@@ -1899,7 +1935,7 @@ YC投了个AI叫Thomas，两周赚了12万。
 ## User-Learned Best Practices & Constraints
 
 **0. 真实生图红线：禁止本地占位图冒充模型输出**
-- 用户明确要求“生成图片/贴图”时，必须使用约定的图像模型链路生成真实图片；如果指定 `gpt-image-2`，就严格使用 `--model gpt-image-2`。
+- 用户明确要求“生成图片/贴图”时，必须使用约定的图像模型链路生成真实图片；默认模型是 `gpt-image-2.6-flare`，调用时显式传 `--model gpt-image-2.6-flare`。
 - **绝对禁止**在图像 API 失败、429、超时后，用 PIL/Canvas/HTML/SVG 等本地方式临时拼“占位图”并当作贴图交付；这类图质量差且违反用户预期。
 - 如果 API 失败：停止，报告错误；只有用户明确授权“本地占位/草稿图”时，才可用本地绘图方案，并必须标注为草稿/占位。
 - 如果终端调用超时，不要直接判定失败；先检查输出目录是否已有部分图片落盘（如 `find images -maxdepth 1 -type f`），再汇报已生成与未生成的数量。
