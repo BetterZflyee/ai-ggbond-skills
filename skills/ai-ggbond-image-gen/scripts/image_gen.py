@@ -11,9 +11,12 @@ GPT-Image-2 通用内容生图 CLI（OpenLux 链路）
   图生图/编辑 (GPT-Image-2 /v1/images/edits multipart；不要带 format)
     python3 image_gen.py --edit --image input.png --prompt "把第6项 import reqestb 改成 import requests" -o fixed.png
 
-Key 解析优先级: 环境变量 YUNWU_API_KEY/OPENAI_API_KEY
-              -> ~/.ai-ggbond-skills/.env (YUNWU_API_KEY)
-              -> ~/.hermes/profiles/*/config.yaml 与 ~/.hermes/config.yaml image_gen.api_key
+Key 解析优先级（跨 harness：DSH / Claude Code / Codex 通用）:
+  1. 环境变量 YUNWU_API_KEY / OPENAI_API_KEY
+  2. ~/.ai-ggbond-skills/.env  (YUNWU_API_KEY / YUNWU_BASE_URL / YUNWU_DEFAULT_MODEL)  ← 推荐，ai-ggbond 技能共享
+  3. ~/.hermes/profiles/*/config.yaml 的 image_gen.api_key  (仅 hermes 环境补充扫描)
+旧域名(yunwu.ai / api.apiplus.org / api3.wlai.vip)会自动纠正为 api.openlux.ai。
+注意: 旧 yunwu.ai 的 Key 在新站 401，需到 https://api.openlux.ai 控制台重新创建。
 """
 import argparse
 import base64
@@ -36,6 +39,10 @@ ENV_PATHS = [
     Path.home() / ".ai-ggbond-skills" / ".env",
 ]
 
+# OpenLux 新站地址；旧域名（已迁移，会 403）自动纠正
+OPENLUX_BASE_URL = "https://api.openlux.ai"
+DEPRECATED_HOSTS = ("yunwu.ai", "api.apiplus.org", "api3.wlai.vip", "apiplus.org", "wlai.vip")
+
 # 风格名称映射到内部 key（用于校验）；具体模板在 style_bundle()
 STYLE_ALIASES = {
     "high-density": "high-density",
@@ -52,6 +59,9 @@ STYLE_ALIASES = {
     "business": "business-report",
     "商务": "business-report",
 }
+
+# 合法风格集合（STYLE_ALIASES 去重后的规范名）
+VALID_STYLES = set(STYLE_ALIASES.values())
 
 # 比例 -> 尺寸（OpenLux 支持范围）
 RATIO_SIZES = {
@@ -123,31 +133,58 @@ def _scan_profile_configs() -> List[dict]:
 
 
 def resolve_credentials() -> Dict[str, str]:
-    """解析 api_key / base_url / model"""
+    """解析 api_key / base_url / model（跨 harness：环境变量 -> ~/.ai-ggbond-skills/.env -> hermes）"""
     env = _load_env()
-    key = os.environ.get("YUNWU_API_KEY") or os.environ.get("OPENAI_API_KEY") or env.get("YUNWU_API_KEY") or env.get("OPENAI_API_KEY")
-    base_url = os.environ.get("OPENAI_BASE_URL") or env.get("YUNWU_BASE_URL") or ""
+    key = (os.environ.get("YUNWU_API_KEY") or os.environ.get("OPENAI_API_KEY")
+           or env.get("YUNWU_API_KEY") or env.get("OPENAI_API_KEY"))
+    base_url = (os.environ.get("OPENAI_BASE_URL") or os.environ.get("YUNWU_BASE_URL")
+                or env.get("YUNWU_BASE_URL") or "")
+    model = (os.environ.get("YUNWU_DEFAULT_MODEL") or os.environ.get("OPENAI_MODEL")
+             or env.get("YUNWU_DEFAULT_MODEL") or "")
 
-    # 扫 profile config 作为第二来源
+    # hermes 环境（~/.hermes/config.yaml）作为补充来源
     for cfg in _scan_profile_configs():
         if not key:
             key = cfg.get("api_key")
         if not base_url:
             base_url = cfg.get("base_url", "")
+        if not model:
+            model = cfg.get("model", "")
 
     if not key or key == "dummy":
-        raise RuntimeError("未找到有效 API Key：请设置环境变量 YUNWU_API_KEY / OPENAI_API_KEY，或编辑 ~/.hermes/profiles/*/config.yaml 的 image_gen.api_key")
-    if not base_url:
-        base_url = "https://api.openlux.ai/v1"
+        raise RuntimeError(
+            "未找到有效 API Key。请配置（任一）：\n"
+            "  1) ~/.ai-ggbond-skills/.env 里 YUNWU_API_KEY=<key>（推荐，ai-ggbond 技能共享，DSH/Claude/Codex 通用）\n"
+            "  2) 环境变量 YUNWU_API_KEY / OPENAI_API_KEY\n"
+            "  3) ~/.hermes/.../config.yaml 的 image_gen.api_key（仅 hermes）\n"
+            "注意：旧 yunwu.ai 的 Key 在新站 401，需到 https://api.openlux.ai 控制台重新创建。"
+        )
 
-    # 归一化 base_url：允许带 /v1 或不带
-    base_url = base_url.strip().rstrip("/")
+    # 归一化 base_url：去掉结尾的完整接口路径
+    base_url = (base_url or "").strip().rstrip("/")
     for suffix in ("/v1/images/generations", "/v1/images/edits", "/images/generations", "/images/edits"):
         if base_url.endswith(suffix):
             base_url = base_url[: -len(suffix)]
+
+    # 旧域名自动纠正为 OpenLux 新站
+    if not base_url or any(h in base_url for h in DEPRECATED_HOSTS):
+        if base_url:
+            logger.warning("⚠️ 检测到旧域名 %s，已自动改用 %s", base_url, OPENLUX_BASE_URL)
+        base_url = OPENLUX_BASE_URL
+
     if not base_url.endswith("/v1"):
         base_url = base_url + "/v1"
-    return {"api_key": key, "base_url": base_url}
+
+    return {"api_key": key, "base_url": base_url, "model": model or "gpt-image-2.6-sunburst"}
+
+
+def _auth_hint(status: int) -> str:
+    """401/403 时给出迁移与配置提示"""
+    if status == 401:
+        return "（无效令牌：多半是旧 yunwu.ai 的 Key，请到 https://api.openlux.ai 控制台重新创建后更新 ~/.ai-ggbond-skills/.env）"
+    if status == 403:
+        return "（账号已迁移/旧域名：base_url 应为 https://api.openlux.ai/v1）"
+    return ""
 
 
 def _truthy(v) -> bool:
@@ -306,7 +343,7 @@ def main():
     ap.add_argument("--ratio", default=None, help="1:1 / 16:9 / 9:16 / 4:3 / 3:4 / 3:2 / 2:3")
     ap.add_argument("--size", default=None, help="直接指定尺寸如 1536x1024 / 2160x3840（优先于 ratio）")
     ap.add_argument("--quality", default="high", help="low/medium/high/auto")
-    ap.add_argument("--model", default="gpt-image-2")
+    ap.add_argument("--model", default="gpt-image-2.6-sunburst")
     ap.add_argument("--edit", action="store_true", help="图生图编辑模式")
     ap.add_argument("--image", default=None, help="编辑模式源图")
     ap.add_argument("-o", "--output", default="output.png")
@@ -328,7 +365,7 @@ def main():
         else:
             style_key = (args.style or "editorial-notes").lower()
             style_key = STYLE_ALIASES.get(style_key, style_key)
-            if style_key not in set(STYLE_ALIASES.values()):
+            if style_key not in VALID_STYLES:
                 sys.exit(f"未知风格 {args.style}，可选: {', '.join(STYLE_ALIASES)}")
             ratio_display = args.ratio or (size if re.fullmatch(r"\d+x\d+", size or "") else "16:9")
             final_prompt = build_style_prompt(args.title or "中文信息图", args.prompt, style_key, ratio_display)

@@ -1,7 +1,7 @@
 ---
 name: ai-ggbond-image-gen
 description: 用 GPT-Image-2 (OpenLux) 做通用内容生图与图片编辑。
-version: 1.1.0
+version: 1.1.1
 author: AI朱朱侠
 license: MIT
 platforms: [linux, macos]
@@ -31,7 +31,7 @@ metadata:
 - Base URL：`https://api.openlux.ai/v1`
 - 文生图：`POST /v1/images/generations`
 - 图生图/编辑：`POST /v1/images/edits`（multipart，字段 `image` + `prompt`，**不要传 `format`** —— OpenLux 会报 `Unknown parameter: 'format'`）
-- 模型：`gpt-image-2`（`gpt-image-2-c` 也在模型列表，默认用 `gpt-image-2`）
+- 模型：默认 **`gpt-image-2.6-sunburst`**（2026-11-16 飞哥指定）。`gpt-image-2` / `gpt-image-2-c` / `gpt-image-2.5-sunburst` 也在模型列表，可用 `--model` 临时切换。实测 sunburst 的版式留白与大字号数字质量明显优于 gpt-image-2，文字渲染也更稳。
 - 旧域名 `yunwu.ai` / `api.apiplus.org` / `api3.wlai.vip` 均已迁移，**不要再调用**
 
 ## API Key 来源（脚本自动解析）
@@ -50,8 +50,9 @@ metadata:
 # 文生图
 python3 scripts/image_gen.py --prompt "..." --style tech-neon --ratio 16:9 -o out.png
 
-# 自定义尺寸 / 模型 / 质量
-python3 scripts/image_gen.py --prompt "..." --size 1536x1024 --quality high --model gpt-image-2 -o out.png
+# 自定义尺寸 / 质量（模型默认 gpt-image-2.6-sunburst，需要时再显式指定）
+python3 scripts/image_gen.py --prompt "..." --size 1536x1024 --quality high -o out.png
+python3 scripts/image_gen.py --prompt "..." --size 1024x1536 --quality high --model gpt-image-2 -o out2.png
 
 # 图生图编辑（修错字 / 局部修改 / 重绘区域）
 python3 scripts/image_gen.py --edit --image input.png --prompt "只把第6项的 import reqestb 改成 import requests" -o fixed.png
@@ -91,7 +92,7 @@ python3 scripts/image_gen.py --raw --prompt "你的完整提示词" --size 2160x
 2. **短标签策略**：中文标签 2-4 字，越长越易乱码
 3. **数据原文直传**：品牌名、百分比、金额必须原样进 prompt
 4. **#标签不上图**：`#标签` 只属于 Markdown 正文
-5. **不擅自换模型**：默认 gpt-image-2；遇到 429/错误先报告，等用户决定
+5. **不擅自换模型**：默认 `gpt-image-2.6-sunburst`；遇到 429/错误先报告，等用户决定
 6. **比例反复强调**：16:9 / 9:16 / 1:1 必须在 prompt 开头和结尾重复
 
 详见 `references/chinese-grid-strategy.md` 与 `references/prompt-method.md`。

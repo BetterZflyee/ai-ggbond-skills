@@ -5,7 +5,7 @@
 - Base URL：`https://api.openlux.ai/v1`
 - 文生图：`POST /v1/images/generations`（OpenAI Images API 格式）
 - 图生图/编辑：`POST /v1/images/edits`（multipart）
-- 模型：`gpt-image-2`、`gpt-image-2-c`
+- 模型：默认 `gpt-image-2.6-sunburst`；`gpt-image-2`、`gpt-image-2-c`、`gpt-image-2.5-sunburst` 亦可选
 - 鉴权：`GET /v1/models`（返回 200 且含 468 个模型 = Key 有效）
 
 ## 迁移背景
@@ -28,7 +28,7 @@
 | `~/.hermes/profiles/<profile>/config.yaml` → `image_gen.api_key` | Hermes 内置 image_generate 工具 + 本 skill 脚本自动扫描 |
 | `~/.ai-ggbond-skills/.env` → `YUNWU_API_KEY` | ai-ggbond 品牌脚本（article-writer/sticker-writer 等） |
 
-建议同步两份。模型统一为 `gpt-image-2`，不要写 `gpt-image-2-medium`。
+建议同步两份。模型统一为 `gpt-image-2.6-sunburst`（2026-11-16 起），不要写 `gpt-image-2-medium`。
 
 ## Key 安全（重要）
 
@@ -46,7 +46,7 @@ Unknown parameter: 'format' (invalid_request_error)
 
 正确 multipart 字段：`image`、`prompt`、`model`、`n`、`size`、`quality`。
 
-## 尺寸支持范围（gpt-image-2）
+## 尺寸支持范围
 
 实测 OpenLux 前端列出：
 
@@ -68,5 +68,5 @@ curl https://api.openlux.ai/v1/models -H "Authorization: Bearer $KEY"
 # 2) 极小生图（低质量最省钱）
 curl https://api.openlux.ai/v1/images/generations \
   -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
-  -d '{"model":"gpt-image-2","prompt":"blue circle, no text","n":1,"size":"1024x1024","quality":"low"}'
+  -d '{"model":"gpt-image-2.6-sunburst","prompt":"blue circle, no text","n":1,"size":"1024x1024","quality":"low"}'
 ```
