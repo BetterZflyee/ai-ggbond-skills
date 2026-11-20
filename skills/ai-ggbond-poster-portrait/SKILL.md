@@ -10,7 +10,7 @@ triggers:
   - 情绪感写真
   - GPT Image 2 肖像
   - 街拍风格
-version: 2.1.0
+version: 2.1.1
 author: ai-ggbond
 ---
 
@@ -51,7 +51,8 @@ EOF
 
 ```bash
 # 多链路配置（自动切换，应对429负载饱和）
-YUNWU_BASE_URLS=https://api.openlux.ai,https://api.openlux.ai,https://api.openlux.ai
+# 三链路互为真正备用，2026-11-20 实测均在线
+YUNWU_BASE_URLS=https://api.openlux.ai,https://api3.wlai.vip,https://api.apiplus.org
 
 # 图片生成端点（默认：/v1/images/generations）
 YUNWU_IMAGE_ENDPOINT=/v1/images/generations
@@ -365,7 +366,7 @@ def load_yunwu_config():
     config = {
         "api_key": os.environ.get("YUNWU_API_KEY", ""),
         "base_url": os.environ.get("YUNWU_BASE_URL", "https://api.openlux.ai"),
-        "base_urls": os.environ.get("YUNWU_BASE_URLS", "https://api.openlux.ai,https://api.openlux.ai,https://api.openlux.ai"),
+        "base_urls": os.environ.get("YUNWU_BASE_URLS", "https://api.openlux.ai,https://api3.wlai.vip,https://api.apiplus.org"),
         "endpoint": os.environ.get("YUNWU_IMAGE_ENDPOINT", "/v1/images/generations"),
         "model": os.environ.get("YUNWU_DEFAULT_MODEL", "gpt-image-2"),
         "max_retries": int(os.environ.get("YUNWU_MAX_RETRIES", "3")),
