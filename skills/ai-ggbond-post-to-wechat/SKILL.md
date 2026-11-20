@@ -9,6 +9,26 @@ metadata:
     tags: [wechat, publishing, article, draft, api, feishu]
 ---
 
+<!-- BEGIN AI-GGBOND-STICKER-INTEGRATION -->
+## 公众号贴图与信息卡衔接
+
+以下相对路径按本文件所在目录解析。
+
+涉及短贴图、连续多图、证据卡或长文插图复用时，读取 `../ai-ggbond-sticker-writer/SKILL.md`；长文精排读取 `../ai-ggbond-wechat-layout/SKILL.md`。当前用户要求及上述维护模块优先于后文历史模板。
+
+原生贴图使用 `newspic-bundle.json --type newspic`：纯文本、第一张封面及有序图片独立交接；先用 `--dry-run` 检查。未完成核对、图片哈希改变、数量缺失或任一上传失败时停止创建草稿。长文章继续用精排 `article.html` 与 `handoff.json`，不将短正文套文章主题。用户已有推送授权就继续相应操作并读回；历史接口/菜单失败不代表当前账号状态，不能称本地预检已发布。
+<!-- END AI-GGBOND-STICKER-INTEGRATION -->
+
+
+<!-- BEGIN AI-GGBOND-WECHAT-LAYOUT -->
+## 公众号精细排版模块
+
+涉及公众号精排、版式审查、图文组件、表格优化或手机预览时，先读取 `../ai-ggbond-wechat-layout/SKILL.md`。该模块沿用个人版式规则，生成可核查的正文、预览和草稿交接包。用户当前要求及稿件品牌规范优先。
+
+精排完成后使用交付包里的 `article.html` 和 `handoff.json`；不上传 `preview.html`、`reading-preview.html` 或 `review.html`，不把原 Markdown 再套主题转换。实验 SVG 先单独验证平台保留。沿用户当前授权完成草稿操作并读回；仅排版请求完成本地交付即可。
+<!-- END AI-GGBOND-WECHAT-LAYOUT -->
+
+
 # 推送到微信公众号 (aiggbond-post-to-wechat)
 
 ## 概述

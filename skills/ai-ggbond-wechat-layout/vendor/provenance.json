@@ -1,0 +1,18 @@
+{
+  "repository": "https://github.com/frederick-kk/wechat-layout-copilot",
+  "commit": "96fd55564b0e44e50530a0d0504083d59f3eaee9",
+  "version": "v0.7.0",
+  "files": [
+    {
+      "component": "wechat-svg-click-reveal",
+      "path": "vendor/wechat-svg-click-reveal/render.py",
+      "sha256": "6f05923703f8e5a54e59e6f26c337d272f8c4bf80c1a45e5231b3ca2553ebe8a"
+    },
+    {
+      "component": "wechat-svg-data-chart",
+      "path": "vendor/wechat-svg-data-chart/render.py",
+      "sha256": "e6dff567ffa61a45554c19f8f29a221ba45e470cee914857c6aa236eabe1808c"
+    }
+  ],
+  "assets": "No upstream brand assets copied"
+}

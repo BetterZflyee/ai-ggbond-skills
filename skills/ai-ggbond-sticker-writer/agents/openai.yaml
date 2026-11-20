@@ -1,0 +1,4 @@
+interface:
+  display_name: "公众号贴图与信息卡"
+  short_description: "整合短文案、连续多图、中文核对与精排，生成公众号贴图及长文复用交付包"
+  default_prompt: "用 $ai-ggbond-sticker-writer 把这份内容做成公众号贴图，沿用我的风格，核对图文并给我预览。"

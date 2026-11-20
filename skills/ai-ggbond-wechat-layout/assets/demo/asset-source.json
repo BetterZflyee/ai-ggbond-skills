@@ -1,0 +1,13 @@
+{
+  "layout-example.png": {
+    "origin": "original locally rendered diagram for v2",
+    "rights": "created for this module",
+    "contains_external_assets": false,
+    "dimensions": [
+      720,
+      700
+    ],
+    "source_min_text_px": 32,
+    "rationale": "vertical flow preserves legibility at narrow reading widths"
+  }
+}

@@ -201,7 +201,7 @@ class YunwuImageGenerator:
         image_type: str = "插图",
         style: str = "复古波普网格",
         ratio: str = "1:1",
-        model: str = DEFAULT_MODEL
+        model: str = "gpt-image-2.6-flare"
     ) -> ImageResult:
         """
         生成微信贴图配图
@@ -225,7 +225,7 @@ class YunwuImageGenerator:
         
         # 根据比例设置尺寸和布局
         if ratio == "16:9":
-            size = "1792x1024"
+            size = "1600x900"
             layout_desc = """
 【布局结构】（16:9横版专用布局）
 - 标题区（占12%）：左侧或顶部，醒目大标题
@@ -426,7 +426,7 @@ def generate_sticker_images(
     prompts_file: str,
     output_dir: str,
     api_key: Optional[str] = None,
-    model: str = DEFAULT_MODEL,
+    model: str = "gpt-image-2.6-flare",
     watermark: str = ""
 ) -> Dict[str, str]:
     """
@@ -503,7 +503,7 @@ def generate_sticker_images(
             
             # 根据比例设置尺寸
             if ratio == '16:9':
-                size = "1792x1024"
+                size = "1600x900"
                 logger.info(f"📐 使用16:9比例，尺寸: {size}")
             else:
                 size = "1024x1024"
@@ -550,7 +550,7 @@ def generate_single_image(
     style: str = "复古波普网格",
     ratio: str = "1:1",
     api_key: Optional[str] = None,
-    model: str = DEFAULT_MODEL,
+    model: str = "gpt-image-2.6-flare",
     watermark: str = ""
 ) -> str:
     """

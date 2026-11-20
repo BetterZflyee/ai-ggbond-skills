@@ -88,7 +88,13 @@ class StickerManager:
         
         folder_name = f"{timestamp}-{clean_title}"
         folder_path = self.base_dir / folder_name
-        folder_path.mkdir(parents=True, exist_ok=True)
+        candidate = folder_path
+        revision = 1
+        while candidate.exists():
+            revision += 1
+            candidate = self.base_dir / f"{folder_name}-v{revision}"
+        folder_path = candidate
+        folder_path.mkdir(parents=True, exist_ok=False)
         
         # 创建images子文件夹
         images_dir = folder_path / "images"
@@ -185,7 +191,7 @@ class StickerManager:
             prompt_file = self.save_image_prompts(folder_path, image_prompts, ratio=ratio)
             result['prompts'] = prompt_file
         
-        logger.info(f"✅ 贴图生成完成！文件夹: {folder_path}")
+        logger.info(f"文案与提示词已保存；此管理器不生成图片。文件夹: {folder_path}")
         return result
 
 
@@ -208,7 +214,7 @@ def main():
         ratio=args.ratio
     )
     
-    print(f"\n✅ 贴图生成完成！")
+    print("\n文案已保存；图片尚未由此管理器生成。")
     print(f"📁 文件夹: {result['folder']}")
     print(f"📄 文案: {result['content']}")
 

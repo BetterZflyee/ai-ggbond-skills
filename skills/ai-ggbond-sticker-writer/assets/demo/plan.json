@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "scene": "newspic",
+  "meta": {
+    "title": "让一份内容同时适合贴图和长文",
+    "author": "AI朱朱侠",
+    "caption_budget": 500
+  },
+  "caption": "做公众号时，同一份材料经常要用两次：一次是读者快速翻完的贴图，一次是能保留细节的长文。\n\n先把事实、文字和图片顺序整理好。贴图围绕阅读任务分图，长文保留完整解释；表格、步骤和时间线按需要复用。\n\n交付前看一遍手机尺寸，再核对中文、数字和来源。",
+  "tags": [
+    "公众号",
+    "内容创作",
+    "信息图"
+  ],
+  "expected_image_count": 3,
+  "style": {
+    "description": "商业杂志编辑风，米白纸感、黑字、单一墨绿强调，大留白与清晰字阶"
+  },
+  "sources": [
+    {
+      "id": "workflow",
+      "title": "本地贴图与精排模块的能力说明",
+      "status": "provided"
+    }
+  ],
+  "images": [
+    {
+      "id": "cover",
+      "role": "cover",
+      "heading": "一份内容，两种阅读方式",
+      "text": [
+        "贴图：快速看懂",
+        "长文：保留细节"
+      ],
+      "ratio": "16:9",
+      "source_ids": [
+        "workflow"
+      ]
+    },
+    {
+      "id": "structure",
+      "role": "steps",
+      "heading": "先整理内容，再选择表达",
+      "text": [
+        "核对事实和数字",
+        "确定每页阅读任务",
+        "保留图片和正文顺序"
+      ],
+      "ratio": "16:9",
+      "source_ids": [
+        "workflow"
+      ]
+    },
+    {
+      "id": "checks",
+      "role": "summary",
+      "heading": "交付前，回到手机上看",
+      "text": [
+        "中文、数字、单位",
+        "图片比例与小字",
+        "封面、页序、来源"
+      ],
+      "ratio": "16:9",
+      "source_ids": [
+        "workflow"
+      ]
+    }
+  ]
+}

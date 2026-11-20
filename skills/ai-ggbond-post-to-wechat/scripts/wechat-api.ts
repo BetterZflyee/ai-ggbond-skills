@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { readStickerBundle, assertStickerWritable, uploadStickerImages } from "./newspic-bundle.ts";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -520,6 +521,7 @@ Example:
   npx -y bun wechat-api.ts article.md --author "Author Name" --summary "Brief intro"
   npx -y bun wechat-api.ts article.html --title "My Article"
   npx -y bun wechat-api.ts images/ --type newspic --title "Photo Album"
+  npx -y bun wechat-api.ts delivery/newspic-bundle.json --type newspic --dry-run
   npx -y bun wechat-api.ts article.md --dry-run
   npx -y bun wechat-api.ts article.md --no-cite
 `);
@@ -625,7 +627,20 @@ async function main(): Promise<void> {
   let frontmatter: Record<string, string> = {};
   let contentImages: ImageInfo[] = [];
 
-  if (args.isHtml) {
+  const isStickerBundle = filePath.toLowerCase().endsWith(".json");
+  if (isStickerBundle && args.articleType !== "newspic") throw new Error("Sticker JSON requires --type newspic");
+  const stickerBundle = isStickerBundle ? readStickerBundle(filePath) : undefined;
+  if (stickerBundle) {
+    if (args.cover) throw new Error("Native sticker cover is its first image; reorder the bundle instead of --cover");
+    if (args.title && args.title !== stickerBundle.title) throw new Error("Sticker title conflicts with its reviewed bundle; edit the plan and rebuild");
+    if (args.author && args.author !== stickerBundle.author) throw new Error("Sticker author conflicts with its reviewed bundle; edit the plan and rebuild");
+    if (args.account && stickerBundle.draft_target?.account && args.account !== stickerBundle.draft_target.account) throw new Error("Sticker target account conflicts with --account");
+    args.account ||= stickerBundle.draft_target?.account || undefined;
+    title ||= stickerBundle.title;
+    author ||= stickerBundle.author || "";
+    htmlPath = filePath;
+    htmlContent = stickerBundle.content;
+  } else if (args.isHtml) {
     htmlPath = filePath;
     htmlContent = extractHtmlContent(htmlPath);
     const mdPath = filePath.replace(/\.html$/i, ".md");
@@ -700,10 +715,19 @@ async function main(): Promise<void> {
       contentLength: htmlContent.length,
       placeholderImageCount: contentImages.length || undefined,
       account: resolved.alias || undefined,
+      ...(stickerBundle ? {
+        inputKind: "sticker-bundle",
+        nativeContent: stickerBundle.content,
+        imageCount: stickerBundle.images.length,
+        imageOrder: stickerBundle.images.map(image => image.id),
+        reviewStatus: stickerBundle.status,
+        scope: "local validation only; no image upload or draft write",
+      } : {}),
     }, null, 2));
     return;
   }
 
+  if (stickerBundle) assertStickerWritable(stickerBundle);
   const creds = loadCredentials(resolved);
   for (const skippedSource of creds.skippedSources) {
     console.error(`[wechat-api] Skipped incomplete credential source: ${skippedSource}`);
@@ -722,16 +746,19 @@ async function main(): Promise<void> {
     : rawCoverPath;
   const needNewsCoverFallback = args.articleType === "news" && !coverPath;
 
-  console.error("[wechat-api] Uploading body images...");
-  const { html: processedHtml, firstCoverMediaId, imageMediaIds } = await uploadImagesInHtml(
-    htmlContent,
-    accessToken,
-    baseDir,
-    contentImages,
-    args.articleType,
-    needNewsCoverFallback,
-  );
-  htmlContent = processedHtml;
+  let firstCoverMediaId: string | undefined;
+  let imageMediaIds: string[];
+  if (stickerBundle) {
+    console.error("[wechat-api] Uploading ordered sticker images...");
+    imageMediaIds = await uploadStickerImages(stickerBundle, file => uploadImage(file, accessToken, baseDir, "material"));
+    htmlContent = stickerBundle.content;
+  } else {
+    console.error("[wechat-api] Uploading body images...");
+    const uploaded = await uploadImagesInHtml(htmlContent, accessToken, baseDir, contentImages, args.articleType, needNewsCoverFallback);
+    htmlContent = uploaded.html;
+    firstCoverMediaId = uploaded.firstCoverMediaId;
+    imageMediaIds = uploaded.imageMediaIds;
+  }
 
   let thumbMediaId = "";
 

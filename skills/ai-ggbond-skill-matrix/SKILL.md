@@ -55,7 +55,8 @@ tavily-search（快速搜索）→ web-access（深度抓取）→ deep-research
 | `humanizer` | 去AI味、人性化、自然表达 | 去除AI腔调 |
 | `web-video-presentation` | 口播稿、视频演示、网页演示 | 16:9交互式网页演示 |
 | `guizang-ppt` / `guizang-ppt-skill` | PPT、演示、分享、发布会 | 横向翻页网页PPT |
-| `ai-ggbond-sticker-writer` | 贴图、小红书风格、微信贴图 | 500字内短句贴图 |
+| `ai-ggbond-sticker-writer` | 公众号贴图、连续多图、信息卡、贴图审查 | 短纯文本、有序图片、手机预览与原生交接包；500 字为个人编辑预算 |
+| `ai-ggbond-wechat-layout` | 公众号精排、版式审查、表格优化、手机预览 | 保留原文的 HTML、语义组件、设计检查与草稿交接包 |
 
 **写作铁律**（记忆）：
 - 多案例文章用递进论证链（现象→框架→机制→资产→权力→行动→冷思考→升华）
@@ -83,6 +84,10 @@ tavily-search（快速搜索）→ web-access（深度抓取）→ deep-research
 - 生成后PaddleOCR核对文字
 - 学术风高密度信息图，非概念化PPT
 - 图文必须严格对应
+
+公众号贴图的当前默认以 `ai-ggbond-sticker-writer` 为准：商业杂志编辑风，科技风/高密度按用户指定。文字、角色、比例与生成工具沿当前授权；历史网格或模型模板不覆盖已确定方向。
+
+**公众号交接**：原生贴图 `sticker-writer → newspic-bundle.json → post-to-wechat --type newspic`；长文章 `article-writer → wechat-layout → article.html → post-to-wechat`。贴图中的步骤、比较、时间线和数据可以复用为长文组件，图片与封面分别处理。
 
 ### 1.5 发布分发
 

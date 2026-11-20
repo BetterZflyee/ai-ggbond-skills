@@ -47,8 +47,6 @@ _env = load_all_env()
 DEFAULT_MODEL = _env.get("YUNWU_DEFAULT_MODEL", "gpt-image-2.6-flare")
 DEFAULT_BASE_URLS = [
     "https://api.openlux.ai",
-    "https://api.openlux.ai",
-    "https://api.openlux.ai",
 ]
 DEFAULT_IMAGE_ENDPOINT = "/v1/images/generations"
 DEFAULT_MAX_RETRIES = int(_env.get("YUNWU_MAX_RETRIES", "3") or 3)
@@ -92,8 +90,22 @@ class StickerStyle:
     best_for: List[str]
 
 
-# 6种信息图风格定义
+# 当前杂志默认与保留的可选信息图风格
 STICKER_STYLES = {
+    "editorial-magazine": StickerStyle(
+        name="editorial-magazine", name_cn="商业杂志编辑风",
+        description="米白纸感、黑字、单一墨绿强调，大留白与清楚的主次，避免霓虹和卡片堆叠",
+        color_palette={"background":"#F4F0E8","text":"#111111","accent":"#1F4D3A","secondary":"#6B6B6B"},
+        layout_features=["一个主判断或视觉锚点","支撑信息以细线和字阶组织","保留来源与准确数字","信息过多拆图，不缩成小字"],
+        density="medium", best_for=["人物与事件","商业解释","数据判断","连续多图"]
+    ),
+    "tech": StickerStyle(
+        name="tech", name_cn="科技网格",
+        description="深蓝背景、明亮文字、少量技术蓝点缀，内容优先的科技信息图",
+        color_palette={"background":"#0A1628","text":"#F2F6FC","accent":"#00D4FF","secondary":"#B7C8DF"},
+        layout_features=["按阅读顺序分组","保留准确数值和单位","标题与主体建立字阶","角色按主题需要加入"],
+        density="high", best_for=["技术解释","工具方法","连续多图"]
+    ),
     "high-density": StickerStyle(
         name="high-density",
         name_cn="高密度信息大图",
@@ -108,7 +120,7 @@ STICKER_STYLES = {
         layout_features=[
             "超精细技术网格线",
             "坐标化标签(R-20, G-02)",
-            "6-7个高密度模块",
+            "按实际内容分组，不补造模块",
             "大粗体标题 vs 超精细注释"
         ],
         density="high",
@@ -263,17 +275,16 @@ class ContentAnalyzer:
                     'emoji': ContentAnalyzer._extract_emoji(line)
                 }
             
-            # 提取要点
-            elif current_section and ('•' in line or '-' in line):
-                point = re.sub(r'^[•\-]\s*', '', line).replace('**', '').strip()
-                if 3 < len(point) < 80:
-                    current_section['points'].append(point)
-                    result['key_points'].append(point)
-            
-            # 提取标签
-            elif '#' in line and not line.startswith('# '):
+            # Only hashtag-only lines are metadata. Ordinary paragraphs carry content too.
+            elif re.fullmatch(r'(?:#[^#\s]+\s*)+', line):
                 hashtags = re.findall(r'#([^#\s]+)', line)
                 result['hashtags'].extend(hashtags)
+            else:
+                point = re.sub(r'^[•\-]\s+', '', line).replace('**', '').strip()
+                if point:
+                    result['key_points'].append(point)
+                    if current_section:
+                        current_section['points'].append(point)
             
             # 提取情感词
             emotion_words = ['😭', '🔥', '💡', '🤫', '⚠️', '💔', '😱', '🥳', '😤', '🤔']
@@ -286,7 +297,7 @@ class ContentAnalyzer:
         
         # 生成核心信息摘要
         if result['key_points']:
-            result['core_message'] = ' | '.join(result['key_points'][:5])
+            result['core_message'] = '\n'.join(result['key_points'])
         
         return result
     
@@ -305,6 +316,10 @@ class ContentAnalyzer:
         )
         emojis = emoji_pattern.findall(text)
         return emojis[0] if emojis else '💡'
+
+
+class ImageRequestRejected(RuntimeError):
+    """A non-retryable upstream rejection; do not change models or providers."""
 
 
 class StickerImageGenerator:
@@ -353,7 +368,7 @@ class StickerImageGenerator:
         elif os.environ.get("YUNWU_BASE_URLS"):
             raw_urls = [u.strip() for u in os.environ.get("YUNWU_BASE_URLS", "").split(",")]
         elif os.environ.get("YUNWU_BASE_URL"):
-            raw_urls = [os.environ.get("YUNWU_BASE_URL", ""), *DEFAULT_BASE_URLS]
+            raw_urls = [os.environ.get("YUNWU_BASE_URL", "")]
         else:
             raw_urls = DEFAULT_BASE_URLS[:]
 
@@ -466,14 +481,19 @@ class StickerImageGenerator:
                                 return ImageResult(url=image_url, model=model)
                             last_error = "响应中未找到图片数据"
                         else:
-                            last_error = f"HTTP {response.status_code}: {response.text[:300]}"
+                            last_error = f"HTTP {response.status_code}"
+                            if response.status_code in {400, 401, 403, 404, 422}:
+                                raise ImageRequestRejected(last_error)
                             if response.status_code == 429:
                                 logger.warning("⚠️ 当前链路 429 上游饱和，立即切换下一条链路: %s", base_url)
                                 break
                             logger.warning("请求失败: %s", last_error)
                             
+                    except ImageRequestRejected:
+                        raise
                     except Exception as e:
-                        last_error = str(e)
+                        last_error = str(e).replace(self.api_key, "[REDACTED]")
+                        last_error = re.sub(r"sk-[A-Za-z0-9_-]{16,}", "[REDACTED]", last_error)
                         logger.warning(f"请求失败: {last_error}")
                     
                     time.sleep(1)
@@ -490,7 +510,7 @@ class StickerImageGenerator:
         title: str,
         content: str,
         style: StickerStyle,
-        ratio: str = "1:1",
+        ratio: str = "16:9",
         model: str = DEFAULT_MODEL
     ) -> ImageResult:
         """生成贴图图片"""
@@ -498,10 +518,12 @@ class StickerImageGenerator:
         # 解析比例
         size_map = {
             "1:1": "1024x1024",
-            "16:9": "1792x1024",
-            "3:4": "1024x1365"
+            "16:9": os.environ.get("YUNWU_IMAGE_SIZE_16_9", "1600x900"),
+            "3:4": os.environ.get("YUNWU_IMAGE_SIZE_3_4", "1200x1600")
         }
-        size = size_map.get(ratio, "1024x1024")
+        if ratio not in size_map:
+            raise ValueError('不支持该比例，请明确提供对应尺寸')
+        size = size_map[ratio]
         
         # 构建风格特定的提示词
         prompt = self._build_style_prompt(title, content, style, ratio)
@@ -545,7 +567,7 @@ class StickerImageGenerator:
         base_prompt += f"""
 【信息密度要求】
 - 密度级别：{style.density}
-- {"6-7个高密度模块，留白≤5%" if style.density == "high" else "4-5个模块，留白10-15%" if style.density == "medium" else "3-4个模块，留白15-20%"}
+- 按给定内容分组，不为了满足模块数量编造或重复信息；文字拥挤时调整分组并保留必要留白
 
 【文字要求】（极其重要）
 - 所有文字必须使用简体中文
@@ -557,7 +579,7 @@ class StickerImageGenerator:
 - 严格按比例{ratio}设计
 - 必须使用【{style.name_cn}】风格
 - 所有文字必须是简体中文
-- 绝对禁止出现英文
+- 用户提供的英文品牌名、专有名词或双语内容按原文保留
 """
         
         return base_prompt
@@ -685,8 +707,8 @@ class StickerImageGenerator:
 
 def generate_sticker_images_from_markdown(
     markdown_path: str,
-    style_name: str = "vintage-journal",
-    ratio: str = "1:1",
+    style_name: str = "editorial-magazine",
+    ratio: str = "16:9",
     watermark: str = "",
     output_dir: Optional[str] = None,
     model: str = DEFAULT_MODEL,
@@ -721,13 +743,19 @@ def generate_sticker_images_from_markdown(
     analyzer = ContentAnalyzer()
     analysis = analyzer.extract_content(content)
     
+    if max_images is not None and (type(max_images) is not int or max_images<1):
+        raise ValueError('max_images 必须为正整数')
+    if not analysis['core_message'] and not analysis['subtitle'] and not analysis['sections']:
+        raise ValueError('没有可供配图的正文，不能只凭空标题生成内容图')
     logger.info(f"内容分析完成：")
     logger.info(f"  - 标题: {analysis.get('title', 'N/A')}")
     logger.info(f"  - 章节数: {len(analysis.get('sections', []))}")
     logger.info(f"  - 关键要点: {len(analysis.get('key_points', []))}")
     
     # 获取风格
-    style = STICKER_STYLES.get(style_name, STICKER_STYLES["vintage-journal"])
+    if style_name not in STICKER_STYLES:
+        raise ValueError('未知风格，不能静默切换到其他模板')
+    style = STICKER_STYLES[style_name]
     logger.info(f"  - 风格: {style.name_cn}")
     
     # 确定输出目录
@@ -745,13 +773,14 @@ def generate_sticker_images_from_markdown(
     
     # 生成章节配图
     sections = analysis.get('sections', [])
+    expected_count = min(len(sections), max_images) if sections and max_images is not None else len(sections) or 1
     if not sections:
         # 如果没有章节，生成一张整体图
         logger.info("\n生成整体配图...")
         try:
             result = generator.generate_sticker_image(
                 title=analysis.get('title', '贴图'),
-                content=analysis.get('core_message', ''),
+                content='\n'.join(v for v in [analysis.get('subtitle',''),analysis.get('core_message','')] if v),
                 style=style,
                 ratio=ratio,
                 model=model
@@ -803,8 +832,10 @@ def generate_sticker_images_from_markdown(
     
     success_count = len([v for v in results.values() if v])
     logger.info(f"\n{'='*60}")
-    logger.info(f"✅ 生成完成！成功: {success_count}/{len(results)}")
+    logger.info(f"生图结果: {success_count}/{expected_count}")
     logger.info(f"{'='*60}\n")
+    if success_count != expected_count:
+        raise RuntimeError(f'生图未全部完成：{success_count}/{expected_count}；已完成文件保留在 {output_dir}')
     
     return results
 
@@ -833,17 +864,17 @@ def main():
     )
     
     parser.add_argument('--markdown', '-m', help='Markdown文件路径')
-    parser.add_argument('--style', '-s', default='vintage-journal',
+    parser.add_argument('--style', '-s', default='editorial-magazine',
                        choices=list(STICKER_STYLES.keys()),
-                       help='信息图风格（默认: vintage-journal）')
+                       help='信息图风格（默认: editorial-magazine）')
     parser.add_argument('--ratio', '-r', default='16:9',
                        choices=['1:1', '16:9', '3:4'],
                        help='图片比例（默认: 16:9）')
     parser.add_argument('--watermark', '-w', default='',
                        help='水印文字')
     parser.add_argument('--output-dir', '-o', help='输出目录')
-    parser.add_argument('--model', default=os.environ.get('YUNWU_DEFAULT_MODEL', 'gpt-image-2.6-flare'),
-                       help='模型名称（默认: YUNWU_DEFAULT_MODEL 或 gpt-image-2.6-flare）')
+    parser.add_argument('--model', default=DEFAULT_MODEL,
+                       help='模型名称（默认: 已有配置或 gpt-image-2.6-flare）')
     parser.add_argument('--max-images', type=int, default=None,
                        help='最多生成图片数，避免章节过多时超量生成')
     parser.add_argument('--image-interval', type=int, default=DEFAULT_IMAGE_INTERVAL,

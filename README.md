@@ -32,7 +32,8 @@ Bring your own model — OpenAI, DeepSeek, OpenRouter (200+ models), Nous Portal
 |:---|:---|:---|
 | `ai-ggbond-article-writer` | 📝 Creative | Full pipeline: topic → outline → draft → typesetting → images → publish to WeChat |
 | `ai-ggbond-post-to-wechat` | 🚀 Publishing | One-click push to WeChat Official Account drafts. API + Browser CDP modes |
-| `ai-ggbond-sticker-writer` | 🎨 Creative | Convert content to social-ready image cards (Xiaohongshu-style stickers) |
+| `ai-ggbond-sticker-writer` | 🎨 Creative | v3: researched image-card series, editorial magazine styling, ordered native WeChat bundles and article-card reuse |
+| `ai-ggbond-wechat-layout` | 📝 Creative | v2.1: content-preserving WeChat typesetting, semantic components, mobile previews and publishing handoff |
 | `ai-ggbond-poster-portrait` | 🎨 Creative | GPT Image 2 portrait poster generation — cinematic, emotional, photography-style female portraits with safety-compliant prompts |
 | `ai-ggbond-worldcup-kv-poster` | 🎨 Creative | World Cup country concept KV posters — treat countries as visual brands with high commercial sports aesthetics |
 | `ai-ggbond-skill-matrix` | 🧭 Meta | 181-skill routing table across 7 scenarios — trigger words, skill chains, full-pipeline orchestration |
@@ -47,6 +48,8 @@ Bring your own model — OpenAI, DeepSeek, OpenRouter (200+ models), Nous Portal
 | `ai-ggbond-policy-decoder` | 🔍 Research | Turn any city/domain policy into one specific person's 3/5/10-year trajectory. Two modes: deep policy card (research) + deadline board sorted by ¥/hour (execution) |
 
 > All skills support **persona-adaptive output** (v1.0 milestone) — they automatically read your profile from Hermes Memory and tailor content to your unique voice, instead of producing generic AI-sounding text.
+
+The [WeChat content workflow](docs/wechat-content-workflow.md) connects writing, native image posts, long-form layout and long images. Native posts use plain text plus ordered images; articles use the generated HTML. Offline checks and platform verification are recorded separately.
 
 ---
 
@@ -615,6 +618,7 @@ hermes skills list | grep publish-to-x
 
 | Date | Milestone |
 |:---|:---|
+| 2026-11-20 | `ai-ggbond-sticker-writer` v3 + new `ai-ggbond-wechat-layout` v2.1: editorial magazine default, image review and ordering, semantic article reuse, mobile previews, native `newspic` publishing adapter and backed-up local installation. Local tests pass; real image generation and WeChat account verification remain separate. |
 | 2026-11-16 | 📈 `ai-ggbond-x-followings-feed` v1.9 — **spread-index gate**: X heat + Chinese hot lists + Wikipedia + HN → 0–100; default **80**, only S-tier topics enter the publishing pool; paid upgrades (NewsWhip/BuzzSumo) documented |
 | 2026-11-14 | 🔥 `ai-ggbond-x-followings-feed` v1.8 — **heat-first** selection (engagement + account baseline), **dual-source** fetch (For You + Following), new 🌋 site-wide trending section, no cross-day dedupe |
 | 2026-11-14 | 🔄 **Full sync of all 16 skills** — article-writer v2.4, image-gen v1.1 (hand-drawn notes / cognitive-impact layouts), post-to-wechat v2.1 (pre-flight token gate / in-place cover swap), sticker-writer v2.5.1, youtube-script v1.1.1 (logged-in cookie recovery), x-followings-feed v1.7.4 (+`X_BEARER_TOKEN` env), long-image-generator v1.1 (infographic quality gates); 37 new battle-tested references, all credentials moved to env vars |

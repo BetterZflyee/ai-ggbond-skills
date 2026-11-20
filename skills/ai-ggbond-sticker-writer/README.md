@@ -1,77 +1,12 @@
-# ai-ggbond-sticker-writer
+# 公众号贴图与信息卡 v3
 
-将输入内容转换为微信贴图/小红书风格图文的完整技能，覆盖：
+入口为 [SKILL.md](SKILL.md)。保留短文案、研究、连续多图、角色与中文核对能力，连接原生公众号贴图、长文信息卡和完整长图。
 
-- 内容整理与去 AI 味改写
-- 标题生成与 Markdown 排版
-- 信息图风格选择与提示词生成
-- 图片批量生成与水印处理
+- [能力与场景](references/capabilities-and-scenes.md)
+- [计划与交付格式](references/bundle-schema.md)
+- [发布交接](references/platform-handoff.md)
+- [本地维护与多环境同步](references/local-maintenance.md)
 
-## 目录结构
+`scripts/sticker_pack.py` 离线整理真实素材、逐页提示词与手机预览；不执行生图或发布。`assets/demo/plan.json` 是三图计划，尚未配图，不能当作成图交付。
 
-```text
-ai-ggbond-sticker-writer/
-├── SKILL.md
-├── assets/
-│   └── 风格信息图检索.md
-├── references/
-│   ├── workflow.md
-│   ├── styles.md
-│   └── troubleshooting.md
-├── scripts/
-│   ├── sticker_manager.py
-│   ├── generate_sticker_images_v2.py
-│   └── generate_images.py
-├── .env.example
-└── evolution.json
-```
-
-## 环境准备
-
-1. 复制配置模板：
-
-```bash
-cp .env.example .env
-```
-
-2. 安装依赖：
-
-```bash
-pip install requests Pillow
-```
-
-3. 配置云雾环境变量：
-
-```env
-YUNWU_API_KEY=your-yunwu-api-key
-YUNWU_BASE_URL=https://api.openlux.ai
-YUNWU_DEFAULT_MODEL=gpt-image-2
-```
-
-## 常用命令
-
-```bash
-# 列出风格
-python scripts/generate_sticker_images_v2.py --list-styles
-
-# 从 Markdown 生成配图（默认 16:9）
-python scripts/generate_sticker_images_v2.py --markdown "demo.md" --style "retro-pop"
-
-# 指定比例与输出目录
-python scripts/generate_sticker_images_v2.py --markdown "demo.md" --ratio "1:1" --output-dir "./images"
-
-# 创建标准贴图目录与文案文件
-python scripts/sticker_manager.py --title "示例标题" --content "示例内容"
-```
-
-## 配置约定
-
-- 默认输出目录：`./wechat_stickers/`
-- 可通过 `WECHAT_STICKER_OUTPUT_DIR` 或 `--output-dir` 覆盖
-- `YUNWU_DEFAULT_MODEL` 可设置默认生图模型（默认 `gpt-image-2`）
-
-## 参考文档
-
-- 工作流说明：`references/workflow.md`
-- 风格决策：`references/styles.md`
-- 故障排查：`references/troubleshooting.md`
+旧生图兼容脚本保留给已配置环境；当前环境与用户指定模型优先。历史参考不代表现行模型能力、接口状态或平台限制。

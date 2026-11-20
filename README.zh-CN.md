@@ -32,7 +32,8 @@
 |:---|:---|:---|
 | `ai-ggbond-article-writer` | 📝 创作 | 公众号长文全流水线：选题→大纲→初稿→排版→配图→发布 |
 | `ai-ggbond-post-to-wechat` | 🚀 发布 | 一键推送微信公众号草稿箱，API + Browser CDP 双模式 |
-| `ai-ggbond-sticker-writer` | 🎨 创作 | 内容转小红书风微信贴图，自动总结→排版→配图 |
+| `ai-ggbond-sticker-writer` | 🎨 创作 | v3：研究与短文案、杂志式连续多图、图片核对、原生贴图交接及长文信息卡复用 |
+| `ai-ggbond-wechat-layout` | 📝 创作 | v2.1：保留原文的公众号精排、语义组件、手机预览与发布交接 |
 | `ai-ggbond-poster-portrait` | 🎨 创作 | GPT Image 2 女性肖像海报生成——摄影感、电影感、情绪感，安全审核绕过 |
 | `ai-ggbond-worldcup-kv-poster` | 🎨 创作 | 世界杯国家概念 KV 海报——把国家当品牌，高级商业体育海报质感 |
 | `ai-ggbond-skill-matrix` | 🧭 元技能 | 181 个 Skill 元路由表，7 大场景×22 分类，触发词映射+链式工作流编排 |
@@ -47,6 +48,8 @@
 | `ai-ggbond-policy-decoder` | 🔍 研究 | 把任一城市/领域的政策，翻译成一个具体的人 3/5/10 年的现金流、资产、流动性与选择权。双模式：单政策深挖卡片（研究）+ 按元/小时排序的窗口清单（执行）
 
 > 所有技能均支持 **"千人千面"用户适配**（v1.0 里程碑）——自动读取 Hermes Memory 中的用户画像，输出贴合你个人风格的内容，而不是千篇一律的 AI 味。
+
+[公众号内容工作流](docs/wechat-content-workflow.md) 已连接写作、原生贴图、长文精排和长图：原生贴图使用纯文本与有序图片，长文使用生成的 HTML。本地检查与微信平台验收分别记录。
 
 ---
 
@@ -577,6 +580,7 @@ hermes skills list | grep publish-to-x
 
 | 日期 | 里程碑 |
 |:---|:---|
+| 2026-11-20 | `ai-ggbond-sticker-writer` v3 + 新增 `ai-ggbond-wechat-layout` v2.1：杂志默认、图片核对与页序、语义组件复用、手机预览、原生 `newspic` 发布适配和备份安装。本地测试通过；实际生图、微信账号与真机验收单独记录。 |
 | 2026-11-16 | 📈 `ai-ggbond-x-followings-feed` v1.9 — 新增**传播指数门槛**：X 热度 + 中文热榜 + Wikipedia + HN 合成 0–100；默认 **80**，只有 S 级选题进入发布池；付费增强（NewsWhip/BuzzSumo）写入 references |
 | 2026-11-14 | 🔥 `ai-ggbond-x-followings-feed` v1.8 — 选题标准改为**热度优先**（互动量 + 账号基线加权）、For You + 关注流**双源抓取**、新增「🌋 全站热榜」栏目、明确不做跨天去重 |
 | 2026-11-14 | 🔄 **全量同步 16 个技能** — article-writer v2.4、image-gen v1.1（手绘视觉笔记/认知冲击版式）、post-to-wechat v2.1（推送硬门禁/封面原地替换）、sticker-writer v2.5.1、youtube-script v1.1.1（登录态 Cookie 恢复）、x-followings-feed v1.7.4（+`X_BEARER_TOKEN` 环境变量）、long-image-generator v1.1（信息图质量门禁）；新增 37 篇实战 references，全仓库凭据改为环境变量注入 |

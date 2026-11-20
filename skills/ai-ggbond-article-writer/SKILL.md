@@ -6,6 +6,26 @@ allowed-tools: WebSearch, WebFetch, Read, Write, Edit, Bash
 license: MIT
 ---
 
+<!-- BEGIN AI-GGBOND-STICKER-INTEGRATION -->
+## 公众号贴图与信息卡衔接
+
+以下相对路径按本文件所在目录解析。
+
+涉及短贴图、连续多图、证据卡或长文插图复用时，读取 `../ai-ggbond-sticker-writer/SKILL.md`；长文精排读取 `../ai-ggbond-wechat-layout/SKILL.md`。当前用户要求及上述维护模块优先于后文历史模板。
+
+复用本技能的选题研究、真实图片、人物叙事、去 AI 味、数据口径与个人品牌边界。原生贴图另写短纯文本，长文保留完整正文；同一来源可复用到步骤、比较、时间线、数据和图片。短贴图的 500 字是个人编辑预算，不套用于长文。已有标题、风格与生图授权直接沿用；图片实际生成、中文核对和来源检查完成后再交接，封面不自动重复到长文正文。
+<!-- END AI-GGBOND-STICKER-INTEGRATION -->
+
+
+<!-- BEGIN AI-GGBOND-WECHAT-LAYOUT -->
+## 公众号精细排版模块
+
+涉及公众号精排、版式审查、图文组件、表格优化或手机预览时，先读取 `../ai-ggbond-wechat-layout/SKILL.md`。该模块沿用个人版式规则，生成可核查的正文、预览和草稿交接包。用户当前要求及稿件品牌规范优先。
+
+在成稿后调用排版模块，保留原文、数据和引用。该模块的个人风格配置用于替代后文旧版排版模板的默认值；写作、素材选择和事实核查仍遵从本技能。不要在排版阶段再次改写或缩短文章。
+<!-- END AI-GGBOND-WECHAT-LAYOUT -->
+
+
 # AI朱朱侠文章写作技能
 
 ## 品牌命名铁律

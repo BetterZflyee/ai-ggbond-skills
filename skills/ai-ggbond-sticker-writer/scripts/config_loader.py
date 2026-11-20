@@ -239,6 +239,7 @@ YUNWU_DEFAULT_MODEL=gpt-image-2.6-flare
 
     with open(env_file, 'w', encoding='utf-8') as f:
         f.write(default_content)
+    env_file.chmod(0o600)
 
     return env_file
 
@@ -312,7 +313,8 @@ def interactive_setup() -> None:
     print(f"\n📝 创建{level}级配置...")
 
     # 获取 API Key
-    api_key = input("\n请输入云雾 API Key (直接回车跳过): ").strip()
+    from getpass import getpass
+    api_key = getpass("\n请输入云雾 API Key (输入不回显，直接回车跳过): ").strip()
 
     # 创建配置文件
     env_file = create_default_env(level, api_key if api_key else None)

@@ -1,0 +1,452 @@
+[
+  {
+    "id": "wechat-avatar-profile",
+    "name": "头像跳转",
+    "use": "原生公众号名片与可见头像结合",
+    "upstream_validation_note": "参数化与缺项测试，另附用户提供的手机微信完整跳转实录",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-avatar-profile/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-envelope",
+    "name": "拆信与收信",
+    "use": "打开封口、抽出信纸、收回",
+    "upstream_validation_note": "独立预览与合并总页320/375px交互通过，秀米保存待测",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-envelope/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-flip-card",
+    "name": "双面翻牌",
+    "use": "压缩翻面，阅读背面后翻回",
+    "upstream_validation_note": "独立预览与合并总页320/375px交互通过，秀米保存待测",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-flip-card/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-parallax",
+    "name": "多层视差",
+    "use": "按钮驱动远近景不同速度位移",
+    "upstream_validation_note": "独立预览与合并总页320/375px交互通过，秀米保存待测",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-parallax/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-vinyl",
+    "name": "唱片启停",
+    "use": "唱片旋转的视觉启停",
+    "upstream_validation_note": "独立预览与合并总页320/375px交互通过，秀米保存待测",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-vinyl/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-pull-tab",
+    "name": "抽拉标签",
+    "use": "点按横向抽出信息条，再收回",
+    "upstream_validation_note": "独立预览与合并总页320/375px交互通过，秀米保存待测",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-pull-tab/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-timeline",
+    "name": "动态时间线",
+    "use": "时间线与阶段信息依次出现",
+    "upstream_validation_note": "独立预览与合并总页320/375px交互通过，秀米保存待测",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-timeline/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-open-window",
+    "name": "双扇开窗",
+    "use": "双侧打开与合上，反复查看",
+    "upstream_validation_note": "本地与秀米重开阅读页320/375px，两轮开合通过",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-open-window/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-wipe-compare",
+    "name": "擦拭对比",
+    "use": "按钮控制正向和反向擦拭",
+    "upstream_validation_note": "本地与秀米重开阅读页320/375px，正反擦拭通过",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-wipe-compare/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-zoom-detail",
+    "name": "镜头放大",
+    "use": "同图放大指定区域，再返回",
+    "upstream_validation_note": "本地与秀米重开阅读页320/375px，放大与返回通过",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-zoom-detail/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-click-reveal",
+    "name": "点击揭秘",
+    "use": "固定画面内点击显示短内容",
+    "upstream_validation_note": "可生成片段与预览，真实点击和320/375px窄屏检查通过",
+    "local_implementation": "vendored_generator",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-click-reveal/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-blinds",
+    "name": "百叶窗",
+    "use": "多条窗叶错峰展开与合上",
+    "upstream_validation_note": "独立预览与合并总页320/375px交互通过，秀米保存待测",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-blinds/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-spotlight",
+    "name": "探照灯",
+    "use": "按钮选择局部光圈与全景",
+    "upstream_validation_note": "光圈与文字已复核，合并总页320/375px切换通过",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-spotlight/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-accordion-panels",
+    "name": "手风琴面板",
+    "use": "点击面板展开，其余收窄",
+    "upstream_validation_note": "独立预览与合并总页320/375px交互通过，秀米保存待测",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-accordion-panels/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-puzzle-assemble",
+    "name": "拼图拼合",
+    "use": "点按播放碎片拼合展示",
+    "upstream_validation_note": "独立预览与合并总页320/375px交互通过，秀米保存待测",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-puzzle-assemble/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-confetti",
+    "name": "点按礼花",
+    "use": "粒子散开、祝福亮起、重播",
+    "upstream_validation_note": "独立预览与合并总页320/375px交互通过，秀米保存待测",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-confetti/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-hotspots",
+    "name": "多热区点击与返回",
+    "use": "点开不同注释，再返回总图",
+    "upstream_validation_note": "生成器、双实例、窄屏点击及秀米保存重开后交互通过",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-hotspots/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-switch",
+    "name": "点击旋转切换",
+    "use": "短卡片循环切换",
+    "upstream_validation_note": "生成器、两轮循环、窄屏及秀米保存重开后交互通过",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-switch/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-layer-peel",
+    "name": "点击逐层掉落",
+    "use": "按顺序揭晓，最后一张保留",
+    "upstream_validation_note": "生成器、末页停留、窄屏及秀米保存重开后交互通过",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-layer-peel/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-press-reveal",
+    "name": "长按显影",
+    "use": "按住显影，松开复原",
+    "upstream_validation_note": "本地与秀米重开阅读页320/375px，按住和松开通过",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-press-reveal/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-hold-cards",
+    "name": "长按轮播定格",
+    "use": "按住轮播，松手停留",
+    "upstream_validation_note": "本地与秀米重开阅读页320/375px，轮播与定格通过",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-hold-cards/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-quiz",
+    "name": "单题答题",
+    "use": "选择答案，显示反馈与重选",
+    "upstream_validation_note": "本地与秀米重开阅读页320/375px，所有选项与重选通过",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-quiz/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-story-branches",
+    "name": "分支故事",
+    "use": "连续选择与不同结局",
+    "upstream_validation_note": "本地与秀米重开阅读页320/375px，四条路径与重开通过",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-story-branches/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-motion-path",
+    "name": "轨迹运动",
+    "use": "图形沿指定路线运动，可重播",
+    "upstream_validation_note": "本地与秀米重开阅读页320/375px，运动终点与重播通过",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-motion-path/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-typewriter",
+    "name": "逐字打印",
+    "use": "短文逐字显现，可重播",
+    "upstream_validation_note": "本地与秀米重开阅读页320/375px，全部字簇与重播通过",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-typewriter/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-data-chart",
+    "name": "数据图表",
+    "use": "用户数值驱动柱形动画，保留完整值",
+    "upstream_validation_note": "本地与秀米重开阅读页320/375px，柱高与重播通过",
+    "local_implementation": "vendored_generator",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-data-chart/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-drawline",
+    "name": "SVG 描边",
+    "use": "小型分隔线逐渐画出",
+    "upstream_validation_note": "可生成片段与预览，Ego lite 浏览器播放通过",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-drawline/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-xiumi-gallery",
+    "name": "秀米图集",
+    "use": "横滑HTML、点击SVG图集与原生操作",
+    "upstream_validation_note": "新生成器通过320/375px鼠标检查，新输出的秀米保存待测",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-xiumi-gallery/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-layout-blocks",
+    "name": "正文排版",
+    "use": "标题、步骤、引用、表格、图片图注",
+    "upstream_validation_note": "可生成片段与预览，文字保留、列数及320/375px预览通过",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-layout-blocks/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-xiumi-svg-layout",
+    "name": "秀米 SVG 布局",
+    "use": "展开、开窗、掉落、长按与局部热区",
+    "upstream_validation_note": "官方做法与素材清单，各高级效果待逐项实测",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-xiumi-svg-layout/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-tabs",
+    "name": "标签页联动图文",
+    "use": "切换标签，在同一画面中查看对应图文。",
+    "upstream_validation_note": "浏览器验证通过，平台范围见对应Skill",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-tabs/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-stepper",
+    "name": "分步操作向导",
+    "use": "依次完成操作步骤，也可返回前一步。",
+    "upstream_validation_note": "浏览器验证通过，平台范围见对应Skill",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-stepper/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-score-quiz",
+    "name": "多题计分测验",
+    "use": "逐题选择，答完后查看本次得分与反馈。",
+    "upstream_validation_note": "浏览器验证通过，平台范围见对应Skill",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-score-quiz/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-multi-select",
+    "name": "多选统一提交",
+    "use": "选择多个选项，再统一提交并查看反馈。",
+    "upstream_validation_note": "浏览器验证通过，平台范围见对应Skill",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-multi-select/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-checklist",
+    "name": "勾选清单与进度",
+    "use": "逐项勾选事项，查看完成进度。",
+    "upstream_validation_note": "浏览器验证通过，平台范围见对应Skill",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-checklist/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-match-pairs",
+    "name": "点击配对连线",
+    "use": "按两列内容点击配对，查看连线结果。",
+    "upstream_validation_note": "浏览器验证通过，平台范围见对应Skill",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-match-pairs/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-progress-ring",
+    "name": "环形目标进度",
+    "use": "用真实目标与完成值展示环形进度。",
+    "upstream_validation_note": "浏览器验证通过，平台范围见对应Skill",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-progress-ring/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-waterfall",
+    "name": "增减瀑布图",
+    "use": "按顺序查看各项增减与最终合计。",
+    "upstream_validation_note": "浏览器验证通过，平台范围见对应Skill",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-waterfall/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-funnel",
+    "name": "漏斗转化图",
+    "use": "按阶段展示真实数量与转化关系。",
+    "upstream_validation_note": "浏览器验证通过，平台范围见对应Skill",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-funnel/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-radar",
+    "name": "雷达能力对比",
+    "use": "在统一量程下比较多个维度的数据。",
+    "upstream_validation_note": "浏览器验证通过，平台范围见对应Skill",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-radar/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-swimlane",
+    "name": "多角色流程泳道",
+    "use": "按角色分栏，查看流程交接与当前步骤。",
+    "upstream_validation_note": "浏览器验证通过，平台范围见对应Skill",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-swimlane/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-danmaku",
+    "name": "文字弹幕墙",
+    "use": "播放短句弹幕，保留静态可读内容。",
+    "upstream_validation_note": "浏览器验证通过，平台范围见对应Skill",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-danmaku/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-book",
+    "name": "多页翻书",
+    "use": "按页翻看图文，再返回前页。",
+    "upstream_validation_note": "浏览器验证通过，平台范围见对应Skill",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-book/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-svg-word-order",
+    "name": "卡片排序题",
+    "use": "按顺序选择卡片，排完三项查看结果。",
+    "upstream_validation_note": "浏览器验证通过，平台范围见对应Skill",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-svg-word-order/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-layout-wide-table",
+    "name": "横向宽表",
+    "use": "在窄屏中横向查看完整表格。",
+    "upstream_validation_note": "原生HTML示例，发布按目标平台检查",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-layout-wide-table/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-layout-dialogue",
+    "name": "访谈对话气泡",
+    "use": "用原生文字呈现人物对话与问答。",
+    "upstream_validation_note": "原生HTML示例，发布按目标平台检查",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-layout-dialogue/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-layout-annotations",
+    "name": "图文边注",
+    "use": "把图片、注释与对应正文排在一起。",
+    "upstream_validation_note": "原生HTML示例，发布按目标平台检查",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-layout-annotations/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-layout-magazine",
+    "name": "杂志跨栏图文",
+    "use": "通过图文层级和跨栏组织长内容。",
+    "upstream_validation_note": "原生HTML示例，发布按目标平台检查",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-layout-magazine/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-xiumi-faq",
+    "name": "纵向FAQ展开",
+    "use": "逐项展开常见问题，保持纵向阅读。",
+    "upstream_validation_note": "原生HTML示例，发布按目标平台检查",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-xiumi-faq/SKILL.md",
+    "local_platform_validation": "not_tested"
+  },
+  {
+    "id": "wechat-xiumi-video-card",
+    "name": "视频封面卡片",
+    "use": "用封面与原生视频入口承接播放内容。",
+    "upstream_validation_note": "原生HTML示例，发布按目标平台检查",
+    "local_implementation": "reference_only",
+    "source": "https://github.com/frederick-kk/wechat-layout-copilot/blob/96fd55564b0e44e50530a0d0504083d59f3eaee9/skills/wechat-xiumi-video-card/SKILL.md",
+    "local_platform_validation": "not_tested"
+  }
+]
