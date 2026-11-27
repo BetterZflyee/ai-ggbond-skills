@@ -1,5 +1,7 @@
 interface:
   display_name: "agd｜交互动画 HTML 演示"
+  icon_small: "./assets/agd-html-presentation-icon.png"
+  icon_large: "./assets/agd-html-presentation-icon.png"
   short_description: "只给主题，自主完成场景衔接、镜头光影、极简交互与声音匹配的 HTML 演示"
   default_prompt: "请使用 $agd-html-presentation，以我给的主题自主完成场景因果连贯、镜头光影流畅、鼠标自由探索且声音随动作与转场匹配的独立 HTML，保持极简界面，验收后交付成品、试听与工程包。"
 policy:

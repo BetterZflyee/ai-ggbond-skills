@@ -2,7 +2,7 @@
 name: agd-html-presentation
 description: 只给主题，自主完成场景因果衔接、鼠标探索、镜头光影、动作声景与连续转场的电影感 HTML，生成素材与代码并验收交付。
 metadata:
-  version: "2.3.1"
+  version: "2.3.2"
 ---
 
 # agd｜交互动画 HTML 演示

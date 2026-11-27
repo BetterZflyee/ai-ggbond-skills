@@ -619,6 +619,7 @@ hermes skills list | grep publish-to-x
 
 | Date | Milestone |
 |:---|:---|
+| 2026-11-27 | `agd-html-presentation` 2.3.2: added an original cartoon camera-director icon and configured both skill icon entries; runtime unchanged. |
 | 2026-11-27 | Added `agd-html-presentation` 2.3.1: interactive audiovisual HTML, reusable procedural sound, 49 browser checks and 7 build-contract checks. |
 | 2026-11-20 | `ai-ggbond-sticker-writer` v3 + new `ai-ggbond-wechat-layout` v2.1: editorial magazine default, image review and ordering, semantic article reuse, mobile previews, native `newspic` publishing adapter and backed-up local installation. Local tests pass; real image generation and WeChat account verification remain separate. |
 | 2026-11-16 | 📈 `ai-ggbond-x-followings-feed` v1.9 — **spread-index gate**: X heat + Chinese hot lists + Wikipedia + HN → 0–100; default **80**, only S-tier topics enter the publishing pool; paid upgrades (NewsWhip/BuzzSumo) documented |

@@ -581,6 +581,7 @@ hermes skills list | grep publish-to-x
 
 | 日期 | 里程碑 |
 |:---|:---|
+| 2026-11-27 | `agd-html-presentation` 2.3.2：新增原创“小摄影机导演”卡通图标，配置技能大小图标入口，运行代码保持不变。 |
 | 2026-11-27 | 新增 `agd-html-presentation` 2.3.1：交互音画HTML、可复用程序声景，49项浏览器检查与7项构建契约检查通过。 |
 | 2026-11-20 | `ai-ggbond-sticker-writer` v3 + 新增 `ai-ggbond-wechat-layout` v2.1：杂志默认、图片核对与页序、语义组件复用、手机预览、原生 `newspic` 发布适配和备份安装。本地测试通过；实际生图、微信账号与真机验收单独记录。 |
 | 2026-11-16 | 📈 `ai-ggbond-x-followings-feed` v1.9 — 新增**传播指数门槛**：X 热度 + 中文热榜 + Wikipedia + HN 合成 0–100；默认 **80**，只有 S 级选题进入发布池；付费增强（NewsWhip/BuzzSumo）写入 references |

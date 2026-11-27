@@ -1,8 +1,10 @@
 # agd｜交互动画 HTML 演示
 
-**版本：2.3.1**。只给主题，自主完成场景因果衔接、镜头光影、极简交互和声音匹配，交付可离线打开的独立 HTML 与可编辑工程。
+<img src="assets/agd-html-presentation-icon.png" alt="可爱的小摄影机导演，投出可交互的音画场景" width="180">
 
-[技能指令](SKILL.md) · [制作与验收标准](references/production-and-acceptance.md) · [下载 2.3.1 技能包](https://github.com/BetterZflyee/ai-ggbond-skills/releases/tag/agd-html-presentation-v2.3.1)
+**版本：2.3.2**。只给主题，自主完成场景因果衔接、镜头光影、极简交互和声音匹配，交付可离线打开的独立 HTML 与可编辑工程。
+
+[技能指令](SKILL.md) · [制作与验收标准](references/production-and-acceptance.md) · [下载 2.3.2 技能包](https://github.com/BetterZflyee/ai-ggbond-skills/releases/tag/agd-html-presentation-v2.3.2)
 
 ## 默认标准
 
