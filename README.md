@@ -30,6 +30,7 @@ Bring your own model — OpenAI, DeepSeek, OpenRouter (200+ models), Nous Portal
 
 | Skill | Category | What It Does |
 |:---|:---|:---|
+| [`agd-html-presentation`](skills/agd-html-presentation) | 🎬 Interactive | Topic-only cinematic HTML: causal scenes, smooth cameras and lighting, direct interaction, state-driven sound and standalone delivery |
 | `ai-ggbond-article-writer` | 📝 Creative | Full pipeline: topic → outline → draft → typesetting → images → publish to WeChat |
 | `ai-ggbond-post-to-wechat` | 🚀 Publishing | One-click push to WeChat Official Account drafts. API + Browser CDP modes |
 | `ai-ggbond-sticker-writer` | 🎨 Creative | v3: researched image-card series, editorial magazine styling, ordered native WeChat bundles and article-card reuse |
@@ -618,6 +619,7 @@ hermes skills list | grep publish-to-x
 
 | Date | Milestone |
 |:---|:---|
+| 2026-11-27 | Added `agd-html-presentation` 2.3.1: interactive audiovisual HTML, reusable procedural sound, 49 browser checks and 7 build-contract checks. |
 | 2026-11-20 | `ai-ggbond-sticker-writer` v3 + new `ai-ggbond-wechat-layout` v2.1: editorial magazine default, image review and ordering, semantic article reuse, mobile previews, native `newspic` publishing adapter and backed-up local installation. Local tests pass; real image generation and WeChat account verification remain separate. |
 | 2026-11-16 | 📈 `ai-ggbond-x-followings-feed` v1.9 — **spread-index gate**: X heat + Chinese hot lists + Wikipedia + HN → 0–100; default **80**, only S-tier topics enter the publishing pool; paid upgrades (NewsWhip/BuzzSumo) documented |
 | 2026-11-14 | 🔥 `ai-ggbond-x-followings-feed` v1.8 — **heat-first** selection (engagement + account baseline), **dual-source** fetch (For You + Following), new 🌋 site-wide trending section, no cross-day dedupe |

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>__TITLE__</title>
+  <style>
+    :root{color-scheme:dark;font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:#101722;color:#f0f1ef}
+    *{box-sizing:border-box}body{margin:0;overflow:hidden}canvas{display:block;position:fixed;inset:0;width:100%;height:100%;touch-action:none;outline-offset:-4px}
+    #controls{position:fixed;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:5px;padding:6px;background:rgba(15,22,33,.86);border:1px solid #46505d;border-radius:10px;max-width:calc(100% - 20px);transition:opacity .2s}
+    #controls button,#overlay button{font:inherit;color:inherit;border:1px solid #596574;background:#192432;border-radius:6px;padding:7px 11px;cursor:pointer;white-space:nowrap}#controls button:focus-visible,#overlay button:focus-visible{outline:2px solid #f2b269;outline-offset:2px}
+    #controls button:disabled{opacity:.4;cursor:default}#controls span{display:grid;place-items:center;font-variant-numeric:tabular-nums;min-width:38px}#overlay[hidden]{display:none}
+    #overlay{position:fixed;inset:0;background:rgba(11,17,26,.96);overflow:auto;padding:clamp(20px,5vw,72px);font-size:clamp(16px,2.2vw,26px)}#overlay p{max-width:65ch;white-space:pre-line;line-height:1.7}#overlay h1{font-size:1.2em}#overlay nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:14px;margin-top:20px}#overlay nav button{white-space:normal;text-align:left;padding:20px}#overlay .close{float:right}
+    #mobile-text{display:none}#error{position:fixed;inset:0;display:grid;place-content:center;padding:24px;background:#101722;color:#ffbcab;white-space:pre-wrap}#error[hidden]{display:none}body.black canvas,body.black #mobile-text{visibility:hidden}body.black{background:#000}body.idle #controls{opacity:0;pointer-events:none}
+    @media(max-width:600px){canvas{height:56.25vw}#mobile-text{display:block;position:fixed;top:calc(56.25vw + 18px);bottom:86px;left:20px;right:20px;overflow:auto}#mobile-text h2{font-size:24px;line-height:1.4;margin:0 0 12px}#mobile-text p{font-size:17px;line-height:1.7;white-space:pre-line;color:#c3cad1;margin:0}#controls button{padding:10px 9px;min-height:44px}#controls .optional{display:none}#controls{bottom:8px}#controls span{min-width:28px}body.idle #controls{opacity:1;pointer-events:auto}}
+    @media(prefers-reduced-motion:reduce){#controls{transition:none}}
+  </style>
+</head>
+<body>
+  <canvas id="stage" tabindex="0" aria-label="__TITLE__，方向键或空格推进，N查看备注，O查看总览"></canvas>
+  <section id="mobile-text" aria-label="当前场景阅读内容"><h2></h2><p></p></section>
+  <div id="controls" aria-label="演示控制">
+    <button id="previous" aria-label="返回上一拍">←</button><span id="position" aria-live="polite">1</span><button id="next" aria-label="前进下一拍">→</button>
+    <button id="auto" class="optional" aria-pressed="false">自动</button><button id="notes">备注</button><button id="overview">总览</button><button id="full" class="optional">全屏</button>
+  </div>
+  <section id="overlay" hidden><button class="close">关闭</button><h1></h1><p></p><nav></nav></section>
+  <div id="error" role="alert" hidden></div>
+  <script type="module">
+__RUNTIME__
+__SCENES__
+    const canvas=document.getElementById('stage');
+    const overlay=document.getElementById('overlay');
+    const gesture=()=>{}; // 作品需要声音时，在这里解锁其音频系统。
+    try {
+      const deck=createDeck({canvas,scenes,onGesture:gesture});
+      window.__deck=deck;
+      const closeOverlay=()=>{overlay.hidden=true;deck.setAuto(false);canvas.focus({preventScroll:true});};
+      const current=()=>{const x=deck.info();return {info:x,definition:scenes.find(s=>s.id===x.scene)||scenes[0]};};
+      const showNotes=()=>{const {info,definition}=current();overlay.querySelector('h1').textContent=definition.title;overlay.querySelector('p').textContent=Array.isArray(definition.notes)?definition.notes[info.beat]||'本拍暂无讲者备注。':definition.notes||'';overlay.querySelector('nav').replaceChildren();overlay.hidden=false;deck.setAuto(false);overlay.querySelector('.close').focus();};
+      const showOverview=()=>{overlay.querySelector('h1').textContent='场景总览';overlay.querySelector('p').textContent='';const nav=overlay.querySelector('nav');nav.replaceChildren();scenes.forEach((s,i)=>{const b=document.createElement('button');b.textContent=`${i+1} · ${s.title}`;b.onclick=()=>{deck.jump(s.id,0);closeOverlay();};nav.append(b);});overlay.hidden=false;deck.setAuto(false);overlay.querySelector('.close').focus();};
+      document.getElementById('previous').onclick=()=>{deck.back();deck.play();canvas.focus({preventScroll:true});};
+      document.getElementById('next').onclick=()=>{deck.advance();deck.play();canvas.focus({preventScroll:true});};
+      document.getElementById('auto').onclick=()=>{deck.setAuto(!deck.auto);deck.play();canvas.focus({preventScroll:true});};
+      deck.on('auto',value=>document.getElementById('auto').setAttribute('aria-pressed',String(value)));
+      document.getElementById('notes').onclick=showNotes;
+      document.getElementById('overview').onclick=showOverview;
+      document.getElementById('full').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().catch(()=>{});};
+      overlay.querySelector('.close').onclick=closeOverlay;
+      document.addEventListener('keydown',e=>{if(e.target.closest?.('input,textarea,select,[contenteditable=true]'))return;const k=e.key.toLowerCase();if(k==='escape'){closeOverlay();return;}if(!overlay.hidden)return;if(k==='n')showNotes();if(k==='o')showOverview();if(k==='f')document.getElementById('full').click();if(k==='b'||k==='.')document.body.classList.toggle('black');});
+      // 备注/总览打开时阻止画布导航；交互字段保留自己的按键。
+      overlay.addEventListener('keydown',e=>{if(e.key!=='Escape')e.stopPropagation();});
+      let idle=0;
+      const wake=()=>{document.body.classList.remove('idle');clearTimeout(idle);idle=setTimeout(()=>document.body.classList.add('idle'),3500);};
+      document.addEventListener('pointermove',wake);document.addEventListener('keydown',wake);wake();
+      let last='';
+      const sync=()=>{const info=deck.info();const key=`${info.scene}-${info.beat}`;if(key!==last){last=key;document.getElementById('position').textContent=String(scenes.findIndex(s=>s.id===info.scene)+1);document.getElementById('previous').disabled=info.scene===scenes[0].id&&info.beat===0;const def=scenes.find(s=>s.id===info.scene);document.querySelector('#mobile-text h2').textContent=def.title;document.querySelector('#mobile-text p').textContent=Array.isArray(def.notes)?def.notes[info.beat]||'':def.notes||'';}requestAnimationFrame(sync);};sync();
+      window.ready=true;
+    } catch(error) { const box=document.getElementById('error');box.hidden=false;box.textContent=`演示载入失败\n${error.message}`;console.error(error); }
+  </script>
+</body>
+</html>

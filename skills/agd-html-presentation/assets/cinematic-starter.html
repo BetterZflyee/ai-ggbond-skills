@@ -1,0 +1,209 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#08111a"><title data-lab-title>光的回声 · 程序素材实验 V1.1</title><style>
+:root{color-scheme:dark;font-family:"PingFang SC",system-ui,sans-serif;background:#05090e;color:#e8e8df}*{box-sizing:border-box}body{margin:0;overflow:hidden}main{height:100dvh;display:flex;align-items:center;justify-content:center}canvas{width:min(100vw,177.7778dvh);height:min(56.25vw,100dvh);display:block;cursor:pointer}header{position:fixed;top:25px;left:30px;right:30px;display:flex;justify-content:space-between;gap:20px;font-size:12px;letter-spacing:.16em;color:#f4eee0b5;pointer-events:none}#title{font-size:13px;font-weight:400}#status{position:fixed;left:5%;bottom:24%;max-width:80%;color:#e3dbca;font-size:14px;line-height:1.7}#start{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:82px;height:82px;border-radius:50%;border:1px solid #ffffff78;background:#10192266;color:#eee5d6;font-size:26px;backdrop-filter:blur(8px);cursor:pointer}#start[hidden]{display:none}.panel{position:fixed;left:30px;right:30px;bottom:23px;display:flex;gap:15px;align-items:center;transition:opacity .8s;background:#07101a33;padding:10px 12px;border-radius:8px;backdrop-filter:blur(10px)}.panel button{font:inherit;font-size:12px;color:#ebe5da;background:none;border:1px solid #ffffff35;border-radius:4px;min-height:34px;min-width:65px;cursor:pointer}.panel span{font-size:11px;letter-spacing:.08em;color:#e4ded3b0;white-space:nowrap}input{flex:1;min-width:30px;accent-color:#d1b48b;height:26px;cursor:ew-resize}.playing .panel{opacity:.24}.panel:hover,.panel:focus-within{opacity:1}#phase{min-width:160px}button:focus-visible,input:focus-visible{outline:2px solid #d1b48b;outline-offset:3px}@media(max-width:650px){header{left:16px;right:16px;top:16px;font-size:10px}.panel{left:8px;right:8px;bottom:8px;gap:7px;padding:8px}.panel button{min-width:54px;min-height:40px}#phase,#full,#view{display:none}.panel span{font-size:10px}#status{bottom:28%;font-size:12px}}@media(prefers-reduced-motion:reduce){.panel{transition:none}}
+</style></head><body><main><canvas aria-label="程序生成的海面、日出与矿物地形，空格播放或暂停"></canvas></main><header><span id="title" data-lab-title>光的回声 / PROCEDURAL MATERIAL STUDY</span><span>WEBGL2 · GLSL · SYNTHESIS</span></header><p id="status">点击播放，开启 32 秒光影与声音实验。<br>空格暂停 · 拖动时间条定位 · M 静音</p><button id="start" aria-label="开始光影实验">▶</button><div class="panel"><button id="play">▶ 播放</button><button id="mute" aria-pressed="false">声音 开</button><button id="view">视图·合成</button><input id="scrub" type="range" min="0" max="32" step=".01" value="0" aria-label="实验时间"><span id="stamp">00.0 / 32.0</span><span id="phase">暗海 / 太阳升起</span><button id="full">全屏</button></div><script id="world-shader" type="x-shader/x-fragment">#version 300 es
+precision highp float;
+out vec4 outColor;
+uniform vec2 uResolution;
+uniform float uTime;
+uniform int uWorld;
+uniform int uDebug;
+#define PI 3.14159265359
+float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453123);}
+float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+1.),f.x),f.y);}
+float fbm(vec2 p){float v=0.,a=.5;mat2 m=mat2(.8,-.6,.6,.8);for(int i=0;i<4;i++){v+=a*noise(p);p=m*p*2.03+13.7;a*=.5;}return v;}
+float hSea(vec2 p){return .18*sin(p.x*.63+uTime*.55)+.14*sin(p.y*.48-uTime*.66)+.09*sin(p.x*1.12+p.y*.91+uTime*.7)+.035*sin(p.x*2.3-p.y*1.9+uTime*1.25);}
+float hStone(vec2 p){float f=fbm(p*.16),ridge=1.-abs(f*2.-1.);return .3+3.6*pow(ridge,3.)+1.5*fbm(p*.37+4.)+.3*sin(p.x*.48+p.y*.13);}
+float heightAt(vec2 p){return uWorld==0?hSea(p):hStone(p);}
+vec3 sunDir(){float a=mix(-.055,.48,smoothstep(0.,31.,uTime));return normalize(vec3(-.37,a,-.9));}
+vec3 sky(vec3 rd, bool reflected){
+ vec3 sun=sunDir();float day=smoothstep(-.08,.28,sun.y),h=max(0.,rd.y);
+ vec3 zen=mix(vec3(.014,.025,.065),vec3(.08,.26,.43),day);
+ vec3 horizon=mix(vec3(.095,.045,.060),vec3(.84,.61,.39),day);
+ horizon=mix(horizon,vec3(.36,.55,.64),smoothstep(9.,19.,uTime)*.82);
+ if(uWorld==1){zen=mix(zen,vec3(.27,.38,.41),.37);horizon=mix(horizon,vec3(.92,.68,.42),.3);}
+ vec3 col=mix(horizon,zen,pow(h,.4));
+ float d=max(dot(rd,sun),0.);vec3 hot=vec3(1.,.58,.28);
+ col+=hot*pow(d,7.)*.32+hot*pow(d,110.)*.75;
+ col+=vec3(1.,.88,.59)*smoothstep(.99942,.9997,d)*4.8*smoothstep(-.015,.025,sun.y);
+ if(rd.y>0.){
+   vec2 cp=rd.xz/(rd.y+.22)*1.45+vec2(uTime*.018,0.);
+   float cloud=smoothstep(.49,.75,fbm(cp));
+   cloud*=smoothstep(.015,.15,rd.y)*(1.-smoothstep(.6,.95,rd.y));
+   col=mix(col,mix(vec3(.25,.23,.27),vec3(.92,.76,.56),day),cloud*.4);
+   float star=pow(hash(floor(rd.xz/(rd.y+.15)*550.)),170.);
+   col+=star*.3*(1.-day);
+ }
+ return col;
+}
+vec3 normalAt(vec2 p,float distance){float e=max(.035,distance*.001);vec3 n=normalize(vec3(heightAt(p-vec2(e,0))-heightAt(p+vec2(e,0)),2.*e,heightAt(p-vec2(0,e))-heightAt(p+vec2(0,e))));if(uWorld==0){n.x+=.06*sin(p.x*12.+uTime*1.6)*sin(p.y*8.-uTime);n.z+=.045*cos(p.x*9.-p.y*13.+uTime*1.2);n=normalize(n);}return n;}
+void main(){
+ vec2 uv=(gl_FragCoord.xy-.5*uResolution)/uResolution.y;
+ float t=uTime;float rise=smoothstep(12.,32.,t);
+ vec3 ro=vec3(sin(t*.055)*2.2,mix(3.3,7.9,rise),12.-t*.58);
+ vec3 target=ro+vec3(-.13,-mix(.19,.37,rise),-1.);
+ vec3 ww=normalize(target-ro),uu=normalize(cross(ww,vec3(0,1,0))),vv=cross(uu,ww);
+ float roll=.012*sin(t*.17);uv=mat2(cos(roll),-sin(roll),sin(roll),cos(roll))*uv;
+ vec3 rd=normalize(ww*1.33+uu*uv.x+vv*uv.y);
+ vec3 col=sky(rd,false);float dist=.3,previous=.3;bool hit=false;
+ if(uWorld==0&&rd.y<-.001)dist=max(.3,(.46-ro.y)/rd.y);
+ for(int i=0;i<58;i++){
+   if(dist>130.)break;
+   vec3 p=ro+rd*dist;float h=p.y-heightAt(p.xz);
+   if(h<.014){hit=true;break;}
+   previous=dist;dist+=clamp(h*.62,.07,3.4);
+   if(dist>130.)break;
+ }
+ if(hit){
+   // Binary refine the crossing for a stable silhouette at shallow ray angles.
+   float hi=dist,lo=previous;for(int i=0;i<4;i++){float m=(hi+lo)*.5;vec3 p=ro+rd*m;if(p.y<heightAt(p.xz))hi=m;else lo=m;}dist=(hi+lo)*.5;
+   vec3 p=ro+rd*dist,n=normalAt(p.xz,dist),sun=sunDir();
+   float day=smoothstep(-.08,.28,sun.y),nd=max(dot(n,sun),0.);
+   vec3 reflection=reflect(rd,n);float spec=pow(max(dot(reflection,sun),0.),uWorld==0?260.:38.);
+   if(uWorld==0){
+     float fr=.045+.955*pow(1.-max(dot(-rd,n),0.),5.);
+     vec3 under=mix(vec3(.006,.025,.043),vec3(.006,.105,.14),day);
+     col=mix(under*(.55+nd*.65),sky(reflection,true),clamp(fr+.10,0.,1.));
+     col+=vec3(1.,.67,.3)*spec*(3.+day*5.);
+     float crest=smoothstep(.265,.37,hSea(p.xz))*smoothstep(.61,.85,noise(p.xz*12.));
+     col+=vec3(.35,.48,.44)*crest*.22;
+   }else{
+     float veins=sin(p.y*15.+noise(p.xz*.7)*5.);float sand=fbm(p.xz*2.1);
+     vec3 albedo=mix(vec3(.27,.13,.085),vec3(.66,.43,.23),sand);
+     albedo*=.86+.12*veins;
+     float slope=1.-max(n.y,0.);albedo=mix(albedo,vec3(.19,.16,.13),slope*.43);
+     col=albedo*(vec3(.24,.31,.35)*(.45+.55*n.y)+vec3(1.2,.84,.49)*nd*1.6);
+     col+=vec3(.85,.67,.42)*spec*.13;
+     float dust=pow(noise(p.xz*18.),14.);col+=dust*nd*.16;
+   }
+   if(uDebug==1){outColor=vec4(n*.5+.5,1.);return;}
+   if(uDebug==2){outColor=vec4(uWorld==0?vec3(.015,.15,.18):mix(vec3(.27,.13,.085),vec3(.66,.43,.23),fbm(p.xz*2.1)),1.);return;}
+   float fog=1.-exp(-dist*(uWorld==0?.027:.030));
+   vec3 haze=sky(normalize(vec3(rd.x,.025,rd.z)),false);
+   if(uWorld==0)haze*=mix(vec3(1.),vec3(.52,.78,.95),smoothstep(7.,18.,uTime))*.78;
+   col=mix(col,haze,fog);
+   if(uWorld==0)col=mix(col,sky(rd,false),smoothstep(45.,105.,dist));
+ }
+ if(uDebug==1&&!hit)col=vec3(.08);
+ col*=mix(.38,1.,smoothstep(0.,11.,uTime));
+ outColor=vec4(max(col,vec3(0)),1.);
+}
+</script><script id="composite-shader" type="x-shader/x-fragment">#version 300 es
+precision highp float;
+out vec4 outColor;
+uniform sampler2D uA;
+uniform sampler2D uB;
+uniform vec2 uResolution;
+uniform float uTime;
+uniform float uMix;
+uniform int uDebug;
+float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453123);}
+float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+1.),f.x),f.y);}
+float fbm(vec2 p){float a=.5,v=0.;for(int i=0;i<4;i++){v+=a*noise(p);p=p*2.01+7.7;a*=.5;}return v;}
+float front(vec2 uv){return uv.x*.72+uv.y*.35+fbm(uv*7.+vec2(0.,uTime*.1))*.22+.045*sin(uv.y*25.+uTime*.7);}
+vec3 aces(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.);}
+void main(){
+ vec2 uv=gl_FragCoord.xy/uResolution;
+ vec3 color;
+ if(uMix<.001)color=texture(uA,uv).rgb;
+ else if(uMix>.999)color=texture(uB,uv).rgb;
+ else {
+   // A moving liquid meniscus. The front is a domain-warped scalar field;
+   // its gradient bends both complete environment textures before compositing.
+   float f=front(uv),threshold=mix(-.3,1.6,uMix),d=f-threshold;
+   vec2 e=vec2(.002,0.);vec2 grad=vec2(front(uv+e.xy)-front(uv-e.xy),front(uv+e.yx)-front(uv-e.yx))/.004;
+   float edge=exp(-abs(d)*37.);vec2 flow=normalize(grad+vec2(.001))*.028*edge;
+   flow+=vec2(sin(uv.y*80.+uTime*4.),cos(uv.x*60.-uTime*3.))*.003*edge;
+   vec3 a=texture(uA,clamp(uv+flow,0.,1.)).rgb,b=texture(uB,clamp(uv-flow,0.,1.)).rgb;
+   float mask=1.-smoothstep(-.018,.018,d);
+   color=mix(a,b,mask);
+   float bevel=pow(max(dot(normalize(vec3(grad*-.22,1.)),normalize(vec3(-.7,.6,1.))),0.),12.);
+   color+=edge*bevel*vec3(.42,.72,.81)*.65;
+   color=mix(color,color*vec3(.7,.9,1.05),edge*.3);
+   // Thin interference fringes fade away as the surface dries.
+   color+=vec3(.06,.10,.12)*edge*pow(.5+.5*sin(d*400.),8.);
+ }
+ if(uDebug>0){outColor=vec4(color,1.);return;}
+ float exposure=mix(.77,.94,smoothstep(0.,13.,uTime));exposure=mix(exposure,.9,smoothstep(24.,32.,uTime));
+ color=aces(color*exposure);color=pow(color,vec3(1./2.2));
+ float grain=hash(gl_FragCoord.xy+floor(uTime*24.)*vec2(7.,13.))-.5;
+ color+=grain*.013;
+ float vignette=1.-.21*pow(length((uv-.5)*vec2(1.,.78)),1.6);color*=vignette;
+ outColor=vec4(color,1.);
+}
+</script><script>// Deterministic, sample-accurate original procedural sound. No media files.
+function generateAudio(sampleRate=48000,duration=32){
+  const length=Math.floor(sampleRate*duration),left=new Float32Array(length),right=new Float32Array(length);
+  let seed=740921,wind=0,slow=0,water=0;const PI=Math.PI,clamp=x=>Math.max(0,Math.min(1,x));
+  let sumL=0,sumR=0,peak=0,active=0;
+  for(let i=0;i<length;i++){
+    const t=i/sampleRate;seed=(Math.imul(seed,1664525)+1013904223)>>>0;const n=seed/2147483648-1;
+    wind+=(n-wind)*.013;slow+=(n-slow)*.0012;water+=(n-water)*.17;
+    const fade=clamp(t/2)*clamp((32-t)/2),swell=.47+.32*Math.sin(t*.75)+.18*Math.sin(t*.29+.6);
+    const low=Math.sin(2*PI*42*t)*.047+Math.sin(2*PI*56*t+.35*Math.sin(t*.17))*.026;
+    const sea=(water-wind)*(.056+.05*swell)*clamp((26-t)/7);
+    const air=(wind-slow)*(.5+.22*Math.sin(t*.22));
+    const transition=clamp((t-17.5)/2.3)*clamp((26.1-t)/2.8);
+    const sweep=Math.sin(2*PI*(83*t+6*t*t))*.018*transition;
+    let hits=0;for(const hit of [6.8,17.9,24.8]){const d=t-hit;if(d>=0&&d<1.5)hits+=Math.sin(2*PI*(140*d+32*d*d))*Math.exp(-d*5)*.045;}
+    const motion=(water-wind)*transition*.23+sweep;
+    const base=(low+sea+air+motion+hits)*fade;
+    const side=(wind-slow)*Math.sin(t*.41)*.18*fade;
+    const l=Math.tanh((base+side)*1.22)*.75,r=Math.tanh((base-side)*1.22)*.75;
+    left[i]=l;right[i]=r;sumL+=l*l;sumR+=r*r;peak=Math.max(peak,Math.abs(l),Math.abs(r));if(Math.abs(l)>.0001||Math.abs(r)>.0001)active++;
+  }
+  return {left,right,channels:[left,right],sampleRate,duration,metrics:{rmsLeft:Math.sqrt(sumL/length),rmsRight:Math.sqrt(sumR/length),peak,nonSilentFraction:active/length,samples:length,channels:2}};
+}
+</script><script>(() => {
+'use strict';
+const DURATION=32,canvas=document.querySelector('canvas'),status=document.querySelector('#status'),playBtn=document.querySelector('#play'),muteBtn=document.querySelector('#mute'),scrub=document.querySelector('#scrub'),stamp=document.querySelector('#stamp');
+const gl=canvas.getContext('webgl2',{antialias:false,alpha:false,depth:false,powerPreference:'high-performance',preserveDrawingBuffer:true});
+if(!gl){status.textContent='此浏览器没有提供 WebGL2。请用 Chrome / Edge / Safari 打开。';window.__lab={ready:false,error:'WebGL2 unavailable'};return;}
+let viewMode=0;
+let time=0,playing=false,muted=false,startAt=0,frame=0,lastRAF=0,frames=0,maxFrameGap=0,audioContext=null,audioSource=null,gain=null,audioBuffer=null,audioData=null,renderMs=0;
+const vertex=`#version 300 es\nprecision highp float;const vec2 P[3]=vec2[3](vec2(-1,-1),vec2(3,-1),vec2(-1,3));void main(){gl_Position=vec4(P[gl_VertexID],0,1);}`;
+function shader(type,code){const s=gl.createShader(type);gl.shaderSource(s,code);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s;}
+function program(fragment){const p=gl.createProgram(),v=shader(gl.VERTEX_SHADER,vertex),f=shader(gl.FRAGMENT_SHADER,fragment);gl.attachShader(p,v);gl.attachShader(p,f);gl.linkProgram(p);gl.deleteShader(v);gl.deleteShader(f);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p));return p;}
+try {
+ const world=program(document.querySelector('#world-shader').textContent),composite=program(document.querySelector('#composite-shader').textContent);
+ const ext=gl.getExtension('EXT_color_buffer_float'),hdr=!!ext;
+ const uniforms=(p,keys)=>Object.fromEntries(keys.map(k=>[k,gl.getUniformLocation(p,k)]));
+ const w=uniforms(world,['uResolution','uTime','uWorld','uDebug']),c=uniforms(composite,['uResolution','uTime','uMix','uA','uB','uDebug']);
+ const vao=gl.createVertexArray();gl.bindVertexArray(vao);
+ const targets=[];
+ function makeTarget(){const texture=gl.createTexture(),fbo=gl.createFramebuffer();gl.bindTexture(gl.TEXTURE_2D,texture);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);return {texture,fbo};}
+ targets.push(makeTarget(),makeTarget());
+ function resize(){const css=canvas.getBoundingClientRect(),width=Math.min(960,Math.max(480,Math.round(css.width)));canvas.width=width;canvas.height=Math.round(width*9/16);for(const target of targets){gl.bindTexture(gl.TEXTURE_2D,target.texture);gl.texImage2D(gl.TEXTURE_2D,0,hdr?gl.RGBA16F:gl.RGBA,canvas.width,canvas.height,0,gl.RGBA,hdr?gl.HALF_FLOAT:gl.UNSIGNED_BYTE,null);gl.bindFramebuffer(gl.FRAMEBUFFER,target.fbo);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,target.texture,0);if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE)throw new Error('Render target incomplete');}gl.bindFramebuffer(gl.FRAMEBUFFER,null);render(time);}
+ const smooth=(a,b,t)=>{t=Math.max(0,Math.min(1,(t-a)/(b-a)));return t*t*(3-2*t);};
+ const phase=t=>t<8?'暗海 / 太阳升起':t<18?'海面 / 光照展开':t<26?'水洗 / 双纹理折射':'矿物 / 新的环境';
+ function render(t){
+   const tick=performance.now(),mix=smooth(18,26,t);gl.viewport(0,0,canvas.width,canvas.height);gl.disable(gl.DEPTH_TEST);gl.useProgram(world);gl.uniform2f(w.uResolution,canvas.width,canvas.height);gl.uniform1f(w.uTime,t);gl.uniform1i(w.uDebug,viewMode);
+   for(let i=0;i<2;i++){if((i===1&&mix<=0)||(i===0&&mix>=1))continue;gl.bindFramebuffer(gl.FRAMEBUFFER,targets[i].fbo);gl.uniform1i(w.uWorld,i);gl.drawArrays(gl.TRIANGLES,0,3);}
+   gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.useProgram(composite);gl.uniform2f(c.uResolution,canvas.width,canvas.height);gl.uniform1f(c.uTime,t);gl.uniform1f(c.uMix,mix);gl.uniform1i(c.uDebug,viewMode);
+   targets.forEach((target,i)=>{gl.activeTexture(gl.TEXTURE0+i);gl.bindTexture(gl.TEXTURE_2D,target.texture);});gl.uniform1i(c.uA,0);gl.uniform1i(c.uB,1);gl.drawArrays(gl.TRIANGLES,0,3);gl.flush();
+   scrub.value=t;stamp.textContent=`${t.toFixed(1).padStart(4,'0')} / 32.0`;document.querySelector('#phase').textContent=phase(t);renderMs=performance.now()-tick;
+ }
+ function stopSound(){if(audioSource){try{audioSource.stop();}catch{}audioSource.disconnect();audioSource=null;}}
+ function ensureAudio(){if(audioContext)return;audioContext=new (window.AudioContext||window.webkitAudioContext)();gain=audioContext.createGain();gain.gain.value=muted?0:.8;gain.connect(audioContext.destination);audioData=generateAudio(audioContext.sampleRate,DURATION);audioBuffer=audioContext.createBuffer(2,audioData.left.length,audioContext.sampleRate);audioBuffer.copyToChannel(audioData.left,0);audioBuffer.copyToChannel(audioData.right,1);}
+ function startSound(){stopSound();if(!audioContext||time>=DURATION)return;audioSource=audioContext.createBufferSource();audioSource.buffer=audioBuffer;audioSource.connect(gain);audioSource.start(0,time);}
+ function pause(){playing=false;cancelAnimationFrame(frame);stopSound();playBtn.textContent='▶ 播放';document.body.classList.remove('playing');}
+ async function play(){if(playing)return;cancelAnimationFrame(frame);document.querySelector('#start').hidden=true;ensureAudio();await audioContext.resume();if(time>=DURATION)time=0;playing=true;startAt=performance.now()-time*1000;lastRAF=performance.now();startSound();playBtn.textContent='Ⅱ 暂停';document.body.classList.add('playing');status.hidden=true;frame=requestAnimationFrame(loop);}
+ function loop(now){if(!playing)return;maxFrameGap=Math.max(maxFrameGap,now-lastRAF);lastRAF=now;frames++;time=Math.min(DURATION,(now-startAt)/1000);render(time);if(time>=DURATION){pause();return;}frame=requestAnimationFrame(loop);}
+ function seek(seconds){pause();time=Math.max(0,Math.min(DURATION,Number(seconds)||0));render(time);return getState();}
+ function getState(){return {ready:true,duration:DURATION,viewMode,time,playing,muted,audioUnlocked:!!audioContext,audioState:audioContext?.state||'locked',phase:phase(time),transition:smooth(18,26,time),sunElevation:-.055+.535*smooth(0,31,time),size:[canvas.width,canvas.height],hdr,frames,maxFrameGap,renderMs,glError:gl.getError(),reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches};}
+ function setMuted(value){muted=!!value;if(gain)gain.gain.setTargetAtTime(muted?0:.8,audioContext.currentTime,.04);muteBtn.textContent=muted?'声音 关':'声音 开';muteBtn.setAttribute('aria-pressed',String(muted));}
+ function setViewMode(mode){viewMode=Math.max(0,Math.min(2,Math.floor(mode)));document.querySelector('#view').textContent=['视图·合成','视图·法线','视图·材质'][viewMode];render(time);return viewMode;}
+ document.querySelector('#view').onclick=()=>setViewMode((viewMode+1)%3);
+ playBtn.onclick=()=>playing?pause():play();muteBtn.onclick=()=>setMuted(!muted);
+ document.querySelector('#full').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
+ document.querySelector('#start').onclick=()=>{document.querySelector('#start').hidden=true;play();};
+ scrub.oninput=()=>seek(scrub.value);
+ canvas.onclick=()=>playing?pause():play();
+ document.addEventListener('keydown',e=>{if(e.target.matches('input'))return;if(e.code==='Space'){e.preventDefault();playing?pause():play();}if(e.key.toLowerCase()==='m')setMuted(!muted);if(e.key.toLowerCase()==='d')setViewMode((viewMode+1)%3);if(e.key==='ArrowRight')seek(time+1);if(e.key==='ArrowLeft')seek(time-1);});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden&&playing)pause();});
+ window.addEventListener('resize',resize);
+ canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();pause();status.hidden=false;status.textContent='图形上下文已丢失，请刷新重开。';});
+ window.__lab={ready:true,duration:DURATION,seek,play,pause,getState,setMuted,setViewMode,renderAudioOffline:(seconds=DURATION,sampleRate=48000)=>generateAudio(sampleRate,Math.min(DURATION,Math.max(.1,seconds))),get audioMetrics(){return audioData?.metrics||null;}};
+ resize();window.ready=true;
+} catch(error){status.textContent=`素材实验载入失败：${error.message}`;console.error(error);window.__lab={ready:false,error:error.message};}
+})();
+</script></body></html>

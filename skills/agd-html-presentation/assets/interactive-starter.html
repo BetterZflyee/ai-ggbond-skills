@@ -1,0 +1,193 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#08111a"><title>__TOPIC_HTML__</title><style>
+:root{font-family:"PingFang SC",system-ui,sans-serif;color:#eee8da;background:#05090e;color-scheme:dark}*{box-sizing:border-box}body{margin:0;overflow:hidden}main{height:100dvh;display:grid;place-items:center}main:after{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(0deg,#02080fe0,transparent 56%),linear-gradient(180deg,#02080f6e,transparent 23%)}canvas{width:100vw;height:100dvh;display:block;touch-action:none;cursor:grab}canvas.dragging{cursor:grabbing}canvas:focus{outline:none}#caption{position:fixed;bottom:14vh;left:7vw;max-width:38em;pointer-events:none;text-shadow:0 2px 18px #0009;transition:opacity .22s}h1{font-size:clamp(30px,4vw,64px);font-weight:500;line-height:1.2;margin:0 0 18px}#copy{font-size:clamp(15px,1.3vw,21px);line-height:1.75;color:#eee8dde8;max-width:30em}#status{position:fixed;left:7vw;top:17vh;font-size:14px;line-height:1.8;max-width:75vw;white-space:pre-line}#status[hidden]{display:none}@media(max-width:650px){#caption{left:25px;right:25px;bottom:12vh}h1{font-size:32px}#copy{font-size:15px}#status{top:14vh;left:24px}}@media(prefers-reduced-motion:reduce){#caption{transition:none}}
+</style></head><body><main><canvas tabindex="0" aria-label="光与材料的交互世界"></canvas></main><section id="caption"><h1 id="headline">__TOPIC_HTML__</h1><p id="copy">从一束光，进入两种材料的世界。</p></section><p id="status" role="alert" hidden></p>
+<script id="world-shader" type="x-shader/x-fragment">#version 300 es
+precision highp float;
+out vec4 outColor;
+uniform vec2 uResolution;
+uniform float uTime;
+uniform float uClock;
+uniform vec2 uOrbit;
+uniform float uLight;
+uniform int uWorld;
+uniform int uDebug;
+#define PI 3.14159265359
+float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453123);}
+float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+1.),f.x),f.y);}
+float fbm(vec2 p){float v=0.,a=.5;mat2 m=mat2(.8,-.6,.6,.8);for(int i=0;i<4;i++){v+=a*noise(p);p=m*p*2.03+13.7;a*=.5;}return v;}
+float hSea(vec2 p){return .18*sin(p.x*.63+uClock*.55)+.14*sin(p.y*.48-uClock*.66)+.09*sin(p.x*1.12+p.y*.91+uClock*.7)+.035*sin(p.x*2.3-p.y*1.9+uClock*1.25);}
+float hStone(vec2 p){float f=fbm(p*.16),ridge=1.-abs(f*2.-1.);return .3+3.6*pow(ridge,3.)+1.5*fbm(p*.37+4.)+.3*sin(p.x*.48+p.y*.13);}
+float heightAt(vec2 p){return uWorld==0?hSea(p):hStone(p);}
+vec3 sunDir(){float a=mix(-.055,.48,uLight);return normalize(vec3(-.37,a,-.9));}
+vec3 sky(vec3 rd, bool reflected){
+ vec3 sun=sunDir();float day=smoothstep(-.08,.28,sun.y),h=max(0.,rd.y);
+ vec3 zen=mix(vec3(.014,.025,.065),vec3(.08,.26,.43),day);
+ vec3 horizon=mix(vec3(.095,.045,.060),vec3(.84,.61,.39),day);
+ horizon=mix(horizon,vec3(.36,.55,.64),smoothstep(9.,19.,uTime)*.82);
+ if(uWorld==1){zen=mix(zen,vec3(.27,.38,.41),.37);horizon=mix(horizon,vec3(.92,.68,.42),.3);}
+ vec3 col=mix(horizon,zen,pow(h,.4));
+ float d=max(dot(rd,sun),0.);vec3 hot=vec3(1.,.58,.28);
+ col+=hot*pow(d,7.)*.32+hot*pow(d,110.)*.75;
+ col+=vec3(1.,.88,.59)*smoothstep(.99942,.9997,d)*4.8*smoothstep(-.015,.025,sun.y);
+ if(rd.y>0.){
+   vec2 cp=rd.xz/(rd.y+.22)*1.45+vec2(uClock*.018,0.);
+   float cloud=smoothstep(.49,.75,fbm(cp));
+   cloud*=smoothstep(.015,.15,rd.y)*(1.-smoothstep(.6,.95,rd.y));
+   col=mix(col,mix(vec3(.25,.23,.27),vec3(.92,.76,.56),day),cloud*.4);
+   float star=pow(hash(floor(rd.xz/(rd.y+.15)*550.)),170.);
+   col+=star*.3*(1.-day);
+ }
+ return col;
+}
+vec3 normalAt(vec2 p,float distance){float e=max(.035,distance*.001);vec3 n=normalize(vec3(heightAt(p-vec2(e,0))-heightAt(p+vec2(e,0)),2.*e,heightAt(p-vec2(0,e))-heightAt(p+vec2(0,e))));if(uWorld==0){n.x+=.06*sin(p.x*12.+uClock*1.6)*sin(p.y*8.-uClock);n.z+=.045*cos(p.x*9.-p.y*13.+uClock*1.2);n=normalize(n);}return n;}
+void main(){
+ vec2 uv=(gl_FragCoord.xy-.5*uResolution)/uResolution.y;
+ float t=uTime;float rise=smoothstep(12.,32.,t);
+ vec3 ro=vec3(sin(t*.055)*2.2,mix(3.3,7.9,rise),12.-t*.58);
+ ro.x+=sin(uOrbit.x)*3.;ro.y+=uOrbit.y*2.;
+ vec3 target=ro+vec3(-.13+sin(uOrbit.x)*.7,-mix(.19,.37,rise)+uOrbit.y*.4,-cos(uOrbit.x));
+ vec3 ww=normalize(target-ro),uu=normalize(cross(ww,vec3(0,1,0))),vv=cross(uu,ww);
+ float roll=.006*sin(uClock*.17);uv=mat2(cos(roll),-sin(roll),sin(roll),cos(roll))*uv;
+ vec3 rd=normalize(ww*1.33+uu*uv.x+vv*uv.y);
+ vec3 col=sky(rd,false);float dist=.3,previous=.3;bool hit=false;
+ if(uWorld==0&&rd.y<-.001)dist=max(.3,(.46-ro.y)/rd.y);
+ for(int i=0;i<58;i++){
+   if(dist>130.)break;
+   vec3 p=ro+rd*dist;float h=p.y-heightAt(p.xz);
+   if(h<.014){hit=true;break;}
+   previous=dist;dist+=clamp(h*.62,.07,3.4);
+   if(dist>130.)break;
+ }
+ if(hit){
+   // Binary refine the crossing for a stable silhouette at shallow ray angles.
+   float hi=dist,lo=previous;for(int i=0;i<4;i++){float m=(hi+lo)*.5;vec3 p=ro+rd*m;if(p.y<heightAt(p.xz))hi=m;else lo=m;}dist=(hi+lo)*.5;
+   vec3 p=ro+rd*dist,n=normalAt(p.xz,dist),sun=sunDir();
+   float day=smoothstep(-.08,.28,sun.y),nd=max(dot(n,sun),0.);
+   vec3 reflection=reflect(rd,n);float spec=pow(max(dot(reflection,sun),0.),uWorld==0?260.:38.);
+   if(uWorld==0){
+     float fr=.045+.955*pow(1.-max(dot(-rd,n),0.),5.);
+     vec3 under=mix(vec3(.006,.025,.043),vec3(.006,.105,.14),day);
+     col=mix(under*(.55+nd*.65),sky(reflection,true),clamp(fr+.10,0.,1.));
+     col+=vec3(1.,.67,.3)*spec*(3.+day*5.);
+     float crest=smoothstep(.265,.37,hSea(p.xz))*smoothstep(.61,.85,noise(p.xz*12.));
+     col+=vec3(.35,.48,.44)*crest*.22;
+   }else{
+     float veins=sin(p.y*15.+noise(p.xz*.7)*5.);float sand=fbm(p.xz*2.1);
+     vec3 albedo=mix(vec3(.27,.13,.085),vec3(.66,.43,.23),sand);
+     albedo*=.86+.12*veins;
+     float slope=1.-max(n.y,0.);albedo=mix(albedo,vec3(.19,.16,.13),slope*.43);
+     col=albedo*(vec3(.24,.31,.35)*(.45+.55*n.y)+vec3(1.2,.84,.49)*nd*1.6);
+     col+=vec3(.85,.67,.42)*spec*.13;
+     float dust=pow(noise(p.xz*18.),14.);col+=dust*nd*.16;
+   }
+   if(uDebug==1){outColor=vec4(n*.5+.5,1.);return;}
+   if(uDebug==2){outColor=vec4(uWorld==0?vec3(.015,.15,.18):mix(vec3(.27,.13,.085),vec3(.66,.43,.23),fbm(p.xz*2.1)),1.);return;}
+   float fog=1.-exp(-dist*(uWorld==0?.027:.030));
+   vec3 haze=sky(normalize(vec3(rd.x,.025,rd.z)),false);
+   if(uWorld==0)haze*=mix(vec3(1.),vec3(.52,.78,.95),smoothstep(7.,18.,uTime))*.78;
+   col=mix(col,haze,fog);
+   if(uWorld==0)col=mix(col,sky(rd,false),smoothstep(45.,105.,dist));
+ }
+ if(uDebug==1&&!hit)col=vec3(.08);
+ col*=mix(.38,1.,smoothstep(0.,11.,uTime));
+ outColor=vec4(max(col,vec3(0)),1.);
+}
+</script><script id="composite-shader" type="x-shader/x-fragment">#version 300 es
+precision highp float;
+out vec4 outColor;
+uniform sampler2D uA;
+uniform sampler2D uB;
+uniform vec2 uResolution;
+uniform float uTime;
+uniform float uMix;
+uniform int uDebug;
+float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453123);}
+float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+1.),f.x),f.y);}
+float fbm(vec2 p){float a=.5,v=0.;for(int i=0;i<4;i++){v+=a*noise(p);p=p*2.01+7.7;a*=.5;}return v;}
+float front(vec2 uv){return uv.x*.72+uv.y*.35+fbm(uv*7.+vec2(0.,uTime*.1))*.22+.045*sin(uv.y*25.+uTime*.7);}
+vec3 aces(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.);}
+void main(){
+ vec2 uv=gl_FragCoord.xy/uResolution;
+ vec3 color;
+ if(uMix<.001)color=texture(uA,uv).rgb;
+ else if(uMix>.999)color=texture(uB,uv).rgb;
+ else {
+   // A moving liquid meniscus. The front is a domain-warped scalar field;
+   // its gradient bends both complete environment textures before compositing.
+   float f=front(uv),threshold=mix(-.3,1.6,uMix),d=f-threshold;
+   vec2 e=vec2(.002,0.);vec2 grad=vec2(front(uv+e.xy)-front(uv-e.xy),front(uv+e.yx)-front(uv-e.yx))/.004;
+   float edge=exp(-abs(d)*37.);vec2 flow=normalize(grad+vec2(.001))*.028*edge;
+   flow+=vec2(sin(uv.y*80.+uTime*4.),cos(uv.x*60.-uTime*3.))*.003*edge;
+   vec3 a=texture(uA,clamp(uv+flow,0.,1.)).rgb,b=texture(uB,clamp(uv-flow,0.,1.)).rgb;
+   float mask=1.-smoothstep(-.018,.018,d);
+   color=mix(a,b,mask);
+   float bevel=pow(max(dot(normalize(vec3(grad*-.22,1.)),normalize(vec3(-.7,.6,1.))),0.),12.);
+   color+=edge*bevel*vec3(.42,.72,.81)*.65;
+   color=mix(color,color*vec3(.7,.9,1.05),edge*.3);
+   // Thin interference fringes fade away as the surface dries.
+   color+=vec3(.06,.10,.12)*edge*pow(.5+.5*sin(d*400.),8.);
+ }
+ if(uDebug>0){outColor=vec4(color,1.);return;}
+ float exposure=mix(.77,.94,smoothstep(0.,13.,uTime));exposure=mix(exposure,.9,smoothstep(24.,32.,uTime));
+ color=aces(color*exposure);color=pow(color,vec3(1./2.2));
+ float grain=hash(gl_FragCoord.xy+floor(uTime*24.)*vec2(7.,13.))-.5;
+ color+=grain*.013;
+ float vignette=1.-.21*pow(length((uv-.5)*vec2(1.,.78)),1.6);color*=vignette;
+ outColor=vec4(color,1.);
+}
+</script>
+<script id="agd-audio-runtime">__AUDIO_RUNTIME__</script>
+<script>(()=>{
+'use strict';
+const canvas=document.querySelector('canvas'),status=document.querySelector('#status');
+const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n)),ease=x=>{x=clamp(x);return x*x*(3-2*x);};
+const beats=[{t:5,light:.18,title:document.querySelector('#headline').textContent,copy:'从一束光，进入两种材料的世界。'},{t:14,light:.7,title:'看见水的表面',copy:'法线托起反射，微小波峰接住一整片天空。'},{t:27,light:.85,title:'跨过同一层水膜',copy:'前后两个世界同时存在，由有厚度的水膜接住这次切换。'},{t:31,light:.66,title:'另一种尺度',copy:'同一束光落在矿物地形上，显出沉积、褶皱与层次。'}];
+const audio=globalThis.AGDInteractiveAudio.create({scenes:[{id:'sea',tones:[110,165,220],noiseGain:.055,cutoff:2400,beatSound:'paper',transitionSound:'air'},{id:'stone',tones:[82.407,123.61,164.814],noiseGain:.028,cutoff:1700,beatSound:'glass',transitionSound:'air'}],controls:[{scene:'sea',input:'light',target:'cutoff',min:800,max:4200},{scene:'stone',input:'light',target:'cutoff',min:700,max:3000}]});
+let audioError=null,motionSerial=0,hiddenAt=null;
+function unlockAudio(){return audio.unlock().catch(e=>{audioError=String(e.message||e);return false;});}
+const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let ready=false,error=null,frame=0,frames=0,lastNow=0,maxFrameGap=0,clock=0,story=beats[0].t,light=beats[0].light,targetBeat=0,settledBeat=0,journey=null,orbit={x:0,y:0},hover={x:0,y:0},lightOwner='scene',cameraOwner='scene',activePointer=null,wheelAt=-Infinity,renderMs=0,hdr=false;
+const gl=canvas.getContext('webgl2',{antialias:false,alpha:false,depth:false,powerPreference:'high-performance',preserveDrawingBuffer:true});
+const state=()=>({ready,error,beat:settledBeat,targetBeat,beatCount:beats.length,storyTime:story,environmentTime:clock,transition:journey?journey.progress:1,moving:!!journey,orbit:{...orbit},light,lightOwner,cameraOwner,pointerActive:!!activePointer,frames,maxFrameGap,renderMs,size:[canvas.width,canvas.height],hdr,reducedMotion,audio:audio.getState(),audioError,glError:gl?gl.getError():null});
+window.__presentation={get ready(){return ready;},next:()=>goTo(targetBeat+1),previous:()=>goTo(targetBeat-1),goTo,getState:state,unlockAudio,setMuted:value=>audio.setMuted(value),renderAudioOffline:spec=>audio.renderOffline(spec)};
+window.__deck=window.__presentation;
+function updateCopy(){const b=beats[targetBeat];document.querySelector('#headline').textContent=b.title;document.querySelector('#copy').textContent=b.copy;}
+function goTo(index,options={}){if(!ready)return state();index=Math.round(clamp(Number(index)||0,0,beats.length-1));const previousTarget=targetBeat;targetBeat=index;lightOwner='scene';const b=beats[index];if(options.immediate||reducedMotion){story=b.t;light=b.light;journey=null;settledBeat=index;}else journey={id:++motionSerial,reverse:index<previousTarget,start:performance.now(),fromStory:story,toStory:b.t,fromLight:light,toLight:b.light,progress:0};updateCopy();return state();}
+function showError(e){error=String(e.message||e);ready=false;cancelAnimationFrame(frame);status.hidden=false;status.textContent='空间暂时无法建立：'+error;console.error(e);}
+if(!gl){showError('WebGL2不可用，请用支持WebGL2的浏览器打开。');return;}
+const vertex=`#version 300 es
+precision highp float;const vec2 P[3]=vec2[3](vec2(-1,-1),vec2(3,-1),vec2(-1,3));void main(){gl_Position=vec4(P[gl_VertexID],0,1);}`;
+function shader(type,code){const s=gl.createShader(type);gl.shaderSource(s,code);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;}
+function program(code){const p=gl.createProgram(),v=shader(gl.VERTEX_SHADER,vertex),f=shader(gl.FRAGMENT_SHADER,code);gl.attachShader(p,v);gl.attachShader(p,f);gl.linkProgram(p);gl.deleteShader(v);gl.deleteShader(f);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));return p;}
+(async()=>{try{
+ await new Promise(r=>requestAnimationFrame(()=>setTimeout(r,0)));
+ const world=program(document.querySelector('#world-shader').textContent);
+ await new Promise(r=>requestAnimationFrame(()=>setTimeout(r,0)));
+ const composite=program(document.querySelector('#composite-shader').textContent);hdr=!!gl.getExtension('EXT_color_buffer_float');
+ const uniforms=(p,keys)=>Object.fromEntries(keys.map(k=>[k,gl.getUniformLocation(p,k)]));
+ const w=uniforms(world,['uResolution','uTime','uClock','uOrbit','uLight','uWorld','uDebug']),c=uniforms(composite,['uResolution','uTime','uMix','uA','uB','uDebug']);
+ gl.bindVertexArray(gl.createVertexArray());
+ const targets=[0,1].map(()=>{const texture=gl.createTexture(),fbo=gl.createFramebuffer();gl.bindTexture(gl.TEXTURE_2D,texture);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);return{texture,fbo};});
+ function resize(){const r=canvas.getBoundingClientRect(),scale=Math.min(1,1080/Math.max(r.width,1));canvas.width=Math.max(1,Math.round(r.width*scale));canvas.height=Math.max(1,Math.round(r.height*scale));for(const t of targets){gl.bindTexture(gl.TEXTURE_2D,t.texture);gl.texImage2D(gl.TEXTURE_2D,0,hdr?gl.RGBA16F:gl.RGBA,canvas.width,canvas.height,0,gl.RGBA,hdr?gl.HALF_FLOAT:gl.UNSIGNED_BYTE,null);gl.bindFramebuffer(gl.FRAMEBUFFER,t.fbo);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,t.texture,0);if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE)throw Error('离屏纹理建立失败');}gl.bindFramebuffer(gl.FRAMEBUFFER,null);}
+ function render(){const begin=performance.now(),mix=ease((story-18)/8);audio.update({scene:0,nextScene:1,blend:mix,targetScene:beats[targetBeat].t>=26?1:0,beat:targetBeat,motionId:journey?.id??motionSerial,motionProgress:journey?.progress??1,motionDuration:1.35,crossScene:!!journey&&((journey.fromStory<=18&&journey.toStory>=26)||(journey.fromStory>=26&&journey.toStory<=18)),reverse:journey?.reverse??false,environmentTime:clock,input:{light,orbitX:orbit.x}});gl.viewport(0,0,canvas.width,canvas.height);gl.disable(gl.DEPTH_TEST);gl.useProgram(world);gl.uniform2f(w.uResolution,canvas.width,canvas.height);gl.uniform1f(w.uTime,story);gl.uniform1f(w.uClock,clock);gl.uniform2f(w.uOrbit,orbit.x+hover.x,orbit.y+hover.y);gl.uniform1f(w.uLight,light);gl.uniform1i(w.uDebug,0);for(let i=0;i<2;i++){if((i===1&&mix<=0)||(i===0&&mix>=1))continue;gl.bindFramebuffer(gl.FRAMEBUFFER,targets[i].fbo);gl.uniform1i(w.uWorld,i);gl.drawArrays(gl.TRIANGLES,0,3);}gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.useProgram(composite);gl.uniform2f(c.uResolution,canvas.width,canvas.height);gl.uniform1f(c.uTime,story);gl.uniform1f(c.uMix,mix);gl.uniform1i(c.uDebug,0);targets.forEach((t,i)=>{gl.activeTexture(gl.TEXTURE0+i);gl.bindTexture(gl.TEXTURE_2D,t.texture);});gl.uniform1i(c.uA,0);gl.uniform1i(c.uB,1);gl.drawArrays(gl.TRIANGLES,0,3);renderMs=performance.now()-begin;document.querySelector('#caption').style.opacity=journey?String(.55+.45*Math.abs(journey.progress*2-1)):'1';}
+ function tick(now){try{const dt=lastNow?clamp((now-lastNow)/1000,0,.05):0;if(lastNow)maxFrameGap=Math.max(maxFrameGap,now-lastNow);lastNow=now;clock+=reducedMotion?0:dt;frames++;if(journey){journey.progress=clamp((now-journey.start)/1350);const p=ease(journey.progress);story=journey.fromStory+(journey.toStory-journey.fromStory)*p;if(lightOwner!=='user')light=journey.fromLight+(journey.toLight-journey.fromLight)*p;if(journey.progress>=1){settledBeat=targetBeat;journey=null;}}render();frame=requestAnimationFrame(tick);}catch(e){showError(e);}}
+ function sunTarget(){
+  const r=canvas.getBoundingClientRect(),o={x:orbit.x+hover.x,y:orbit.y+hover.y};
+  const smooth=(a,b,x)=>ease((x-a)/(b-a)),rise=smooth(12,32,story);
+  const normalize=v=>{const d=Math.hypot(...v)||1;return v.map(n=>n/d);},dot=(a,b)=>a.reduce((sum,v,i)=>sum+v*b[i],0),cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+  const ww=normalize([-.13+Math.sin(o.x)*.7,-(.19+(.37-.19)*rise)+o.y*.4,-Math.cos(o.x)]),uu=normalize(cross(ww,[0,1,0])),vv=cross(uu,ww),sun=normalize([-.37,-.055+.535*light,-.9]),f=dot(sun,ww);
+  const roll=.006*Math.sin(clock*.17),u=dot(sun,uu)/f*1.33,v=dot(sun,vv)/f*1.33,px=Math.cos(roll)*u-Math.sin(roll)*v,py=Math.sin(roll)*u+Math.cos(roll)*v,x=r.left+r.width*.5+px*r.height,y=r.top+r.height*.5-py*r.height;
+  return{x,y,radius:28,visible:f>0&&sun[1]>.001&&x>0&&x<r.right&&y>0&&y<r.bottom};
+ }
+ window.__presentation.getState=()=>({...state(),contentTargets:{sun:sunTarget()}});
+ canvas.addEventListener('pointerdown',e=>{if(e.button!==0)return;const sun=sunTarget(),role=sun.visible&&Math.hypot(e.clientX-sun.x,e.clientY-sun.y)<sun.radius?'light':'camera';activePointer={id:e.pointerId,x:e.clientX,y:e.clientY,orbit:{...orbit},light,role,moved:false,at:performance.now()};if(role==='light')lightOwner='user';else cameraOwner='user';canvas.setPointerCapture(e.pointerId);canvas.classList.add('dragging');canvas.focus({preventScroll:true});});
+ canvas.addEventListener('pointermove',e=>{if(activePointer?.id===e.pointerId){if(!activePointer.moved&&Math.hypot(e.clientX-activePointer.x,e.clientY-activePointer.y)>6){activePointer.moved=true;audio.trigger(activePointer.role==='light'?'glass':'air',{gain:.1,pan:clamp(orbit.x,-1,1)});}if(activePointer.role==='light')light=clamp(activePointer.light+(activePointer.y-e.clientY)/250);else{orbit.x=clamp(activePointer.orbit.x+(e.clientX-activePointer.x)*.0035,-1.15,1.15);orbit.y=clamp(activePointer.orbit.y-(e.clientY-activePointer.y)*.002,-.35,.35);}}else if(!activePointer){const r=canvas.getBoundingClientRect();hover.x=((e.clientX-r.left)/r.width-.5)*.05;hover.y=(.5-(e.clientY-r.top)/r.height)*.035;canvas.style.cursor=sunTarget().visible&&Math.hypot(e.clientX-sunTarget().x,e.clientY-sunTarget().y)<28?'ns-resize':'grab';}});
+ const release=e=>{if(activePointer?.id===e.pointerId){const p=activePointer;activePointer=null;canvas.classList.remove('dragging');if(e.type==='pointerup'&&p.role==='camera'&&!p.moved&&performance.now()-p.at<600)goTo(targetBeat+1);}};canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);canvas.addEventListener('lostpointercapture',release);canvas.addEventListener('pointerleave',()=>{hover.x=hover.y=0;});
+ canvas.addEventListener('contextmenu',e=>{e.preventDefault();goTo(targetBeat-1);});
+ window.addEventListener('wheel',e=>{if(Math.abs(e.deltaY)<8||activePointer)return;e.preventDefault();const now=performance.now();if(now-wheelAt<650)return;wheelAt=now;goTo(targetBeat+Math.sign(e.deltaY));},{passive:false});
+ document.addEventListener('keydown',e=>{if(e.key.toLowerCase()==='m'&&!e.metaKey&&!e.ctrlKey&&!e.altKey){audio.setMuted(!audio.getState().muted);return;}if(e.target.closest('button,input,a,[contenteditable]'))return;if(['ArrowRight','ArrowLeft',' '].includes(e.key)){e.preventDefault();goTo(targetBeat+(e.key==='ArrowLeft'?-1:1));}});
+ document.addEventListener('pointerdown',unlockAudio,{capture:true});document.addEventListener('keydown',e=>{if(!e.metaKey&&!e.ctrlKey&&!e.altKey&&e.key.length===1||['ArrowLeft','ArrowRight'].includes(e.key))unlockAudio();},{capture:true});
+ document.addEventListener('visibilitychange',()=>{audio.setActive(!document.hidden);cancelAnimationFrame(frame);lastNow=0;if(document.hidden)hiddenAt=performance.now();else{if(hiddenAt!==null&&journey)journey.start+=performance.now()-hiddenAt;hiddenAt=null;frame=requestAnimationFrame(tick);}});window.addEventListener('pagehide',()=>audio.setActive(false));window.addEventListener('pageshow',()=>audio.setActive(!document.hidden));window.addEventListener('resize',resize);canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();showError('图形上下文已丢失，请刷新重开。');});
+ resize();ready=true;updateCopy();render();status.hidden=true;window.ready=true;frame=requestAnimationFrame(tick);
+}catch(e){showError(e);}})();
+})();</script></body></html>

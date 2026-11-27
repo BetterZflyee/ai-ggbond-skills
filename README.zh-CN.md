@@ -30,6 +30,7 @@
 
 | 技能 | 分类 | 核心能力 |
 |:---|:---|:---|
+| [`agd-html-presentation`](skills/agd-html-presentation) | 🎬 交互演示 | 只给主题：场景因果、镜头光影、极简直接交互、状态声音与独立HTML交付 |
 | `ai-ggbond-article-writer` | 📝 创作 | 公众号长文全流水线：选题→大纲→初稿→排版→配图→发布 |
 | `ai-ggbond-post-to-wechat` | 🚀 发布 | 一键推送微信公众号草稿箱，API + Browser CDP 双模式 |
 | `ai-ggbond-sticker-writer` | 🎨 创作 | v3：研究与短文案、杂志式连续多图、图片核对、原生贴图交接及长文信息卡复用 |
@@ -580,6 +581,7 @@ hermes skills list | grep publish-to-x
 
 | 日期 | 里程碑 |
 |:---|:---|
+| 2026-11-27 | 新增 `agd-html-presentation` 2.3.1：交互音画HTML、可复用程序声景，49项浏览器检查与7项构建契约检查通过。 |
 | 2026-11-20 | `ai-ggbond-sticker-writer` v3 + 新增 `ai-ggbond-wechat-layout` v2.1：杂志默认、图片核对与页序、语义组件复用、手机预览、原生 `newspic` 发布适配和备份安装。本地测试通过；实际生图、微信账号与真机验收单独记录。 |
 | 2026-11-16 | 📈 `ai-ggbond-x-followings-feed` v1.9 — 新增**传播指数门槛**：X 热度 + 中文热榜 + Wikipedia + HN 合成 0–100；默认 **80**，只有 S 级选题进入发布池；付费增强（NewsWhip/BuzzSumo）写入 references |
 | 2026-11-14 | 🔥 `ai-ggbond-x-followings-feed` v1.8 — 选题标准改为**热度优先**（互动量 + 账号基线加权）、For You + 关注流**双源抓取**、新增「🌋 全站热榜」栏目、明确不做跨天去重 |
